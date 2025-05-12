@@ -48,7 +48,7 @@ export const TaggedItem = ({
           size="sm"
           variant="flat"
         >
-          <span className="text-[10px]">{methodUpper}</span>
+          <span className="text-[10px] flex">{methodUpper}</span>
         </Chip>
 
         {/* Operation title */}
