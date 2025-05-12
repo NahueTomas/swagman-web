@@ -53,8 +53,8 @@ export default function SpecificationPage() {
   const tagCount = spec.getTagList().length;
 
   return (
-    <div className="p-8 transition-all duration-200 h-full flex flex-col gap-8 overflow-auto">
-      <div className="transition-all duration-200">
+    <div className="p-8 transition-all duration-250 h-full flex flex-col gap-8 overflow-auto">
+      <div className="transition-all duration-250">
         <div className="flex flex-wrap justify-between items-start gap-4">
           <div className="flex-1">
             <div className="flex items-start gap-3 flex-wrap">

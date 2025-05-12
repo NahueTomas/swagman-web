@@ -24,7 +24,7 @@ export const Collapse = ({
   active,
   className = "",
   variant = "slide-fade",
-  duration = 300,
+  duration = 250,
 }: CollapseProps) => {
   const contentRef = useRef<HTMLDivElement>(null);
   const [height, setHeight] = useState<string>(active ? "auto" : "0px");
@@ -147,7 +147,7 @@ export const Collapse = ({
       <div
         className={
           variant === "zoom" || variant === "bounce"
-            ? "transform transition-transform duration-300"
+            ? "transform transition-transform duration-250"
             : ""
         }
       >

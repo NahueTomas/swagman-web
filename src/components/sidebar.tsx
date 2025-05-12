@@ -190,18 +190,20 @@ export const Sidebar = React.memo(({ className }: SidebarProps) => {
 
       <Divider orientation="vertical" />
 
-      <Resizable axis="x" defaultWidth={300}>
-        <Card
-          className={clsx(
-            "flex flex-col h-full space-y-3 bg-content1 bg-opacity-15",
-            className
-          )}
-          radius="none"
-          shadow="none"
-        >
-          <SidebarTagList className="overflow-y-auto h-full" />
-        </Card>
-      </Resizable>
+      {isOperationsPage && (
+        <Resizable axis="x" defaultWidth={300}>
+          <Card
+            className={clsx(
+              "flex flex-col h-full space-y-3 bg-content1 bg-opacity-15",
+              className
+            )}
+            radius="none"
+            shadow="none"
+          >
+            <SidebarTagList className="overflow-y-auto h-full" />
+          </Card>
+        </Resizable>
+      )}
     </aside>
   );
 });
