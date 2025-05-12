@@ -41,7 +41,10 @@ export const CardMd = ({
   }, [markdown]);
 
   return (
-    <Card className={`p-4 marked-${size} ${className}`}>
+    <Card
+      className={`p-4 border border-divider bg-content1 bg-opacity-15 marked-${size} ${className}`}
+      shadow="none"
+    >
       <div dangerouslySetInnerHTML={{ __html: parsedMarkdown }} />
     </Card>
   );
