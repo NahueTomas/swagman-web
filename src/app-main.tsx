@@ -1,19 +1,22 @@
 import { Route, Routes } from "react-router-dom";
 
+import SpecificationLayout from "./layouts/specification-layout";
+
 import IndexPage from "@/pages/index";
-import DocsPage from "@/pages/docs";
-import PricingPage from "@/pages/pricing";
-import BlogPage from "@/pages/blog";
-import AboutPage from "@/pages/about";
+import SpecificationPage from "@/pages/specification";
+import SpecificationOperationsPage from "@/pages/specification-operations";
 
 function App() {
   return (
     <Routes>
       <Route element={<IndexPage />} path="/" />
-      <Route element={<DocsPage />} path="/docs" />
-      <Route element={<PricingPage />} path="/pricing" />
-      <Route element={<BlogPage />} path="/blog" />
-      <Route element={<AboutPage />} path="/about" />
+      <Route element={<SpecificationLayout />} path="/specification/:url">
+        <Route index element={<SpecificationPage />} />
+        <Route
+          element={<SpecificationOperationsPage />}
+          path="/specification/:url/operations"
+        />
+      </Route>
     </Routes>
   );
 }

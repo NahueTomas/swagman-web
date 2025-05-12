@@ -1,3 +1,67 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Custom scrollbar styles */
+::-webkit-scrollbar {
+  @apply w-2;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-content1 bg-opacity-15 rounded-full;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-content3 rounded-full transition-colors hover:bg-content4;
+}
+
+/* Firefox scrollbar styles */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: theme('colors.content3') theme('colors.content1');
+}
+
+
+.marked a {
+  @apply text-primary font-medium text-base;
+}
+
+.marked a:hover {
+  @apply text-primary underline;
+}
+
+.marked code {
+  @apply bg-content3 px-1 rounded-md text-sm italic;
+}
+
+.marked pre {
+  @apply bg-content3 px-4 py-2 rounded-md text-sm;
+}
+
+.marked pre code {
+  @apply bg-gray-100 px-1 rounded-md text-sm;
+}
+
+.marked h1 {
+  @apply text-2xl font-bold;
+}
+
+.marked h2 {
+  @apply text-xl font-bold;
+}
+
+.marked h3 {
+  @apply text-lg font-bold;
+}
+
+.marked h4, h5, h6 {
+  @apply text-base font-bold;
+}
+
+.marked p {
+  @apply text-base;
+}
+
+.marked li {
+  @apply text-base;
+}
