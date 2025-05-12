@@ -27,11 +27,32 @@ export const Collapse = ({
   duration = 250,
 }: CollapseProps) => {
   const contentRef = useRef<HTMLDivElement>(null);
-  const [height, setHeight] = useState<string>(active ? "auto" : "0px");
+  const [height, setHeight] = useState<string>("0px");
+  const [isInitialRender, setIsInitialRender] = useState(true);
+  const [isReady, setIsReady] = useState(false);
 
+  // Initialize component with proper state on mount
   useEffect(() => {
-    const content = contentRef.current;
+    // Start with the correct initial state based on 'active' prop
+    setHeight(active ? "auto" : "0px");
 
+    // Mark initial render as complete after a frame
+    requestAnimationFrame(() => {
+      setIsInitialRender(false);
+
+      // Mark component as ready after another frame
+      requestAnimationFrame(() => {
+        setIsReady(true);
+      });
+    });
+  }, []);
+
+  // Handle active state changes after initial render
+  useEffect(() => {
+    // Skip effect during initial render
+    if (isInitialRender || !isReady) return;
+
+    const content = contentRef.current;
     if (!content) return;
 
     const onTransitionEnd = () => {
@@ -43,38 +64,55 @@ export const Collapse = ({
 
     content.addEventListener("transitionend", onTransitionEnd);
 
-    // First set a fixed height regardless of state change direction
+    // Measure content height
     const scrollHeight = content.scrollHeight;
 
-    // Use requestAnimationFrame to make the animation smoother
-    requestAnimationFrame(() => {
-      if (active) {
-        // First explicitly set height to 0
-        setHeight("0px");
-        // Force a reflow
-        content.offsetHeight;
-        // Then animate to full height
-        setHeight(`${scrollHeight}px`);
-      } else {
-        // First set current height explicitly
+    if (active) {
+      // First set fixed height if coming from auto
+      if (height === "auto") {
         setHeight(`${scrollHeight}px`);
         // Force a reflow
         content.offsetHeight;
-        // Then animate to 0
+      }
+
+      // For animation from closed to open
+      // First ensure height is 0 if needed
+      if (height === "0px") {
+        // Then animate to full height (in next frame)
         requestAnimationFrame(() => {
-          setHeight("0px");
+          setHeight(`${scrollHeight}px`);
         });
       }
-    });
+    } else {
+      // For animation from open to closed
+
+      // First ensure we have a fixed height
+      if (height === "auto") {
+        setHeight(`${scrollHeight}px`);
+        // Force a reflow
+        content.offsetHeight;
+      }
+
+      // Then animate to 0 (in next frame)
+      requestAnimationFrame(() => {
+        setHeight("0px");
+      });
+    }
 
     return () => {
       content.removeEventListener("transitionend", onTransitionEnd);
     };
-  }, [active]);
+  }, [active, height, isInitialRender, isReady]);
 
   // Handle content changes by updating height when active
   useEffect(() => {
-    if (active && height === "auto" && contentRef.current) {
+    if (
+      !isInitialRender &&
+      isReady &&
+      active &&
+      height === "auto" &&
+      contentRef.current
+    ) {
       // Update height if content changes while expanded
       const scrollHeight = contentRef.current.scrollHeight;
 
@@ -82,14 +120,18 @@ export const Collapse = ({
       // We need to trigger a reflow to ensure animation works
       contentRef.current.offsetHeight;
       // Then immediately set back to auto to adapt to changes
-      setHeight("auto");
+      requestAnimationFrame(() => {
+        setHeight("auto");
+      });
     }
-  }, [children, active]);
+  }, [children, active, isInitialRender, isReady, height]);
 
   // Generate animation classes based on the variant
   const getAnimationClasses = () => {
-    // Base transition classes
-    const transitionBase = `transition-all duration-${duration} overflow-hidden`;
+    // Don't apply transitions during initial render
+    const transitionBase = isReady
+      ? `transition-all duration-${duration} overflow-hidden`
+      : "overflow-hidden";
 
     const animationSpecific = {
       slide: "",
@@ -110,7 +152,7 @@ export const Collapse = ({
   const getAnimationStyles = () => {
     const baseStyles = {
       height,
-      transitionProperty: "height, opacity, transform",
+      transitionProperty: isReady ? "height, opacity, transform" : "none",
       transitionTimingFunction:
         variant === "bounce"
           ? "cubic-bezier(0.68, -0.55, 0.27, 1.55)"
@@ -137,6 +179,24 @@ export const Collapse = ({
       ...(variantStyles[variant] || variantStyles["slide-fade"]),
     };
   };
+
+  // Apply immediate styles without animation for initial render
+  if (isInitialRender) {
+    return (
+      <div
+        ref={contentRef}
+        className={`overflow-hidden ${className}`}
+        style={{
+          height: active ? "auto" : "0px",
+          overflow: "hidden",
+          visibility: active ? "visible" : "hidden",
+          opacity: active ? 1 : 0,
+        }}
+      >
+        <div>{children}</div>
+      </div>
+    );
+  }
 
   return (
     <div

@@ -22,46 +22,135 @@
 }
 
 
-.marked a {
+.marked-lg a {
   @apply text-primary font-medium text-base;
 }
 
-.marked a:hover {
+.marked-lg a:hover {
   @apply text-primary underline;
 }
 
-.marked code {
+.marked-lg code {
   @apply bg-content3 px-1 rounded-md text-sm italic;
 }
 
-.marked pre {
+.marked-lg pre {
   @apply bg-content3 px-4 py-2 rounded-md text-sm;
 }
 
-.marked pre code {
+.marked-lg pre code {
   @apply bg-gray-100 px-1 rounded-md text-sm;
 }
 
-.marked h1 {
+.marked-lg h1 {
   @apply text-2xl font-bold;
 }
 
-.marked h2 {
+.marked-lg h2 {
   @apply text-xl font-bold;
 }
 
-.marked h3 {
+.marked-lg h3 {
   @apply text-lg font-bold;
 }
 
-.marked h4, h5, h6 {
+.marked-lg h4, h5, h6 {
   @apply text-base font-bold;
 }
 
-.marked p {
+.marked-lg p {
   @apply text-base;
 }
 
-.marked li {
+.marked-lg li {
   @apply text-base;
+}
+
+.marked-sm a {
+  @apply text-primary font-medium text-sm;
+}
+
+.marked-sm a:hover {
+  @apply text-primary underline;
+}
+
+.marked-sm code {
+  @apply bg-content3 px-1 rounded-md text-xs italic;
+}
+
+.marked-sm pre {
+  @apply bg-content3 px-4 py-2 rounded-md text-sm;
+}
+
+.marked-sm pre code {
+  @apply bg-gray-100 px-1 rounded-md text-sm;
+}
+
+.marked-sm h1 {
+  @apply text-lg font-bold;
+}
+
+.marked-sm h2 {
+  @apply text-medium font-bold;
+}
+
+.marked-sm h3 {
+  @apply text-sm font-bold;
+}
+
+.marked-sm h4, h5, h6 {
+  @apply text-sm font-bold;
+}
+
+.marked-sm p {
+  @apply text-sm;
+}
+
+.marked-sm li {
+  @apply text-sm;
+}
+
+
+.marked-xs a {
+  @apply text-primary font-medium text-xs;
+}
+
+.marked-xs a:hover {
+  @apply text-primary underline;
+}
+
+.marked-xs code {
+  @apply bg-content3 px-1 rounded-md text-xs italic;
+}
+
+.marked-xs pre {
+  @apply bg-content3 px-4 py-2 rounded-md text-xs;
+}
+
+.marked-xs pre code {
+  @apply bg-gray-100 px-1 rounded-md text-xs;
+}
+
+.marked-xs h1 {
+  @apply text-medium font-bold;
+}
+
+.marked-xs h2 {
+  @apply text-sm font-bold;
+}
+
+.marked-xs h3 {
+  @apply text-xs font-bold;
+}
+
+.marked-xs h4, h5, h6 {
+  @apply text-xs font-bold;
+}
+
+.marked-xs p {
+  @apply text-xs;
+}
+
+.marked-xs li {
+  @apply text-xs;
 }

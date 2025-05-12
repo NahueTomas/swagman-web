@@ -88,7 +88,7 @@ export default function SpecificationPage() {
       {description && (
         <div
           dangerouslySetInnerHTML={{ __html: parsedDescription }}
-          className="text-md space-y-4 marked"
+          className="text-md space-y-4 marked-lg"
         />
       )}
 
