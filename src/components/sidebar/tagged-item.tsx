@@ -13,7 +13,10 @@ export const TaggedItem = ({
 }) => {
   const methodUpper = method.toUpperCase();
 
-  const methodColors: Record<string, string> = {
+  const methodColors: Record<
+    string,
+    "primary" | "secondary" | "warning" | "success" | "danger" | "default"
+  > = {
     GET: "primary",
     POST: "secondary",
     PUT: "warning",
@@ -40,14 +43,7 @@ export const TaggedItem = ({
         )}
 
         {/* Method indicator - adjusted padding */}
-        <Chip
-          color={
-            colorSet as "primary" | "success" | "warning" | "danger" | "default"
-          }
-          radius="sm"
-          size="sm"
-          variant="flat"
-        >
+        <Chip color={colorSet} radius="sm" size="sm" variant="flat">
           <span className="text-[10px] flex">{methodUpper}</span>
         </Chip>
 

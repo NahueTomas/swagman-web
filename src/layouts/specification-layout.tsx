@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import { Divider } from "@heroui/divider";
 
-import { Sidebar } from "@/components/sidebar";
+import { Sidebar } from "@/components/sidebar/sidebar";
 import { SpecModel } from "@/models/spec.model";
 import { useStore } from "@/hooks/use-store";
 import { Error } from "@/components/error";

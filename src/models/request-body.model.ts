@@ -1,5 +1,6 @@
-import type { OpenAPIRequestBody, OpenAPIMediaType } from '../types/openapi';
-import { RequestBodyMediaType } from './request-body-media-type';
+import type { OpenAPIRequestBody, OpenAPIMediaType } from "../types/openapi";
+
+import { RequestBodyMediaType } from "./request-body-media-type";
 
 export class RequestBodyModel {
   description: string;
@@ -9,11 +10,12 @@ export class RequestBodyModel {
   mediaTypes: RequestBodyMediaType[];
 
   constructor(requestBody: OpenAPIRequestBody) {
-    this.description = requestBody.description || '';
+    this.description = requestBody.description || "";
     this.required = requestBody.required || false;
     this.content = requestBody.content || {};
 
     const mediaTypes = Object.keys(this.content);
+
     this.mediaTypes = mediaTypes.map((mime) => {
       return new RequestBodyMediaType(mime, this.content[mime]);
     });
@@ -28,24 +30,38 @@ export class RequestBodyModel {
   }
 
   public getFieldDefaultValues(): {
-    [mime: string]: { [key: string]: { value: any; included: boolean } };
+    [mime: string]:
+      | { [key: string]: { value: any; included: boolean } }
+      | { value: any; included: boolean };
   } {
     const mimeTypes = this.getMimeTypes();
-    const mimeTypesAndObjects = mimeTypes.reduce((acc, mimeType) => {
+    const mimeTypesAndObjects = mimeTypes.reduce<{
+      [mime: string]:
+        | { [key: string]: { value: any; included: boolean } }
+        | { value: any; included: boolean };
+    }>((acc, mimeType) => {
       const bodyMediaType = this.getMimeType(mimeType);
-      if (bodyMediaType?.getMediaTypeFormat() === 'text') {
-        acc[mimeType] = bodyMediaType.getFullExample() || '';
+
+      if (bodyMediaType?.getMediaTypeFormat() === "text") {
+        acc[mimeType] = {
+          value: bodyMediaType.getFullExample() || "",
+          included: true,
+        };
+
         return acc;
       } else {
-        const bodyMediaTypeParams = {};
+        const bodyMediaTypeParams: {
+          [key: string]: { value: any; included: boolean };
+        } = {};
+
         bodyMediaType?.getFields().forEach((field) => {
           bodyMediaTypeParams[field.name] = {
             value: field.getExample(),
             included: true,
           };
         });
-
         acc[mimeType] = bodyMediaTypeParams;
+
         return acc;
       }
     }, {});

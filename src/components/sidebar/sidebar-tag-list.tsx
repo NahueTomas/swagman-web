@@ -1,5 +1,5 @@
 import { useStore } from "@/hooks/use-store";
-import { Tag } from "@/components/tag";
+import { Tag } from "@/components/sidebar/tag";
 
 export const SidebarTagList = ({ className }: { className?: string }) => {
   const tagList = useStore((state) => state.spec?.getTagList());

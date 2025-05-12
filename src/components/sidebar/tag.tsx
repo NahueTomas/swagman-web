@@ -2,7 +2,7 @@ import { useState } from "react";
 
 import { useStore } from "@/hooks/use-store";
 import { Collapse } from "@/components/collapse";
-import { TaggedItem } from "@/components/tagged-item";
+import { TaggedItem } from "@/components/sidebar/tagged-item";
 
 export const Tag = ({
   tag,

@@ -5,9 +5,9 @@ import { Card } from "@heroui/card";
 import { Divider } from "@heroui/divider";
 
 import { ThemeSwitch } from "./theme-switch";
-import { OperationsIcon, InfoIcon, ThunderIcon } from "./icons";
+import { OperationsIcon, InfoIcon, ThunderIcon } from "../icons";
 import { SidebarTagList } from "./sidebar-tag-list";
-import { Resizable } from "./resizable";
+import { Resizable } from "../resizable";
 
 // Constantes para reducir creación de objetos
 const ICON_STYLES = "text-lg";
