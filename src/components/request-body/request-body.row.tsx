@@ -32,6 +32,9 @@ export const RequestBodyRow = ({
     onChange(name, value, included);
   };
 
+  // Get the form field component
+  const FormFieldComponent = schema ? getFormFieldComponent(schema) : null;
+
   return (
     <div className="grid grid-cols-1 sm:grid-cols-12 gap-4 p-4 border border-divider rounded-lg transition-colors items-center">
       <div className="sm:col-span-1 flex items-center">
@@ -66,15 +69,15 @@ export const RequestBodyRow = ({
       </div>
 
       <div className="sm:col-span-7">
-        {included && getFormFieldComponent(schema)
-          ? getFormFieldComponent(schema)({
-              id,
-              onChange: handleValueChange,
-              placeholder: name,
-              value,
-              options: (schema.enum as string[]) || [],
-            })
-          : null}
+        {included && FormFieldComponent && (
+          <FormFieldComponent
+            id={id}
+            options={(schema.enum as string[]) || []}
+            placeholder={name}
+            value={value}
+            onChange={handleValueChange}
+          />
+        )}
       </div>
     </div>
   );

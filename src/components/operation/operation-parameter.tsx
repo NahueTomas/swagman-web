@@ -30,6 +30,11 @@ export const OperationParameter = ({
     if (onChange) onChange(parameter.name, parameter.getIn(), value, included);
   };
 
+  // Get the form field component
+  const FormFieldComponent = parameter.schema
+    ? getFormFieldComponent(parameter.schema)
+    : null;
+
   return (
     <div className="grid grid-cols-1 sm:grid-cols-12 gap-4 p-4 border border-divider rounded-lg transition-colors items-center">
       <div className="sm:col-span-1 flex items-center">
@@ -80,16 +85,16 @@ export const OperationParameter = ({
         )}
       </div>
       <div className="sm:col-span-7">
-        {included && getFormFieldComponent(parameter.schema)
-          ? getFormFieldComponent(parameter.schema)({
-              id: parameter.id,
-              onChange: handleValueChange,
-              placeholder: parameter.name,
-              value,
-              required: parameter.required,
-              options: (parameter.schema?.enum as string[]) || [],
-            })
-          : null}
+        {included && FormFieldComponent && (
+          <FormFieldComponent
+            id={parameter.id}
+            options={(parameter.schema?.enum as string[]) || []}
+            placeholder={parameter.name}
+            required={parameter.required}
+            value={value}
+            onChange={handleValueChange}
+          />
+        )}
       </div>
     </div>
   );
