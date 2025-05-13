@@ -39,12 +39,14 @@ export default function SpecificationLayout() {
 
   return (
     <div className="flex h-dvh w-full">
-      <div className="flex flex-row h-full">
-        <Sidebar />
-        <Divider orientation="vertical" />
-      </div>
+      {!error && !isLoading && (
+        <div className="flex flex-row h-full">
+          <Sidebar />
+          <Divider orientation="vertical" />
+        </div>
+      )}
 
-      <main className="flex-1 w-full items-center justify-center bg-background overflow-hidden">
+      <main className="flex-1 w-full items-center justify-center bg-content1/30 overflow-hidden">
         {error ? (
           <Error message={error} title="Error to get specification" />
         ) : isLoading ? (

@@ -16,7 +16,7 @@ export const CardSelectableButtons = ({
 }) => {
   return (
     <Card
-      className="p-3 flex gap-3 flex-col border border-divider bg-content1/20"
+      className="p-3 flex gap-3 flex-col border border-divider bg-content1/10"
       shadow="none"
     >
       <span className="text-xs font-medium flex gap-2 items-center">

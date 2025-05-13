@@ -13,7 +13,7 @@ export default function SpecificationOperationsPage() {
   }
 
   return (
-    <section className="relative overflow-y-auto h-full bg-content1/60">
+    <section className="relative overflow-y-auto h-full">
       <Header />
 
       <div className="overflow-auto px-8 pt-px pb-4">
