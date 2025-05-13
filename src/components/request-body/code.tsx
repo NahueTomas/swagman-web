@@ -784,7 +784,7 @@ export const Code = ({
 
   return (
     <Card
-      className="space-y-3 p-3 bg-content1/20 border border-divider"
+      className="space-y-3 p-3 bg-content1/10 border border-divider"
       shadow="none"
     >
       <div className="flex justify-between items-center">

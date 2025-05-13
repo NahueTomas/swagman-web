@@ -45,7 +45,7 @@ export const OperationCode = ({
         {/* Code Preview Component */}
         <Subtitle>Code Preview</Subtitle>
         <Card
-          className="space-y-4 p-3 bg-content1/20 border border-divider"
+          className="space-y-4 p-3 bg-content1/10 border border-divider"
           shadow="none"
         >
           <CodePreview
