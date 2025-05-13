@@ -19,6 +19,7 @@ import {
   ParametersIcon,
 } from "@/components/icons";
 import { Collapse } from "@/components/collapse";
+import { Subtitle } from "../subtitle";
 
 export const OperationTabs = ({ operation }: { operation: OperationModel }) => {
   const { isFocusModeEnabled } = useStore((state) => state);
@@ -141,14 +142,14 @@ export const OperationTabs = ({ operation }: { operation: OperationModel }) => {
             <div className="flex flex-col space-y-6">
               {pathParams.length > 0 && (
                 <div className="space-y-2">
-                  <h5>
+                  <Subtitle>
                     <div className="flex items-center gap-2">
                       <Chip color="secondary" size="sm" variant="flat">
                         Path
                       </Chip>
                       Parameters
                     </div>
-                  </h5>
+                  </Subtitle>
 
                   {pathParams.map((param) => (
                     <OperationParameter
@@ -168,14 +169,14 @@ export const OperationTabs = ({ operation }: { operation: OperationModel }) => {
               )}
               {queryParams.length > 0 && (
                 <div className="space-y-2">
-                  <h5>
+                  <Subtitle>
                     <div className="flex items-center gap-2">
                       <Chip color="primary" size="sm" variant="flat">
                         Query
                       </Chip>
                       Parameters
                     </div>
-                  </h5>
+                  </Subtitle>
 
                   {queryParams.map((param) => (
                     <OperationParameter
@@ -214,14 +215,14 @@ export const OperationTabs = ({ operation }: { operation: OperationModel }) => {
           >
             {headerParams.length > 0 ? (
               <div className="space-y-2">
-                <h5>
+                <Subtitle>
                   <div className="flex items-center gap-2">
                     <Chip color="success" size="sm" variant="flat">
                       Header
                     </Chip>
                     Parameters
                   </div>
-                </h5>
+                </Subtitle>
 
                 {headerParams.map((param) => (
                   <OperationParameter
@@ -257,7 +258,7 @@ export const OperationTabs = ({ operation }: { operation: OperationModel }) => {
           >
             <div className="flex flex-col space-y-4">
               <div className="space-y-2">
-                <h5>
+                <Subtitle>
                   <div className="flex items-center gap-2">
                     <Chip color="warning" size="sm" variant="flat">
                       Body
@@ -269,7 +270,7 @@ export const OperationTabs = ({ operation }: { operation: OperationModel }) => {
                       </Chip>
                     )}
                   </div>
-                </h5>
+                </Subtitle>
 
                 {body && body.description && (
                   <span className="text-xs text-zinc-500">
@@ -294,7 +295,7 @@ export const OperationTabs = ({ operation }: { operation: OperationModel }) => {
               <div className="space-y-2">
                 {currentForm?.requestBody?.[currentForm.contentType] && (
                   <>
-                    <h5>Body content</h5>
+                    <Subtitle>Body content</Subtitle>
 
                     <RequestBody
                       bodyMediaType={body?.getMimeType(currentForm.contentType)}

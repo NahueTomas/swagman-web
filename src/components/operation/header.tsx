@@ -4,6 +4,7 @@ import { FormFieldSelect } from "../form-fields/form-field-select";
 import { useStore } from "@/hooks/use-store";
 import { useRequestForms } from "@/hooks/use-request-forms";
 import { UrlSection } from "@/components/operation/url-section";
+import { Subtitle } from "../subtitle";
 
 export const Header = () => {
   const {
@@ -47,7 +48,7 @@ export const Header = () => {
 
         <div className="flex flex-col gap-2 justify-end bg-background/50 backdrop-blur-xl pr-8 pl-6 pb-2 border-b border-l border-divider rounded-bl-3xl">
           <div className="flex gap-2">
-            <h5 className="flex items-center gap-2">
+            <h5 className="flex items-center gap-2 text-nowrap text-xs">
               <HeadersIcon className="size-4" /> Accept
             </h5>
             <FormFieldSelect
@@ -63,7 +64,7 @@ export const Header = () => {
           {currentValues?.parameters?.header?.["Content-Type"]?.included &&
             operation?.getRequestBody()?.getMimeTypes()?.length && (
               <div className="flex gap-2">
-                <h5 className="flex items-center gap-2 text-nowrap">
+                <h5 className="flex items-center gap-2 text-nowrap  text-xs">
                   <HeadersIcon className="size-4" /> Content-Type
                 </h5>
                 <FormFieldSelect

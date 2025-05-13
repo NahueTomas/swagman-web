@@ -4,6 +4,7 @@ import { Card } from "@heroui/card";
 import { OperationModel } from "@/models/operation.model";
 import { CodeViewer, CodeViewerLanguage } from "@/components/code-viewer";
 import { CardSelectableButtons } from "@/components/card-selectable-buttons";
+import { Subtitle } from "../subtitle";
 
 type OperationResponseProps = {
   operation: OperationModel;
@@ -61,7 +62,7 @@ export const OperationResponse = ({
   return (
     <div className="flex flex-col space-y-4">
       <div className="space-y-2">
-        <h5>Response Examples</h5>
+        <Subtitle>Response Examples</Subtitle>
 
         {/* Status Code Selector - Reverted to CardSelectableButtons */}
         <CardSelectableButtons
@@ -119,7 +120,7 @@ const ResponseContent = ({
     .getResponses()
     .getResponseExample(statusCode, acceptHeader || "");
 
-  return <h5>{response?.description || "Response"}</h5>;
+  return <Subtitle>{response?.description || "Response"}</Subtitle>;
 };
 
 const getLanguageFromMimeType = (mimeType: string): CodeViewerLanguage => {

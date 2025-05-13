@@ -5,6 +5,7 @@ import { RequestPreview } from "@/hooks/use-request-forms";
 import { CardSelectableButtons } from "@/components/card-selectable-buttons";
 import { LanguageIcon } from "@/components/icons";
 import { Card } from "@heroui/card";
+import { Subtitle } from "../subtitle";
 
 type OperationCodeProps = {
   requestPreview: RequestPreview;
@@ -17,7 +18,7 @@ export const OperationCode = ({ requestPreview }: OperationCodeProps) => {
   return (
     <div className="flex flex-col space-y-4">
       <div className="space-y-2">
-        <h5>Code Examples</h5>
+        <Subtitle>Code Examples</Subtitle>
 
         {/* Language Selector */}
         <CardSelectableButtons
@@ -37,7 +38,7 @@ export const OperationCode = ({ requestPreview }: OperationCodeProps) => {
       </div>
       <div className="space-y-2">
         {/* Code Preview Component */}
-        <h5>Code Preview</h5>
+        <Subtitle>Code Preview</Subtitle>
         <Card
           className="space-y-4 p-3 bg-content1/20 border border-divider"
           shadow="none"
