@@ -68,6 +68,7 @@ export class SpecModel {
     else spec = client.spec;
 
     this.client = client;
+    this.client.spec = spec;
     this.processed = true;
 
     this.openapi = spec.openapi;
@@ -248,14 +249,21 @@ export class SpecModel {
       responseContentType,
     } = this.buildRequestDependencies(requestBody, parameters);
 
-    const request = SwaggerClient.buildRequest({
+    const objRequest: {
+      [key: string]: string | object | null;
+    } = {
       spec: this.client.spec,
       operationId: `${operation.method.toLowerCase()}-${operation.path}`,
       parameters: parametersF,
-      requestBody: requestBodyF,
       responseContentType,
-      requestContentType: contentType,
-    });
+    };
+
+    if (contentType && requestBodyF) {
+      objRequest.requestContentType = contentType;
+      objRequest.requestBody = requestBodyF;
+    }
+
+    const request = SwaggerClient.buildRequest(objRequest);
 
     return request;
   }

@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
 import { Card } from "@heroui/card";
 
+import { Subtitle } from "@/components/subtitle";
 import { OperationModel } from "@/models/operation.model";
 import { CodeViewer, CodeViewerLanguage } from "@/components/code-viewer";
 import { CardSelectableButtons } from "@/components/card-selectable-buttons";
-import { Subtitle } from "../subtitle";
 
 type OperationResponseProps = {
   operation: OperationModel;
@@ -120,11 +120,25 @@ const ResponseContent = ({
     .getResponses()
     .getResponseExample(statusCode, acceptHeader || "");
 
-  return <Subtitle>{response?.description || "Response"}</Subtitle>;
+  return (
+    <>
+      <Subtitle>{response?.description || "Response"}</Subtitle>
+      {responseExample ? (
+        <CodeViewer
+          language={getLanguageFromMimeType(acceptHeader)}
+          value={responseExample}
+        />
+      ) : (
+        <Card className="p-3 bg-content1/10 border border-divider">
+          No schema defined for this response
+        </Card>
+      )}
+    </>
+  );
 };
 
 const getLanguageFromMimeType = (mimeType: string): CodeViewerLanguage => {
-  const subtype = mimeType?.split("/")?.[1]?.toUpperCase();
+  const subtype = mimeType?.split("/")?.[1]?.toUpperCase() || "TEXT";
 
   return Object.values(CodeViewerLanguage).includes(
     subtype as CodeViewerLanguage

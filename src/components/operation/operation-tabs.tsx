@@ -121,7 +121,7 @@ export const OperationTabs = ({ operation }: { operation: OperationModel }) => {
 
   const requestPreview = spec?.buildRequest(
     operationFocused,
-    currentForm.requestBody,
+    currentForm.requestBody?.[currentForm?.contentType || ""] || null,
     currentForm.parameters,
     currentForm.contentType
   );
