@@ -181,7 +181,7 @@ export const Url = ({ url, className }: UrlProps) => {
           key="server-badge"
           className="hover:cursor-help"
           size="sm"
-          title={displayUrl}
+          title={`"${displayUrl}"`}
           variant="flat"
         >
           {`{server}`}
@@ -220,7 +220,7 @@ export const Url = ({ url, className }: UrlProps) => {
           className="hover:cursor-help"
           color="secondary"
           size="sm"
-          title={paramData?.value?.toString() || '""'}
+          title={`"${paramData?.value?.toString()}"` || '""'}
           variant="flat"
         >
           {fullMatch}
