@@ -1,5 +1,5 @@
-import { OpenAPIResponses } from '../types/openapi';
-import { getBodyExample } from '../utils/openapi';
+import { OpenAPIResponses } from "../types/openapi";
+import { getBodyExample } from "../utils/openapi";
 
 export class ResponsesModel {
   public responses: OpenAPIResponses;
@@ -16,13 +16,15 @@ export class ResponsesModel {
     for (const [, value] of Object.entries(this.responses)) {
       if (value.content) {
         const mimeTypes = Object.keys(value.content);
+
         if (mimeTypes.length) {
           mimeTypes.forEach((type) => accepted.add(type));
         }
       }
     }
 
-    if (accepted.size === 0) return ['*/*'];
+    if (accepted.size === 0) return ["*/*"];
+
     return Array.from(accepted);
   }
 
@@ -32,11 +34,11 @@ export class ResponsesModel {
 
   public getResponseExample(code: string, accept: string): string | null {
     const responseSelected = this.getResponse(code);
-    return (
-      getBodyExample(
-        responseSelected?.content?.[accept]?.schema,
-        accept.split('/')[1]
-      ) || null
+    const example = getBodyExample(
+      responseSelected?.content?.[accept]?.schema,
+      accept.split("/")[1]
     );
+
+    return typeof example === "string" ? example : "";
   }
 }

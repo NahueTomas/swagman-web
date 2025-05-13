@@ -13,6 +13,8 @@ import {
 } from "@codemirror/language";
 import { json } from "@codemirror/lang-json";
 import { xml } from "@codemirror/lang-xml";
+import { Button } from "@heroui/button";
+import { Card } from "@heroui/card";
 
 export enum CodeViewerLanguage {
   JSON = "JSON",
@@ -21,12 +23,10 @@ export enum CodeViewerLanguage {
 }
 
 export const CodeViewer = ({
-  id,
   language = CodeViewerLanguage.JSON,
   value,
   maxHeight = "100%",
 }: {
-  id: string;
   language?: CodeViewerLanguage;
   value: string;
   maxHeight?: string;
@@ -69,7 +69,6 @@ export const CodeViewer = ({
         ".cm-gutters": {
           backgroundColor: "#f9fafb",
           border: "none",
-          borderRight: "1px solid #e5e7eb",
         },
         ".cm-activeLineGutter": {
           backgroundColor: "#f1f5f9",
@@ -108,29 +107,19 @@ export const CodeViewer = ({
   };
 
   return (
-    <div
-      className="flex flex-col p-3 border border-zinc-200 rounded-md overflow-hidden"
-      id={id}
+    <Card
+      className="space-y-3 p-3 bg-content1/10 border border-divider"
+      shadow="none"
     >
-      <div className="mb-2">
-        <div className="flex items-center justify-between">
-          <div className="text-xs text-zinc-500 font-medium">
-            {language === CodeViewerLanguage.JSON
-              ? "JSON"
-              : language === CodeViewerLanguage.XML
-                ? "XML"
-                : "TEXT"}
-          </div>
-          <button
-            onClick={onClickCopy}
-            className="px-3 py-1 text-xs rounded-md transition-colors bg-white text-zinc-700 border border-zinc-200 hover:bg-zinc-50"
-          >
-            Copy
-          </button>
-        </div>
+      <div className="flex gap-3 justify-between items-center">
+        <h6 className="text-xs font-medium">{language}</h6>
+        <Button size="sm" variant="flat" onClick={onClickCopy}>
+          Copy
+        </Button>
       </div>
-      <div
-        className="bg-white rounded-md border border-zinc-200"
+      <Card
+        className="border border-divider"
+        shadow="none"
         style={{
           height: "auto",
           minHeight: "120px",
@@ -139,7 +128,7 @@ export const CodeViewer = ({
         }}
       >
         <div ref={editorRef} className="h-full" />
-      </div>
-    </div>
+      </Card>
+    </Card>
   );
 };
