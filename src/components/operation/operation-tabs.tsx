@@ -126,8 +126,6 @@ export const OperationTabs = ({ operation }: { operation: OperationModel }) => {
     currentForm.contentType
   );
 
-  console.log(requestPreview);
-
   return (
     <div className="flex flex-col gap-8">
       <div className="flex flex-col gap-4">
