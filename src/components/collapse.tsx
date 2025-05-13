@@ -7,6 +7,7 @@ interface CollapseProps {
   children: React.ReactNode;
   active: boolean;
   className?: string;
+  classNameContent?: string;
   /**
    * Animation variant to use
    * @default 'slide-fade'
@@ -23,6 +24,7 @@ export const Collapse = ({
   children,
   active,
   className = "",
+  classNameContent = "",
   variant = "slide-fade",
   duration = 250,
 }: CollapseProps) => {
@@ -53,6 +55,7 @@ export const Collapse = ({
     if (isInitialRender || !isReady) return;
 
     const content = contentRef.current;
+
     if (!content) return;
 
     const onTransitionEnd = () => {
@@ -205,11 +208,11 @@ export const Collapse = ({
       style={getAnimationStyles()}
     >
       <div
-        className={
+        className={`${classNameContent} ${
           variant === "zoom" || variant === "bounce"
             ? "transform transition-transform duration-250"
             : ""
-        }
+        }`}
       >
         {children}
       </div>

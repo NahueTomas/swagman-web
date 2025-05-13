@@ -4,10 +4,11 @@ import clsx from "clsx";
 import { Card } from "@heroui/card";
 import { Divider } from "@heroui/divider";
 
-import { ThemeSwitch } from "./theme-switch";
 import { OperationsIcon, InfoIcon, ThunderIcon } from "../icons";
-import { SidebarTagList } from "./sidebar-tag-list";
 import { Resizable } from "../resizable";
+
+import { ThemeSwitch } from "./theme-switch";
+import { SidebarTagList } from "./sidebar-tag-list";
 
 // Constantes para reducir creación de objetos
 const ICON_STYLES = "text-lg";
@@ -194,7 +195,7 @@ export const Sidebar = React.memo(({ className }: SidebarProps) => {
         <Resizable axis="x" defaultWidth={300}>
           <Card
             className={clsx(
-              "flex flex-col h-full space-y-3 bg-content1 bg-opacity-15",
+              "flex flex-col h-full space-y-3 bg-content1/20",
               className
             )}
             radius="none"

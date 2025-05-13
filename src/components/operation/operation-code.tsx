@@ -1,0 +1,53 @@
+import { useState } from "react";
+
+import { CodePreview, SupportedLanguage } from "@/components/code-preview";
+import { RequestPreview } from "@/hooks/use-request-forms";
+import { CardSelectableButtons } from "@/components/card-selectable-buttons";
+import { LanguageIcon } from "@/components/icons";
+import { Card } from "@heroui/card";
+
+type OperationCodeProps = {
+  requestPreview: RequestPreview;
+};
+
+export const OperationCode = ({ requestPreview }: OperationCodeProps) => {
+  const [selectedLanguage, setSelectedLanguage] =
+    useState<SupportedLanguage>("JavaScript");
+
+  return (
+    <div className="flex flex-col space-y-4">
+      <div className="space-y-2">
+        <h5>Code Examples</h5>
+
+        {/* Language Selector */}
+        <CardSelectableButtons
+          options={["JavaScript", "Python", "cURL", "PHP"].map((lang) => ({
+            value: lang,
+            selected: selectedLanguage === lang,
+          }))}
+          onClick={(value: string) =>
+            setSelectedLanguage(value as SupportedLanguage)
+          }
+        >
+          <>
+            <LanguageIcon className="size-4" />
+            <span>Language</span>
+          </>
+        </CardSelectableButtons>
+      </div>
+      <div className="space-y-2">
+        {/* Code Preview Component */}
+        <h5>Code Preview</h5>
+        <Card
+          className="space-y-4 p-3 bg-content1/20 border border-divider"
+          shadow="none"
+        >
+          <CodePreview
+            language={selectedLanguage}
+            requestPreview={requestPreview}
+          />
+        </Card>
+      </div>
+    </div>
+  );
+};
