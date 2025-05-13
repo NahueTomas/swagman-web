@@ -129,7 +129,10 @@ const ResponseContent = ({
           value={responseExample}
         />
       ) : (
-        <Card className="p-3 bg-content1/10 border border-divider">
+        <Card
+          className="p-3 text-sm text-center bg-content1/10 border border-divider"
+          shadow="none"
+        >
           No schema defined for this response
         </Card>
       )}

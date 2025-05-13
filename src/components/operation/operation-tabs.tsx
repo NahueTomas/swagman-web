@@ -1,11 +1,14 @@
 import { useEffect } from "react";
 import { Chip } from "@heroui/chip";
 import { Tabs, Tab } from "@heroui/tabs";
+import { Card } from "@heroui/card";
 
 import { CardSelectableButtons } from "../card-selectable-buttons";
+import { Subtitle } from "../subtitle";
 
 import { OperationParameter } from "./operation-parameter";
 import { OperationResponse } from "./operation-response";
+import { OperationCode } from "./operation-code";
 
 import { RequestBody } from "@/components/request-body/request-body";
 import { OperationModel } from "@/models/operation.model";
@@ -19,8 +22,6 @@ import {
   ParametersIcon,
 } from "@/components/icons";
 import { Collapse } from "@/components/collapse";
-import { Subtitle } from "../subtitle";
-import { OperationCode } from "./operation-code";
 
 export const OperationTabs = ({ operation }: { operation: OperationModel }) => {
   const { isFocusModeEnabled, operationFocused, spec } = useStore(
@@ -209,9 +210,12 @@ export const OperationTabs = ({ operation }: { operation: OperationModel }) => {
                 </div>
               )}
               {pathParams.length === 0 && queryParams.length === 0 && (
-                <div className="p-4 border border-default-200 rounded-lg text-center text-default-500">
+                <Card
+                  className="p-3 text-sm text-center bg-content1/10 border border-divider"
+                  shadow="none"
+                >
                   No parameters defined for this operation
-                </div>
+                </Card>
               )}
             </div>
           </Tab>
@@ -252,9 +256,12 @@ export const OperationTabs = ({ operation }: { operation: OperationModel }) => {
                 ))}
               </div>
             ) : (
-              <div className="p-4 border border-default-200 rounded-lg text-center text-default-500">
+              <Card
+                className="p-3 text-sm text-center bg-content1/10 border border-divider"
+                shadow="none"
+              >
                 No headers defined for this operation
-              </div>
+              </Card>
             )}
           </Tab>
 
