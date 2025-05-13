@@ -80,9 +80,19 @@ export const OperationTabs = ({ operation }: { operation: OperationModel }) => {
     const updatedForm = { ...currentForm };
 
     // Update contentType in form
-    if (contentType === currentForm.contentType && !isBodyRequired)
+    if (contentType === currentForm.contentType && !isBodyRequired) {
       updatedForm.contentType = "";
-    else updatedForm.contentType = contentType;
+      updatedForm.parameters.header["Content-Type"] = {
+        value: "",
+        included: false,
+      };
+    } else {
+      updatedForm.contentType = contentType;
+      updatedForm.parameters.header["Content-Type"] = {
+        value: contentType,
+        included: true,
+      };
+    }
 
     // Update form in store
     setFormValues(operation.id, updatedForm);
