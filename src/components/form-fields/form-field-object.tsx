@@ -1,3 +1,6 @@
+import { Textarea } from "@heroui/input";
+import React from "react";
+
 export const FormFieldObject = ({
   id,
   onChange,
@@ -9,17 +12,16 @@ export const FormFieldObject = ({
   placeholder?: string;
   value?: any;
 }) => {
-  const handleChange = (e: Event) => {
-    onChange((e.target as HTMLInputElement).value);
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    onChange(e.target.value);
   };
 
   return (
-    <textarea
+    <Textarea
       id={id}
-      onChange={handleChange}
-      value={typeof value === 'object' ? JSON.stringify(value) : value}
       placeholder={placeholder}
-      className="w-full h-60 px-2 py-1 text-sm border border-zinc-300 rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-y min-h-[100px] max-h-[500px]"
+      value={typeof value === "object" ? JSON.stringify(value) : value}
+      onChange={handleChange}
     />
   );
 };
