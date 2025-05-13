@@ -1,17 +1,22 @@
 import { useState } from "react";
-
-import { CodePreview, SupportedLanguage } from "@/components/code-preview";
-import { RequestPreview } from "@/hooks/use-request-forms";
-import { CardSelectableButtons } from "@/components/card-selectable-buttons";
-import { LanguageIcon } from "@/components/icons";
 import { Card } from "@heroui/card";
+
 import { Subtitle } from "../subtitle";
 
-type OperationCodeProps = {
-  requestPreview: RequestPreview;
-};
+import { CodePreview, SupportedLanguage } from "@/components/code-preview";
+import { CardSelectableButtons } from "@/components/card-selectable-buttons";
+import { LanguageIcon } from "@/components/icons";
 
-export const OperationCode = ({ requestPreview }: OperationCodeProps) => {
+export const OperationCode = ({
+  requestPreview,
+}: {
+  requestPreview: {
+    url: string;
+    method: string;
+    headers: Record<string, string>;
+    body: Record<string, string>;
+  };
+}) => {
   const [selectedLanguage, setSelectedLanguage] =
     useState<SupportedLanguage>("JavaScript");
 

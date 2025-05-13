@@ -20,9 +20,12 @@ import {
 } from "@/components/icons";
 import { Collapse } from "@/components/collapse";
 import { Subtitle } from "../subtitle";
+import { OperationCode } from "./operation-code";
 
 export const OperationTabs = ({ operation }: { operation: OperationModel }) => {
-  const { isFocusModeEnabled } = useStore((state) => state);
+  const { isFocusModeEnabled, operationFocused, spec } = useStore(
+    (state) => state
+  );
 
   const body = operation.getRequestBody();
   const isBodyRequired = body?.required || false;
@@ -113,6 +116,17 @@ export const OperationTabs = ({ operation }: { operation: OperationModel }) => {
 
     setFormValues(operation.id, updatedForm);
   };
+
+  if (!operationFocused) return null;
+
+  const requestPreview = spec?.buildRequest(
+    operationFocused,
+    currentForm.requestBody,
+    currentForm.parameters,
+    currentForm.contentType
+  );
+
+  console.log(requestPreview);
 
   return (
     <div className="flex flex-col gap-8">
@@ -357,7 +371,14 @@ export const OperationTabs = ({ operation }: { operation: OperationModel }) => {
               </div>
             }
           >
-            {/* <OperationCode requestPreview={requestPreview as RequestPreview} /> */}
+            <OperationCode
+              requestPreview={{
+                url: requestPreview.url,
+                method: requestPreview.method,
+                headers: requestPreview.headers,
+                body: requestPreview.body,
+              }}
+            />
           </Tab>
         </Tabs>
       </Collapse>

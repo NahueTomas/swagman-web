@@ -1,16 +1,19 @@
 import { Button } from "@heroui/button";
 import { Card } from "@heroui/card";
 
-import { RequestPreview } from "@/hooks/use-request-forms";
-
 export type SupportedLanguage = "JavaScript" | "Python" | "cURL" | "PHP";
 
 interface CodePreviewProps {
-  requestPreview: RequestPreview;
+  requestPreview: {
+    url: string;
+    method: string;
+    headers: Record<string, string>;
+    body: Record<string, string>;
+  };
   language: SupportedLanguage;
 }
 
-export const CodePreview = ({ requestPreview, language }: CodePreviewProps) => {
+export const CodePreview = ({ language, requestPreview }: CodePreviewProps) => {
   const generateCode = (): string => {
     switch (language) {
       case "JavaScript":

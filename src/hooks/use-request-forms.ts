@@ -44,16 +44,6 @@ export interface OperationFormState {
 }
 
 /**
- * Interface for request preview data
- */
-export interface RequestPreview {
-  url: string;
-  method: string;
-  headers: { [key: string]: string };
-  body?: string | { [key: string]: any } | null;
-}
-
-/**
  * Interface for request forms global state
  */
 interface RequestFormsState {
@@ -63,9 +53,6 @@ interface RequestFormsState {
   // Global selected server
   selectedServer: string;
   selectedServerVariables: { [key: string]: string };
-
-  // Request previews by operation ID
-  requestPreviews: Record<string, RequestPreview>;
 
   // Response by operation ID
   responses: {
@@ -101,8 +88,6 @@ interface RequestFormsState {
     server: string,
     serverVariables: { [key: string]: string }
   ) => void;
-  setRequestPreview: (operationId: string, preview: RequestPreview) => void;
-  getRequestPreview: (operationId: string) => RequestPreview | null;
   setResponseLoading: (operationId: string) => void;
   setResponseSuccess: (
     operationId: string,
@@ -216,25 +201,6 @@ export const useRequestForms = create<RequestFormsState>()(
             },
           };
         });
-      },
-
-      /**
-       * Set the request preview for a specific operation
-       */
-      setRequestPreview: (operationId, preview) => {
-        set((state) => ({
-          requestPreviews: {
-            ...state.requestPreviews,
-            [operationId]: preview,
-          },
-        }));
-      },
-
-      /**
-       * Get the request preview for a specific operation
-       */
-      getRequestPreview: (operationId) => {
-        return get().requestPreviews[operationId] || null;
       },
 
       getResponse: (operationId: string) => {
