@@ -8,12 +8,18 @@ import { Url } from "@/components/operation/url";
 export const UrlSection = () => {
   const operation = useStore((state) => state.operationFocused);
   const spec = useStore((state) => state.spec);
-  const { forms, setResponseLoading, setResponseSuccess, getResponse } =
-    useRequestForms((state) => state);
+  const {
+    specificationUrl,
+    specifications,
+    setResponseLoading,
+    setResponseSuccess,
+    getResponse,
+  } = useRequestForms((state) => state);
 
   if (!operation || !spec) return null; // Need operation and spec
 
-  const currentValues = forms?.[operation.id];
+  const currentValues =
+    specifications?.[specificationUrl || ""]?.forms?.[operation.id];
   const path = operation.path;
   const methodUpper = operation.method.toUpperCase();
 
@@ -33,7 +39,7 @@ export const UrlSection = () => {
 
   const handleClick = async () => {
     try {
-      setResponseLoading(operation.id);
+      setResponseLoading(specificationUrl || "", operation.id);
       const response = await spec.makeRequest(
         operation,
         currentValues?.requestBody?.[currentValues?.contentType] || null,
@@ -41,14 +47,14 @@ export const UrlSection = () => {
         currentValues?.contentType || null
       );
 
-      setResponseSuccess(operation.id, response);
+      setResponseSuccess(specificationUrl || "", operation.id, response);
     } catch (error: unknown) {
-      setResponseSuccess(operation.id, null);
+      setResponseSuccess(specificationUrl || "", operation.id, null);
       throw error;
     }
   };
 
-  const responseStatus = getResponse(operation.id);
+  const responseStatus = getResponse(specificationUrl || "", operation.id);
 
   return (
     <div className="flex flex-col md:flex-row md:items-center gap-3 p-3 md:bg-background/50 md:border md:border-divider rounded-full">

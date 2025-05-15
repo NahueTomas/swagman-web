@@ -12,11 +12,15 @@ export const Header = () => {
     isFocusModeEnabled,
     toggleFocusMode,
   } = useStore((state) => state);
-  const { forms, setFormValues } = useRequestForms((state) => state);
+  const { specificationUrl, specifications, setFormValues } = useRequestForms(
+    (state) => state
+  );
 
   if (!operation) return null;
 
-  const currentValues = forms?.[operation?.id] || {
+  const currentValues = specifications?.[specificationUrl || ""]?.forms?.[
+    operation?.id
+  ] || {
     parameters: operation.getParameterDefaultValues(),
     requestBody: operation.getRequestBody()?.getFieldDefaultValues(),
     contentType: operation.getRequestBody()?.getMimeTypes()?.[0] || null,
@@ -27,7 +31,7 @@ export const Header = () => {
   const handleChange = (value: string, name: string) => {
     if (name === "Content-Type") currentValues.contentType = value;
     currentValues.parameters.header[name].value = value;
-    setFormValues(operation.id, { ...currentValues });
+    setFormValues(specificationUrl || "", operation.id, { ...currentValues });
   };
 
   return (

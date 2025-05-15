@@ -33,8 +33,12 @@ export const OperationTabs = ({ operation }: { operation: OperationModel }) => {
   const bodyMimeTypes = body?.getMimeTypes() || [];
 
   // Get form state from Zustand store and initialize it or create a new one
-  const { forms, setFormValues } = useRequestForms();
-  const currentForm = forms[operation.id] || {
+  const { specificationUrl, specifications, setFormValues } = useRequestForms(
+    (state) => state
+  );
+  const currentForm = specifications?.[specificationUrl || ""]?.forms?.[
+    operation.id
+  ] || {
     parameters: operation.getParameterDefaultValues(),
     contentType: bodyMimeTypes?.[0] || "",
     requestBody: body?.getFieldDefaultValues() || null,
@@ -47,7 +51,7 @@ export const OperationTabs = ({ operation }: { operation: OperationModel }) => {
 
   useEffect(() => {
     // Update form state
-    setFormValues(operation.id, { ...currentForm });
+    setFormValues(specificationUrl || "", operation.id, { ...currentForm });
 
     // Generate and set the request preview
     // TODO: Ensure the request preview
@@ -77,7 +81,7 @@ export const OperationTabs = ({ operation }: { operation: OperationModel }) => {
       requestBody: currentForm.requestBody,
     };
 
-    setFormValues(operation.id, updatedForm);
+    setFormValues(specificationUrl || "", operation.id, updatedForm);
   };
 
   const handleContentTypeChange = (contentType: string) => {
@@ -100,7 +104,7 @@ export const OperationTabs = ({ operation }: { operation: OperationModel }) => {
     }
 
     // Update form in store
-    setFormValues(operation.id, updatedForm);
+    setFormValues(specificationUrl || "", operation.id, updatedForm);
   };
 
   const updateBody = (bodyMediaType: string, bodyValues: any) => {
@@ -115,7 +119,7 @@ export const OperationTabs = ({ operation }: { operation: OperationModel }) => {
       },
     };
 
-    setFormValues(operation.id, updatedForm);
+    setFormValues(specificationUrl || "", operation.id, updatedForm);
   };
 
   if (!operationFocused) return null;

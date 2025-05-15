@@ -22,16 +22,15 @@ export const Url = ({ url, className }: UrlProps) => {
 
   // Get request forms state and actions from the store
   const {
-    forms,
-    selectedServer: globalSelectedServer,
-    selectedServerVariables: globalServerVariables,
+    specifications,
+    specificationUrl,
     setSelectedServer,
     setOperationServer,
   } = useRequestForms((state) => state);
 
   // Get operation form data
   const operationForm = operationModel?.id
-    ? forms[operationModel.id]
+    ? specifications?.[specificationUrl || ""]?.forms?.[operationModel.id]
     : undefined;
 
   // Get path and query parameters from the form state
@@ -47,9 +46,8 @@ export const Url = ({ url, className }: UrlProps) => {
   const isOperationSpecific = !!operationModel?.getServers()?.length;
 
   // Get operation-specific server if available, or fallback to global
-  const selectedServer = operationForm?.selectedServer || globalSelectedServer;
-  const selectedServerVariables =
-    operationForm?.selectedServerVariables || globalServerVariables;
+  const selectedServer = operationForm?.selectedServer;
+  const selectedServerVariables = operationForm?.selectedServerVariables;
 
   /**
    * Auto-select the first available server if none is selected
@@ -72,12 +70,17 @@ export const Url = ({ url, className }: UrlProps) => {
       // Update the server in the appropriate store (global or operation-specific)
       if (isOperationSpecific && operationModel?.id) {
         setOperationServer(
+          specificationUrl || "",
           operationModel.id,
           firstServer.getUrl(),
           serverVariables
         );
       } else {
-        setSelectedServer(firstServer.getUrl(), serverVariables);
+        setSelectedServer(
+          specificationUrl || "",
+          firstServer.getUrl(),
+          serverVariables
+        );
       }
     }
   }, [servers, selectedServer, isOperationSpecific, operationModel?.id]);
