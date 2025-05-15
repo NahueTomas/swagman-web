@@ -33,6 +33,19 @@ export const Url = ({ url, className }: UrlProps) => {
     ? specifications?.[specificationUrl || ""]?.forms?.[operationModel.id]
     : undefined;
 
+  // Get operation-specific server if available, or fallback to global
+  const isOperationSpecific = !!operationModel?.getServers()?.length;
+  const globalSelectedServer =
+    specifications?.[specificationUrl || ""]?.selectedServer;
+  const globalSelectedServerVariables =
+    specifications?.[specificationUrl || ""]?.selectedServerVariables;
+  const selectedServer = isOperationSpecific
+    ? operationForm?.selectedServer
+    : globalSelectedServer;
+  const selectedServerVariables = isOperationSpecific
+    ? operationForm?.selectedServerVariables
+    : globalSelectedServerVariables;
+
   // Get path and query parameters from the form state
   const pathParams = operationForm?.parameters?.path || {};
   const queryParams = operationForm?.parameters?.query || {};
@@ -41,13 +54,6 @@ export const Url = ({ url, className }: UrlProps) => {
   const servers = operationModel?.getServers()?.length
     ? operationModel.getServers()
     : spec?.servers || [];
-
-  // Determine if operation has specific servers
-  const isOperationSpecific = !!operationModel?.getServers()?.length;
-
-  // Get operation-specific server if available, or fallback to global
-  const selectedServer = operationForm?.selectedServer;
-  const selectedServerVariables = operationForm?.selectedServerVariables;
 
   /**
    * Auto-select the first available server if none is selected
