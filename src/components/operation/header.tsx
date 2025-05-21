@@ -1,12 +1,16 @@
-import { ClosedEyeIcon, EyeIcon, HeadersIcon } from "../icons";
+import { useState } from "react";
+
+import { ClosedEyeIcon, EyeIcon, HeadersIcon, ServerIcon } from "../icons";
 import { FormFieldSelect } from "../form-fields/form-field-select";
 
 import { useStore } from "@/hooks/use-store";
 import { useRequestForms } from "@/hooks/use-request-forms";
 import { UrlSection } from "@/components/operation/url-section";
-import { Subtitle } from "../subtitle";
+import { Servers } from "@/components/operation/servers";
 
 export const Header = () => {
+  const [isServerModalOpen, setIsServerModalOpen] = useState(false);
+
   const {
     operationFocused: operation,
     isFocusModeEnabled,
@@ -40,13 +44,17 @@ export const Header = () => {
         <UrlSection />
       </div>
       <div className="flex flex-wrap items-start justify-between">
-        <div className="flex grow bg-background/50 backdrop-blur-xl py-px px-8 border-b border-t border-divider">
+        <div className="flex items-center gap-2 grow bg-background/50 backdrop-blur-xl py-px px-8 border-b border-t border-divider">
           <button title="Focus/Unfocus" onClick={() => toggleFocusMode()}>
             {isFocusModeEnabled ? (
               <ClosedEyeIcon className="size-5" />
             ) : (
               <EyeIcon className="size-5" />
             )}
+          </button>
+
+          <button onClick={() => setIsServerModalOpen(true)}>
+            <ServerIcon className="size-5" />
           </button>
         </div>
 
@@ -83,6 +91,13 @@ export const Header = () => {
             )}
         </div>
       </div>
+
+      {isServerModalOpen && (
+        <Servers
+          isOpen={isServerModalOpen}
+          onClose={() => setIsServerModalOpen(false)}
+        />
+      )}
     </header>
   );
 };

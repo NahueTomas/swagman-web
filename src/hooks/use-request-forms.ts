@@ -1,6 +1,8 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
+import { OpenAPIServerVariable } from "@/types/openapi";
+
 /**
  * Interface for form field structure
  */
@@ -55,7 +57,7 @@ export interface RequestFormsState {
 
       // Global selected server
       selectedServer: string;
-      selectedServerVariables: { [key: string]: string };
+      selectedServerVariables: { [key: string]: OpenAPIServerVariable };
 
       // Response by operation ID
       responses: {
@@ -88,7 +90,7 @@ export interface RequestFormsState {
   setSelectedServer: (
     specificationUrl: string,
     server: string,
-    serverVariables: { [key: string]: string }
+    serverVariables: { [key: string]: OpenAPIServerVariable }
   ) => void;
   setOperationServer: (
     specificationUrl: string,
