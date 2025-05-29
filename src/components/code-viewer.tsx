@@ -1,20 +1,33 @@
-import { useEffect, useRef } from "react";
-import { EditorState, Extension } from "@codemirror/state";
-import {
-  EditorView,
-  keymap,
-  lineNumbers,
-  highlightActiveLine,
-} from "@codemirror/view";
-import { defaultKeymap } from "@codemirror/commands";
-import {
-  syntaxHighlighting,
-  defaultHighlightStyle,
-} from "@codemirror/language";
-import { json } from "@codemirror/lang-json";
-import { xml } from "@codemirror/lang-xml";
+import { Editor, OnMount } from "@monaco-editor/react";
 import { Button } from "@heroui/button";
 import { Card } from "@heroui/card";
+import { useTheme } from "@heroui/use-theme";
+import { tv } from "tailwind-variants";
+
+// Creamos un wrapper para el editor usando tailwind-variants
+const editorStyles = tv({
+  base: "h-full w-full overflow-hidden rounded-lg editor-gradient-wrapper",
+  variants: {
+    language: {
+      json: "editor-json",
+      xml: "editor-xml",
+      text: "editor-text",
+    },
+    hasError: {
+      true: "border-2 border-[#FF72E1]",
+      false: "border border-divider",
+    },
+    theme: {
+      light: "bg-white",
+      dark: "bg-[#1E1E1E]",
+    },
+  },
+  defaultVariants: {
+    hasError: false,
+    theme: "light",
+    language: "json",
+  },
+});
 
 export enum CodeViewerLanguage {
   JSON = "JSON",
@@ -31,76 +44,34 @@ export const CodeViewer = ({
   value: string;
   maxHeight?: string;
 }) => {
-  const editorRef = useRef<HTMLDivElement>(null);
-  const editorViewRef = useRef<EditorView | null>(null);
+  const { theme } = useTheme();
 
-  useEffect(() => {
-    if (!editorRef.current) return;
+  const handleEditorDidMount: OnMount = (editorInstance) => {
+    // Make the editor read-only
+    editorInstance.updateOptions({ readOnly: true });
+  };
 
-    if (editorViewRef.current) {
-      editorViewRef.current.destroy();
+  const getLanguage = () => {
+    switch (language) {
+      case CodeViewerLanguage.JSON:
+        return "json";
+      case CodeViewerLanguage.XML:
+        return "xml";
+      default:
+        return "plaintext";
     }
+  };
 
-    const extensions: Extension[] = [
-      lineNumbers(),
-      keymap.of([...defaultKeymap]),
-      highlightActiveLine(),
-      syntaxHighlighting(defaultHighlightStyle),
-      EditorView.editable.of(false), // Set as read-only
-    ];
-
-    if (language === CodeViewerLanguage.JSON) {
-      extensions.push(json());
-    } else if (language === CodeViewerLanguage.XML) {
-      extensions.push(xml());
+  const getLanguageClass = () => {
+    switch (language) {
+      case CodeViewerLanguage.JSON:
+        return "json";
+      case CodeViewerLanguage.XML:
+        return "xml";
+      default:
+        return "text";
     }
-
-    extensions.push(
-      EditorView.theme({
-        "&": {
-          fontSize: "12px",
-          border: "none",
-          height: "100%",
-          maxHeight: "100%",
-        },
-        "&.cm-focused": {
-          outline: "none",
-        },
-        ".cm-gutters": {
-          backgroundColor: "#f9fafb",
-          border: "none",
-        },
-        ".cm-activeLineGutter": {
-          backgroundColor: "#f1f5f9",
-        },
-        ".cm-content": {
-          padding: "8px",
-        },
-        ".cm-line": {
-          padding: "0 4px",
-        },
-        ".cm-gutterElement": {
-          padding: "0 8px 0 4px",
-        },
-      })
-    );
-
-    const state = EditorState.create({
-      doc: value,
-      extensions,
-    });
-
-    const view = new EditorView({
-      state,
-      parent: editorRef.current,
-    });
-
-    editorViewRef.current = view;
-
-    return () => {
-      view.destroy();
-    };
-  }, [language, value]);
+  };
 
   const onClickCopy = () => {
     navigator.clipboard.writeText(value);
@@ -112,22 +83,63 @@ export const CodeViewer = ({
       shadow="none"
     >
       <div className="flex gap-3 justify-between items-center">
-        <h6 className="text-xs font-medium">{language}</h6>
-        <Button size="sm" variant="flat" onClick={onClickCopy}>
+        <h6 className="text-xs font-medium text-foreground">
+          {language === CodeViewerLanguage.JSON
+            ? "JSON"
+            : language === CodeViewerLanguage.XML
+              ? "XML"
+              : "TEXT"}
+        </h6>
+        <Button
+          className="text-xs"
+          size="sm"
+          variant="flat"
+          onClick={onClickCopy}
+        >
           Copy
         </Button>
       </div>
       <Card
-        className="border border-divider"
         shadow="none"
         style={{
           height: "auto",
-          minHeight: "120px",
+          minHeight: "200px",
           maxHeight: maxHeight,
           overflow: "auto",
+          border: "none",
         }}
       >
-        <div ref={editorRef} className="h-full" />
+        <div
+          className={editorStyles({
+            theme: theme as "light" | "dark",
+            language: getLanguageClass() as "json" | "xml" | "text",
+          })}
+        >
+          <Editor
+            defaultValue={value}
+            height="300px"
+            language={getLanguage()}
+            options={{
+              minimap: { enabled: false },
+              scrollBeyondLastLine: false,
+              fontSize: 13,
+              lineNumbers: "on",
+              renderLineHighlight: "all",
+              readOnly: true,
+              domReadOnly: true,
+              automaticLayout: true,
+              fontFamily: "'SF Mono', Menlo, Monaco, 'Courier New', monospace",
+              scrollbar: {
+                vertical: "auto",
+                horizontal: "auto",
+                verticalScrollbarSize: 8,
+                horizontalScrollbarSize: 8,
+              },
+            }}
+            theme={theme === "dark" ? "vs-dark" : "light"}
+            onMount={handleEditorDidMount}
+          />
+        </div>
       </Card>
     </Card>
   );

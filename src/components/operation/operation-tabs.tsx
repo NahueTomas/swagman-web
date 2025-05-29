@@ -316,19 +316,24 @@ export const OperationTabs = ({ operation }: { operation: OperationModel }) => {
               </div>
 
               <div className="space-y-2">
-                {currentForm?.requestBody?.[currentForm.contentType] && (
-                  <>
-                    <Subtitle>Body content</Subtitle>
+                {currentForm?.requestBody?.[currentForm.contentType] !==
+                  undefined &&
+                  currentForm?.requestBody?.[currentForm.contentType] !==
+                    null && (
+                    <>
+                      <Subtitle>Body content</Subtitle>
 
-                    <RequestBody
-                      bodyMediaType={body?.getMimeType(currentForm.contentType)}
-                      currentValues={
-                        currentForm.requestBody[currentForm.contentType]
-                      }
-                      updateBody={updateBody}
-                    />
-                  </>
-                )}
+                      <RequestBody
+                        bodyMediaType={body?.getMimeType(
+                          currentForm.contentType
+                        )}
+                        currentValues={
+                          currentForm.requestBody[currentForm.contentType]
+                        }
+                        updateBody={updateBody}
+                      />
+                    </>
+                  )}
               </div>
             </div>
           </Tab>

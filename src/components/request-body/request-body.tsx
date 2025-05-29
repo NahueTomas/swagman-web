@@ -79,8 +79,6 @@ export const RequestBody = ({
     // TEXT LIKE
     return (
       <Code
-        defaultValue={bodyMediaType.getFullExample()?.toString() || ""}
-        id={mediaTypeName}
         language={
           (mediaTypeName.split("/")?.[1]?.toUpperCase() as CodeLanguage) ||
           CodeLanguage.TEXT
@@ -91,6 +89,13 @@ export const RequestBody = ({
             : (currentValues as string)
         }
         onChange={(value) => handleChange("body", value, true)}
+        onReset={() =>
+          handleChange(
+            "body",
+            bodyMediaType.getFullExample()?.toString() || "",
+            false
+          )
+        }
       />
     );
   };
