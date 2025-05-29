@@ -44,7 +44,9 @@ export const TaggedItem = ({
 
         {/* Method indicator - adjusted padding */}
         <Chip color={colorSet} radius="sm" size="sm" variant="flat">
-          <span className="text-[10px] flex">{methodUpper}</span>
+          <span className="text-[10px] flex w-8 justify-center">
+            {methodUpper}
+          </span>
         </Chip>
 
         {/* Operation title */}
