@@ -1,33 +1,6 @@
 import { Editor, OnMount } from "@monaco-editor/react";
 import { Button } from "@heroui/button";
 import { Card } from "@heroui/card";
-import { useTheme } from "@heroui/use-theme";
-import { tv } from "tailwind-variants";
-
-// Creamos un wrapper para el editor usando tailwind-variants
-const editorStyles = tv({
-  base: "h-full w-full overflow-hidden rounded-lg editor-gradient-wrapper",
-  variants: {
-    language: {
-      json: "editor-json",
-      xml: "editor-xml",
-      text: "editor-text",
-    },
-    hasError: {
-      true: "border-2 border-[#FF72E1]",
-      false: "border border-divider",
-    },
-    theme: {
-      light: "bg-white",
-      dark: "bg-[#1E1E1E]",
-    },
-  },
-  defaultVariants: {
-    hasError: false,
-    theme: "light",
-    language: "json",
-  },
-});
 
 export enum CodeViewerLanguage {
   JSON = "JSON",
@@ -44,8 +17,6 @@ export const CodeViewer = ({
   value: string;
   maxHeight?: string;
 }) => {
-  const { theme } = useTheme();
-
   const handleEditorDidMount: OnMount = (editorInstance) => {
     // Make the editor read-only
     editorInstance.updateOptions({ readOnly: true });
@@ -59,17 +30,6 @@ export const CodeViewer = ({
         return "xml";
       default:
         return "plaintext";
-    }
-  };
-
-  const getLanguageClass = () => {
-    switch (language) {
-      case CodeViewerLanguage.JSON:
-        return "json";
-      case CodeViewerLanguage.XML:
-        return "xml";
-      default:
-        return "text";
     }
   };
 
@@ -109,37 +69,30 @@ export const CodeViewer = ({
           border: "none",
         }}
       >
-        <div
-          className={editorStyles({
-            theme: theme as "light" | "dark",
-            language: getLanguageClass() as "json" | "xml" | "text",
-          })}
-        >
-          <Editor
-            defaultValue={value}
-            height="300px"
-            language={getLanguage()}
-            options={{
-              minimap: { enabled: false },
-              scrollBeyondLastLine: false,
-              fontSize: 13,
-              lineNumbers: "on",
-              renderLineHighlight: "all",
-              readOnly: true,
-              domReadOnly: true,
-              automaticLayout: true,
-              fontFamily: "'SF Mono', Menlo, Monaco, 'Courier New', monospace",
-              scrollbar: {
-                vertical: "auto",
-                horizontal: "auto",
-                verticalScrollbarSize: 8,
-                horizontalScrollbarSize: 8,
-              },
-            }}
-            theme={theme === "dark" ? "vs-dark" : "light"}
-            onMount={handleEditorDidMount}
-          />
-        </div>
+        <Editor
+          defaultValue={value}
+          height="300px"
+          language={getLanguage()}
+          options={{
+            minimap: { enabled: false },
+            scrollBeyondLastLine: false,
+            fontSize: 13,
+            lineNumbers: "on",
+            renderLineHighlight: "all",
+            readOnly: true,
+            domReadOnly: true,
+            automaticLayout: true,
+            fontFamily: "'SF Mono', Menlo, Monaco, 'Courier New', monospace",
+            scrollbar: {
+              vertical: "auto",
+              horizontal: "auto",
+              verticalScrollbarSize: 8,
+              horizontalScrollbarSize: 8,
+            },
+          }}
+          theme={"vs-dark"}
+          onMount={handleEditorDidMount}
+        />
       </Card>
     </Card>
   );

@@ -3,7 +3,6 @@ import { Editor, OnMount, OnChange } from "@monaco-editor/react";
 import { editor as monacoEditor, Uri } from "monaco-editor";
 import { Card } from "@heroui/card";
 import { Button } from "@heroui/button";
-import { useTheme } from "@heroui/use-theme";
 import { addToast } from "@heroui/toast";
 
 // Add Monaco type augmentation for TypeScript
@@ -34,7 +33,6 @@ export const Code = ({
     useState<monacoEditor.IStandaloneCodeEditor | null>(null);
   const [hasError, setHasError] = useState(false);
   const [isFormatting, setIsFormatting] = useState(false);
-  const { theme } = useTheme();
 
   const handleClear = () => onChange("");
 
@@ -52,11 +50,6 @@ export const Code = ({
   const handleEditorDidMount: OnMount = (editorInstance) => {
     setEditor(editorInstance);
     setupValidation(editorInstance);
-
-    // Set theme and initial value
-    if (theme === "dark") {
-      editorInstance.updateOptions({ theme: "vs-dark" });
-    }
     editorInstance.setValue(value);
   };
 
