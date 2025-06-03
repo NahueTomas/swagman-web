@@ -25,44 +25,52 @@ export const CodePreview = ({ language, requestPreview }: CodePreviewProps) => {
   const generateCode = (): string => {
     switch (language) {
       case "JavaScript":
+        const formattedHeaders = JSON.stringify(requestPreview.headers, null, 2)
+          .split("\n")
+          .map((line, i) => (i === 0 ? line : `    ${line}`))
+          .join("\n");
+
         return `async function execute${
           requestPreview.method.charAt(0).toUpperCase() +
           requestPreview.method.slice(1).toLowerCase()
         }Request() {
-  try {
-    ${
-      isMultipartFormData()
-        ? `const formData = new FormData();
+${
+  isMultipartFormData()
+    ? `  const formData = new FormData();
 ${Object.entries(requestPreview.body)
   .map(
     ([key, value]) =>
-      `    formData.append("${key}", ${
+      `  formData.append("${key}", ${
         typeof value === "string"
           ? `"${value}"`
           : value && typeof value === "object" && "name" in value
-            ? `/* Archivo: ${(value as any).name} */`
+            ? `/* File: ${(value as any).name} */`
             : JSON.stringify(value)
       });`
   )
   .join("\n")}`
+    : ""
+}
+  const response = await fetch('${requestPreview.url}', {
+    method: '${requestPreview.method}',
+    headers: ${formattedHeaders}${
+      requestPreview.body
+        ? `,
+    body: ${
+      isMultipartFormData()
+        ? "formData"
+        : `JSON.stringify(${JSON.stringify(requestPreview.body, null, 2)
+            .split("\n")
+            .map((line, i) => (i === 0 ? line : `      ${line}`))
+            .join("\n")})`
+    }`
         : ""
     }
-    const response = await fetch('${requestPreview.url}', {
-      method: '${requestPreview.method}',
-      headers: ${JSON.stringify(requestPreview.headers, null, 2)}${
-        requestPreview.body
-          ? `,
-      body: ${isMultipartFormData() ? "formData" : `JSON.stringify(${JSON.stringify(requestPreview.body, null, 2)})`}`
-          : ""
-      }
-    });
-    
-    const data = await response.json();
-    console.log(data);
-    return data;
-  } catch (error) {
-    console.error("Error:", error);
-  }
+  });
+
+  const data = await response.json();
+  console.log(data);
+  return data;
 }`;
 
       case "cURL":
