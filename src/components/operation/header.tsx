@@ -1,21 +1,16 @@
 import { useState } from "react";
 
-import { ClosedEyeIcon, EyeIcon, HeadersIcon, ServerIcon } from "../icons";
-import { FormFieldSelect } from "../form-fields/form-field-select";
-
 import { useStore } from "@/hooks/use-store";
 import { useRequestForms } from "@/hooks/use-request-forms";
+import { HeadersIcon, ServerIcon } from "@/components/icons";
+import { FormFieldSelect } from "@/components/form-fields/form-field-select";
 import { UrlSection } from "@/components/operation/url-section";
 import { Servers } from "@/components/operation/servers";
 
 export const Header = () => {
   const [isServerModalOpen, setIsServerModalOpen] = useState(false);
 
-  const {
-    operationFocused: operation,
-    isFocusModeEnabled,
-    toggleFocusMode,
-  } = useStore((state) => state);
+  const { operationFocused: operation } = useStore((state) => state);
   const { specificationUrl, specifications, setFormValues } = useRequestForms(
     (state) => state
   );
@@ -44,21 +39,13 @@ export const Header = () => {
         <UrlSection />
       </div>
       <div className="flex flex-wrap items-start justify-between">
-        <div className="flex items-center gap-2 grow bg-background/50 backdrop-blur-xl py-px px-8 border-b border-t border-divider">
-          <button title="Focus/Unfocus" onClick={() => toggleFocusMode()}>
-            {isFocusModeEnabled ? (
-              <ClosedEyeIcon className="size-5" />
-            ) : (
-              <EyeIcon className="size-5" />
-            )}
-          </button>
-
+        <div className="flex items-center gap-2 grow bg-background/50 backdrop-blur-xl py-0.5 px-8 border-b border-t border-divider">
           <button onClick={() => setIsServerModalOpen(true)}>
             <ServerIcon className="size-5" />
           </button>
         </div>
 
-        <div className="flex flex-col gap-2 justify-end bg-background/50 backdrop-blur-xl pr-8 pl-6 pb-2 border-b border-l border-divider rounded-bl-3xl">
+        <div className="absolute top-21 right-0 flex flex-col gap-2 justify-end bg-background/50 backdrop-blur-xl pr-8 pl-6 pb-2 border-b border-l border-divider rounded-bl-3xl">
           <div className="flex gap-2">
             <h5 className="flex items-center gap-2 text-nowrap text-xs">
               <HeadersIcon className="size-4" /> Accept

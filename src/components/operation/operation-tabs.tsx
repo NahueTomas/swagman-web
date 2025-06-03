@@ -21,12 +21,9 @@ import {
   HeadersIcon,
   ParametersIcon,
 } from "@/components/icons";
-import { Collapse } from "@/components/collapse";
 
 export const OperationTabs = ({ operation }: { operation: OperationModel }) => {
-  const { isFocusModeEnabled, operationFocused, spec } = useStore(
-    (state) => state
-  );
+  const { operationFocused, spec } = useStore((state) => state);
 
   const body = operation.getRequestBody();
   const isBodyRequired = body?.required || false;
