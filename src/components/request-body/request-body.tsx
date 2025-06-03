@@ -2,28 +2,31 @@ import { RequestBodyMediaType } from "@/models/request-body-media-type";
 import { Code, CodeLanguage } from "@/components/request-body/code";
 import { RequestBodyRow } from "@/components/request-body/request-body.row";
 
+type RequestBodyValue = {
+  value: any | any[];
+  included: boolean;
+};
+
+type RequestBodyValues =
+  | {
+      [key: string]: RequestBodyValue;
+    }
+  | RequestBodyValue;
+
+interface RequestBodyProps {
+  bodyMediaType: RequestBodyMediaType | undefined;
+  currentValues: RequestBodyValues;
+  updateBody: (
+    bodyMediaType: string,
+    body: Record<string, RequestBodyValue> | RequestBodyValue
+  ) => void;
+}
+
 export const RequestBody = ({
   bodyMediaType,
   currentValues,
   updateBody,
-}: {
-  bodyMediaType: RequestBodyMediaType | undefined;
-  currentValues:
-    | { [key: string]: { value: any | any[]; included: boolean } }
-    | string;
-  updateBody: (
-    bodyMediaType: string,
-    body:
-      | Record<
-          string,
-          {
-            value: any | any[];
-            included: boolean;
-          }
-        >
-      | string
-  ) => void;
-}) => {
+}: RequestBodyProps) => {
   if (!bodyMediaType) return null;
 
   const mediaTypeName = bodyMediaType.name;
@@ -34,12 +37,15 @@ export const RequestBody = ({
     value: any | any[],
     included: boolean
   ) => {
-    if (mediaTypeFormat === "text") return updateBody(mediaTypeName, value);
+    if (mediaTypeFormat === "text")
+      return updateBody(mediaTypeName, { value, included: true });
 
-    return updateBody(mediaTypeName, {
-      ...(currentValues as object),
+    const updatedValues = {
+      ...(currentValues as Record<string, RequestBodyValue>),
       [name]: { value, included },
-    });
+    };
+
+    return updateBody(mediaTypeName, updatedValues);
   };
 
   const getContentTypeComponent = () => {
@@ -48,26 +54,22 @@ export const RequestBody = ({
 
     // FORM LIKE
     if (mediaTypeFormat === "form") {
+      const formValues = currentValues as Record<string, RequestBodyValue>;
+
       return (
         <div className="space-y-2">
           {bodyMediaType.getFields().map((field) => {
+            const fieldValue = formValues[field.name];
+
             return (
               <RequestBodyRow
                 key={field.name}
                 id={field.name}
-                included={
-                  typeof currentValues === "object"
-                    ? currentValues[field.name]?.included
-                    : undefined
-                }
+                included={fieldValue?.included ?? false}
                 name={field.name}
                 required={field.required}
                 schema={field.schema}
-                value={
-                  typeof currentValues === "object"
-                    ? currentValues[field.name]?.value || ""
-                    : ""
-                }
+                value={fieldValue?.value ?? ""}
                 onChange={handleChange}
               />
             );
@@ -77,17 +79,15 @@ export const RequestBody = ({
     }
 
     // TEXT LIKE
+    const textValue = currentValues as RequestBodyValue;
+
     return (
       <Code
         language={
           (mediaTypeName.split("/")?.[1]?.toUpperCase() as CodeLanguage) ||
           CodeLanguage.TEXT
         }
-        value={
-          currentValues && typeof currentValues === "object"
-            ? currentValues["body"]?.value
-            : (currentValues as string)
-        }
+        value={textValue.value as string}
         onChange={(value) => handleChange("body", value, true)}
         onReset={() =>
           handleChange(
