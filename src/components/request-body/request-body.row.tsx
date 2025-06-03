@@ -36,8 +36,8 @@ export const RequestBodyRow = ({
   const FormFieldComponent = schema ? getFormFieldComponent(schema) : null;
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-12 gap-4 p-4 border border-divider rounded-lg transition-colors items-center">
-      <div className="sm:col-span-1 flex items-center">
+    <div className="grid grid-cols-1 sm:grid-cols-[2rem_1fr_1fr] gap-4 p-4 border border-divider rounded-xl bg-content1/10 transition-colors items-center">
+      <div className="flex items-center">
         <FormFieldCheckbox
           id={`body-${id}`}
           required={required}
@@ -48,7 +48,7 @@ export const RequestBodyRow = ({
           }}
         />
       </div>
-      <div className="sm:col-span-4 flex flex-col">
+      <div className="flex flex-col">
         <div className="flex items-center gap-2">
           <span className="font-medium text-sm">{name}</span>
           {required && <Chip color="danger">Required</Chip>}
@@ -64,11 +64,11 @@ export const RequestBodyRow = ({
           </Chip>
         </div>
         {schema.description && (
-          <p className="text-xs mt-1">{schema.description}</p>
+          <p className="text-xs mt-4">{schema.description}</p>
         )}
       </div>
 
-      <div className="sm:col-span-7">
+      <div>
         {included && FormFieldComponent && (
           <FormFieldComponent
             id={id}
