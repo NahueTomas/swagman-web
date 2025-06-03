@@ -3,6 +3,7 @@ import { Chip } from "@heroui/chip";
 
 import { useRequestForms } from "@/hooks/use-request-forms";
 import { useStore } from "@/hooks/use-store";
+import { OpenAPIServerVariable } from "@/types/openapi";
 
 /**
  * Props for the OperationUrl component
@@ -61,20 +62,24 @@ export const Url = ({ url, className }: UrlProps) => {
   useEffect(() => {
     if (servers.length > 0 && !selectedServer) {
       const firstServer = servers[0];
-
-      // Get default server variables
-      const serverVariables: { [key: string]: string } = {};
       const variables = firstServer.getVariables();
 
-      if (variables) {
-        // Initialize server variables with defaults
-        Object.entries(variables).forEach(([key, variable]) => {
-          serverVariables[key] = variable.default;
-        });
-      }
-
-      // Update the server in the appropriate store (global or operation-specific)
       if (isOperationSpecific && operationModel?.id) {
+        // For operation-specific servers, use string values
+        const serverVariables: { [key: string]: string } = {};
+
+        if (variables) {
+          Object.entries(variables).forEach(([key, variable]) => {
+            if (
+              variable &&
+              typeof variable === "object" &&
+              "default" in variable
+            ) {
+              serverVariables[key] = String(variable.default);
+            }
+          });
+        }
+
         setOperationServer(
           specificationUrl || "",
           operationModel.id,
@@ -82,6 +87,25 @@ export const Url = ({ url, className }: UrlProps) => {
           serverVariables
         );
       } else {
+        // For global servers, use OpenAPIServerVariable type
+        const serverVariables: { [key: string]: OpenAPIServerVariable } = {};
+
+        if (variables) {
+          Object.entries(variables).forEach(([key, variable]) => {
+            if (
+              variable &&
+              typeof variable === "object" &&
+              "default" in variable
+            ) {
+              serverVariables[key] = {
+                default: String(variable.default),
+                description: variable.description || "",
+                enum: variable.enum || [],
+              };
+            }
+          });
+        }
+
         setSelectedServer(
           specificationUrl || "",
           firstServer.getUrl(),
@@ -99,26 +123,26 @@ export const Url = ({ url, className }: UrlProps) => {
     let queryParts: string[] = [];
 
     // Process query parameters
-    Object.entries(queryParams).forEach(([paramName, paramData]) => {
-      const isIncluded = paramData.included;
+    Object.entries(queryParams || {}).forEach(([paramName, paramData]) => {
+      // Ensure paramData exists and has the expected structure
+      if (!paramData || typeof paramData !== "object") return;
 
-      if (
-        isIncluded &&
-        paramData.value !== undefined &&
-        paramData.value !== null
-      ) {
-        if (Array.isArray(paramData.value)) {
+      const isIncluded = paramData.included ?? true;
+      const value = paramData.value;
+
+      if (isIncluded && value !== undefined && value !== null) {
+        if (Array.isArray(value)) {
           // For array values, add each value as a separate parameter
-          paramData.value.forEach((val) => {
+          value.forEach((val) => {
             if (val !== undefined && val !== null) {
-              queryParts.push(`${paramName}=${encodeURIComponent(val)}`);
+              queryParts.push(
+                `${paramName}=${encodeURIComponent(String(val))}`
+              );
             }
           });
         } else {
           // For single values, add as a single parameter
-          queryParts.push(
-            `${paramName}=${encodeURIComponent(paramData.value)}`
-          );
+          queryParts.push(`${paramName}=${encodeURIComponent(String(value))}`);
         }
       }
     });
@@ -153,10 +177,23 @@ export const Url = ({ url, className }: UrlProps) => {
           selectedServerVariables &&
           Object.keys(selectedServerVariables).length > 0
         ) {
+          // Convert variables to string values
+          const stringVariables: { [key: string]: string } = {};
+
+          Object.entries(selectedServerVariables).forEach(([key, value]) => {
+            if (typeof value === "string") {
+              stringVariables[key] = value;
+            } else if (
+              value &&
+              typeof value === "object" &&
+              "default" in value
+            ) {
+              stringVariables[key] = value.default;
+            }
+          });
+
           // Use custom variables
-          displayUrl = currentServerModel.getUrlWithVariables(
-            selectedServerVariables
-          );
+          displayUrl = currentServerModel.getUrlWithVariables(stringVariables);
         } else {
           // Use default variables
           displayUrl = currentServerModel.getUrlWithDefaultVariables();
