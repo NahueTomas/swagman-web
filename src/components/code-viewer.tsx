@@ -1,6 +1,7 @@
 import { Editor, OnMount } from "@monaco-editor/react";
 import { Button } from "@heroui/button";
 import { Card } from "@heroui/card";
+import { useRef } from "react";
 
 export enum CodeViewerLanguage {
   JSON = "JSON",
@@ -17,9 +18,12 @@ export const CodeViewer = ({
   value: string;
   maxHeight?: string;
 }) => {
-  const handleEditorDidMount: OnMount = (editorInstance) => {
+  const editorRef = useRef<any>(null);
+
+  const handleEditorDidMount: OnMount = (editor) => {
+    editorRef.current = editor;
     // Make the editor read-only
-    editorInstance.updateOptions({ readOnly: true });
+    editor.updateOptions({ readOnly: true });
   };
 
   const getLanguage = () => {
@@ -70,7 +74,17 @@ export const CodeViewer = ({
         }}
       >
         <Editor
-          defaultValue={value}
+          beforeMount={(monaco) => {
+            // Opcional: Configurar el formato para cada lenguaje
+            if (language === CodeViewerLanguage.JSON) {
+              monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
+                validate: true,
+                allowComments: false,
+                schemas: [],
+                enableSchemaRequest: false,
+              });
+            }
+          }}
           height="300px"
           language={getLanguage()}
           options={{
@@ -91,6 +105,7 @@ export const CodeViewer = ({
             },
           }}
           theme={"vs-dark"}
+          value={value}
           onMount={handleEditorDidMount}
         />
       </Card>

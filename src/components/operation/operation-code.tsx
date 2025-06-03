@@ -27,7 +27,7 @@ export const OperationCode = ({
 
         {/* Language Selector */}
         <CardSelectableButtons
-          options={["JavaScript", "Python", "cURL", "PHP"].map((lang) => ({
+          options={["JavaScript", "cURL"].map((lang) => ({
             value: lang,
             selected: selectedLanguage === lang,
           }))}

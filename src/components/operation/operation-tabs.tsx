@@ -132,7 +132,7 @@ export const OperationTabs = ({ operation }: { operation: OperationModel }) => {
   );
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
       <div className="flex flex-col gap-4">
         <Tabs
           aria-label="Parameters, Headers and Body"
@@ -340,11 +340,7 @@ export const OperationTabs = ({ operation }: { operation: OperationModel }) => {
         </Tabs>
       </div>
 
-      <Collapse
-        active={!isFocusModeEnabled}
-        classNameContent="flex flex-col gap-4 w-full"
-        variant="zoom"
-      >
+      <div className="flex flex-col gap-4">
         <Tabs
           aria-label="Responses and Code"
           classNames={{
@@ -395,7 +391,7 @@ export const OperationTabs = ({ operation }: { operation: OperationModel }) => {
             />
           </Tab>
         </Tabs>
-      </Collapse>
+      </div>
     </div>
   );
 };
