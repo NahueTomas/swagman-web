@@ -1,11 +1,12 @@
-import type { OpenAPIMediaType } from '../types/openapi';
-import { getBodyExample } from '../utils/openapi';
-import { RequestBodyField } from './request-body-field';
+import type { OpenAPIMediaType } from "@/types/openapi";
+
+import { getBodyExample } from "@/utils/openapi";
+import { RequestBodyField } from "@/models/request-body-field";
 
 const FORM_MEDIA_TYPES = [
-  'application/x-www-form-urlencoded',
-  'multipart/form-data',
-  'application/octet-stream',
+  "application/x-www-form-urlencoded",
+  "multipart/form-data",
+  "application/octet-stream",
 ];
 
 export class RequestBodyMediaType {
@@ -22,22 +23,23 @@ export class RequestBodyMediaType {
     this.fields = this.processFields();
   }
 
-  private processMediaTypeFormat(): 'form' | 'text' {
+  private processMediaTypeFormat(): "form" | "text" {
     // schema.format = binary → field file
-    if (this.mediaType.schema?.format === 'binary') return 'form';
-    if (FORM_MEDIA_TYPES.includes(this.name)) return 'form';
-    return 'text';
+    if (this.mediaType.schema?.format === "binary") return "form";
+    if (FORM_MEDIA_TYPES.includes(this.name)) return "form";
+
+    return "text";
   }
 
   private processFields() {
     const fields: RequestBodyField[] = [];
     const properties = this.mediaType?.schema?.properties;
 
-    if (!properties && this.mediaType?.schema?.format === 'binary')
+    if (!properties && this.mediaType?.schema?.format === "binary")
       return [
         new RequestBodyField(
-          'file',
-          this.mediaType?.schema?.required?.includes('file') || false,
+          "file",
+          this.mediaType?.schema?.required?.includes("file") || false,
           this.mediaType.schema
         ),
       ];
@@ -46,6 +48,7 @@ export class RequestBodyMediaType {
 
     for (const property in properties) {
       const prop = properties[property];
+
       fields.push(
         new RequestBodyField(
           property,
@@ -62,10 +65,10 @@ export class RequestBodyMediaType {
     return this.mediaTypeFormat;
   }
 
-  public getFullExample() {
+  public getFullExample(): string {
     return getBodyExample(
       this.mediaType.schema,
-      this.name.split('/')?.[1] || undefined
+      this.name.split("/")?.[1] || undefined
     );
   }
 

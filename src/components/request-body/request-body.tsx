@@ -2,24 +2,16 @@ import { RequestBodyMediaType } from "@/models/request-body-media-type";
 import { Code, CodeLanguage } from "@/components/request-body/code";
 import { RequestBodyRow } from "@/components/request-body/request-body.row";
 
-type RequestBodyValue = {
-  value: any | any[];
-  included: boolean;
-};
-
 type RequestBodyValues =
   | {
-      [key: string]: RequestBodyValue;
+      [key: string]: { value: any | any[]; included: boolean };
     }
-  | RequestBodyValue;
+  | string;
 
 interface RequestBodyProps {
   bodyMediaType: RequestBodyMediaType | undefined;
   currentValues: RequestBodyValues;
-  updateBody: (
-    bodyMediaType: string,
-    body: Record<string, RequestBodyValue> | RequestBodyValue
-  ) => void;
+  updateBody: (bodyMediaType: string, body: RequestBodyValues) => void;
 }
 
 export const RequestBody = ({
@@ -37,11 +29,10 @@ export const RequestBody = ({
     value: any | any[],
     included: boolean
   ) => {
-    if (mediaTypeFormat === "text")
-      return updateBody(mediaTypeName, { value, included: true });
+    if (mediaTypeFormat === "text") return updateBody(mediaTypeName, value);
 
     const updatedValues = {
-      ...(currentValues as Record<string, RequestBodyValue>),
+      ...(currentValues as Record<string, { value: any; included: boolean }>),
       [name]: { value, included },
     };
 
@@ -54,7 +45,10 @@ export const RequestBody = ({
 
     // FORM LIKE
     if (mediaTypeFormat === "form") {
-      const formValues = currentValues as Record<string, RequestBodyValue>;
+      const formValues = currentValues as Record<
+        string,
+        { value: any; included: boolean }
+      >;
 
       return (
         <div className="space-y-2">
@@ -79,7 +73,7 @@ export const RequestBody = ({
     }
 
     // TEXT LIKE
-    const textValue = currentValues as RequestBodyValue;
+    const textValue = currentValues as string;
 
     return (
       <Code
@@ -87,7 +81,7 @@ export const RequestBody = ({
           (mediaTypeName.split("/")?.[1]?.toUpperCase() as CodeLanguage) ||
           CodeLanguage.TEXT
         }
-        value={textValue.value as string}
+        value={textValue}
         onChange={(value) => handleChange("body", value, true)}
         onReset={() =>
           handleChange(
