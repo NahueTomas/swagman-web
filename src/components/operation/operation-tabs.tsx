@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Chip } from "@heroui/chip";
 import { Tabs, Tab } from "@heroui/tabs";
 import { Card } from "@heroui/card";
@@ -23,6 +23,8 @@ import {
 } from "@/components/icons";
 
 export const OperationTabs = ({ operation }: { operation: OperationModel }) => {
+  const [selectedTab, setSelectedTab] = useState("parameters");
+  const [selectedResponseTab, setSelectedResponseTab] = useState("responses");
   const { operationFocused, spec } = useStore((state) => state);
 
   const body = operation.getRequestBody();
@@ -53,6 +55,14 @@ export const OperationTabs = ({ operation }: { operation: OperationModel }) => {
     // Generate and set the request preview
     // TODO: Ensure the request preview
   }, [operation.id]);
+
+  useEffect(() => {
+    // Reset tabs when operation changes
+    if (!body) {
+      setSelectedTab("parameters");
+    }
+    setSelectedResponseTab("responses");
+  }, [operation.id, body]);
 
   const handleParameterChange = (
     name: string,
@@ -141,8 +151,10 @@ export const OperationTabs = ({ operation }: { operation: OperationModel }) => {
             tab: "max-w-fit px-0 h-12",
           }}
           color="default"
+          selectedKey={selectedTab}
           size="lg"
           variant="underlined"
+          onSelectionChange={(key) => setSelectedTab(key.toString())}
         >
           <Tab
             key="parameters"
@@ -348,8 +360,10 @@ export const OperationTabs = ({ operation }: { operation: OperationModel }) => {
             tab: "max-w-fit px-0 h-12",
           }}
           color="default"
+          selectedKey={selectedResponseTab}
           size="lg"
           variant="underlined"
+          onSelectionChange={(key) => setSelectedResponseTab(key.toString())}
         >
           <Tab
             key="responses"
