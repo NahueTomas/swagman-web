@@ -8,9 +8,11 @@ import { useStore } from "@/hooks/use-store";
 import { Error } from "@/components/error";
 import { Loading } from "@/components/loading";
 import { unescapeUrl } from "@/utils/helpers";
+import { useRequestForms } from "@/hooks/use-request-forms";
 
 export default function SpecificationLayout() {
   const { setSpec } = useStore();
+  const { setSpecification } = useRequestForms();
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -22,6 +24,8 @@ export default function SpecificationLayout() {
     const specUrl = unescapeUrl(urlIndex > 0 ? pathParts[urlIndex] : "");
 
     const spec = new SpecModel();
+
+    setSpecification(specUrl);
 
     spec
       .processSpec(specUrl)

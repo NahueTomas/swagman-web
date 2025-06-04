@@ -1,22 +1,25 @@
-import { ClosedEyeIcon, EyeIcon, HeadersIcon } from "../icons";
-import { FormFieldSelect } from "../form-fields/form-field-select";
+import { useState } from "react";
 
 import { useStore } from "@/hooks/use-store";
 import { useRequestForms } from "@/hooks/use-request-forms";
+import { HeadersIcon, ServerIcon } from "@/components/icons";
+import { FormFieldSelect } from "@/components/form-fields/form-field-select";
 import { UrlSection } from "@/components/operation/url-section";
-import { Subtitle } from "../subtitle";
+import { Servers } from "@/components/operation/servers";
 
 export const Header = () => {
-  const {
-    operationFocused: operation,
-    isFocusModeEnabled,
-    toggleFocusMode,
-  } = useStore((state) => state);
-  const { forms, setFormValues } = useRequestForms((state) => state);
+  const [isServerModalOpen, setIsServerModalOpen] = useState(false);
+
+  const { operationFocused: operation } = useStore((state) => state);
+  const { specificationUrl, specifications, setFormValues } = useRequestForms(
+    (state) => state
+  );
 
   if (!operation) return null;
 
-  const currentValues = forms?.[operation?.id] || {
+  const currentValues = specifications?.[specificationUrl || ""]?.forms?.[
+    operation?.id
+  ] || {
     parameters: operation.getParameterDefaultValues(),
     requestBody: operation.getRequestBody()?.getFieldDefaultValues(),
     contentType: operation.getRequestBody()?.getMimeTypes()?.[0] || null,
@@ -27,7 +30,7 @@ export const Header = () => {
   const handleChange = (value: string, name: string) => {
     if (name === "Content-Type") currentValues.contentType = value;
     currentValues.parameters.header[name].value = value;
-    setFormValues(operation.id, { ...currentValues });
+    setFormValues(specificationUrl || "", operation.id, { ...currentValues });
   };
 
   return (
@@ -36,17 +39,13 @@ export const Header = () => {
         <UrlSection />
       </div>
       <div className="flex flex-wrap items-start justify-between">
-        <div className="flex grow bg-background/50 backdrop-blur-xl py-px px-8 border-b border-t border-divider">
-          <button title="Focus/Unfocus" onClick={() => toggleFocusMode()}>
-            {isFocusModeEnabled ? (
-              <ClosedEyeIcon className="size-5" />
-            ) : (
-              <EyeIcon className="size-5" />
-            )}
+        <div className="flex items-center gap-2 grow bg-background/50 backdrop-blur-xl py-0.5 px-8 border-b border-t border-divider">
+          <button onClick={() => setIsServerModalOpen(true)}>
+            <ServerIcon className="size-5" />
           </button>
         </div>
 
-        <div className="flex flex-col gap-2 justify-end bg-background/50 backdrop-blur-xl pr-8 pl-6 pb-2 border-b border-l border-divider rounded-bl-3xl">
+        <div className="absolute top-21 right-0 flex flex-col gap-2 justify-end bg-background/50 backdrop-blur-xl pr-8 pl-6 pb-2 border-b border-l border-divider rounded-bl-3xl">
           <div className="flex gap-2">
             <h5 className="flex items-center gap-2 text-nowrap text-xs">
               <HeadersIcon className="size-4" /> Accept
@@ -79,6 +78,13 @@ export const Header = () => {
             )}
         </div>
       </div>
+
+      {isServerModalOpen && (
+        <Servers
+          isOpen={isServerModalOpen}
+          onClose={() => setIsServerModalOpen(false)}
+        />
+      )}
     </header>
   );
 };

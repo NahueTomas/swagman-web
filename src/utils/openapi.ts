@@ -208,6 +208,9 @@ export function getBodyExample(schema: any, format: string | undefined) {
       ? result
       : JSON.stringify(result, null, 2);
   } catch (err) {
-    return err;
+    // eslint-disable-next-line no-console
+    console.error(err);
+
+    return "";
   }
 }

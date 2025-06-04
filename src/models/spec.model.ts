@@ -81,9 +81,7 @@ export class SpecModel {
     this.servers = this.generateServers(spec.servers || []);
 
     // TODO: Improve this
-    this.operations = this.generateOperations(
-      typeof config === "string" ? config : undefined
-    );
+    this.operations = this.generateOperations();
     this.tagList = this.generateTagList();
   }
 
@@ -100,7 +98,7 @@ export class SpecModel {
     return generatedServers;
   }
 
-  private generateOperations(specificationUrl?: string) {
+  private generateOperations() {
     if (!this.processed) throw new Error("Spec not processed");
 
     const operations: Array<OperationModel> = [];
@@ -114,8 +112,7 @@ export class SpecModel {
         const operationModel = new OperationModel(
           path,
           method,
-          operation as OpenAPIOperation,
-          specificationUrl
+          operation as OpenAPIOperation
         );
 
         if (operationList.includes(operationModel.id)) continue;

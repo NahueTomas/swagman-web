@@ -1,6 +1,8 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
+import { OpenAPIServerVariable } from "@/types/openapi";
+
 /**
  * Interface for form field structure
  */
@@ -46,50 +48,59 @@ export interface OperationFormState {
 /**
  * Interface for request forms global state
  */
-interface RequestFormsState {
-  // Forms data by operation ID
-  forms: Record<string, OperationFormState>;
+export interface RequestFormsState {
+  specificationUrl: string | null;
+  specifications: {
+    [specificationUrl: string]: {
+      // Forms data by operation ID
+      forms: Record<string, OperationFormState>;
 
-  // Global selected server
-  selectedServer: string;
-  selectedServerVariables: { [key: string]: string };
+      // Global selected server
+      selectedServer: string;
+      selectedServerVariables: { [key: string]: OpenAPIServerVariable };
 
-  // Response by operation ID
-  responses: {
-    [operationId: string]: {
-      loading: boolean;
-      data: {
-        body: { [key: string]: any } | string;
-        data: string;
-        headers: { [key: string]: string | string[] };
-        obj: { [key: string]: any } | string;
-        ok: boolean;
-        status: number;
-        statusText: string;
-        text: string;
-        url: string;
-        date: Date;
-      } | null;
+      // Response by operation ID
+      responses: {
+        [operationId: string]: {
+          loading: boolean;
+          data: {
+            body: { [key: string]: any } | string;
+            data: string;
+            headers: { [key: string]: string | string[] };
+            obj: { [key: string]: any } | string;
+            ok: boolean;
+            status: number;
+            statusText: string;
+            text: string;
+            url: string;
+            date: Date;
+          } | null;
+        };
+      };
     };
   };
 
   // Actions
   setFormValues: (
+    specificationUrl: string,
     operationId: string,
     data: Partial<OperationFormState>
   ) => void;
-  clearForm: (operationId: string) => void;
+  clearForm: (specificationUrl: string, operationId: string) => void;
   setSelectedServer: (
+    specificationUrl: string,
     server: string,
-    serverVariables: { [key: string]: string }
+    serverVariables: { [key: string]: OpenAPIServerVariable }
   ) => void;
   setOperationServer: (
+    specificationUrl: string,
     operationId: string,
     server: string,
     serverVariables: { [key: string]: string }
   ) => void;
-  setResponseLoading: (operationId: string) => void;
+  setResponseLoading: (specificationUrl: string, operationId: string) => void;
   setResponseSuccess: (
+    specificationUrl: string,
     operationId: string,
     data: {
       body: { [key: string]: any } | string;
@@ -104,7 +115,11 @@ interface RequestFormsState {
       date: Date;
     } | null
   ) => void;
-  getResponse: (operationId: string) => {
+  setSpecification: (specificationUrl: string | null) => void;
+  getResponse: (
+    specificationUrl: string,
+    operationId: string
+  ) => {
     loading: boolean;
     data: object | null;
   } | null;
@@ -118,68 +133,143 @@ export const useRequestForms = create<RequestFormsState>()(
   persist(
     (set, get) => ({
       // Initial state
-      forms: {},
-      selectedServer: "",
-      selectedServerVariables: {},
-      requestPreviews: {},
-      responses: {},
+      specificationUrl: null,
+      specifications: {},
 
       /**
        * Set form values for a specific operation
        */
-      setFormValues: (operationId, data) =>
-        set((state) => ({
-          forms: {
-            ...state.forms,
-            [operationId]: {
-              ...(state.forms[operationId] || {
-                parameters: {
-                  path: {},
-                  query: {},
-                  header: {},
-                  cookie: {},
-                },
-                contentType: "none",
-                requestBody: null,
-              }),
-              ...data,
+      setFormValues: (specificationUrl, operationId, data) =>
+        set((state) => {
+          if (!specificationUrl) return state;
+          // Ensure specifications object exists
+          const specs = state.specifications || {};
+
+          // Ensure specification URL entry exists with default values
+          const currentSpec = specs[specificationUrl] || {
+            forms: {},
+            selectedServer: "",
+            selectedServerVariables: {},
+            responses: {},
+          };
+
+          // Get current forms or initialize
+          const currentForms = currentSpec.forms || {};
+
+          // Get current form or initialize with defaults
+          const currentForm = currentForms[operationId] || {
+            parameters: {
+              path: {},
+              query: {},
+              header: {},
+              cookie: {},
             },
-          },
-        })),
+            contentType: null,
+            requestBody: null,
+          };
+
+          return {
+            specifications: {
+              ...specs,
+              [specificationUrl]: {
+                ...currentSpec,
+                forms: {
+                  ...currentForms,
+                  [operationId]: {
+                    ...currentForm,
+                    ...data,
+                  },
+                },
+              },
+            },
+          };
+        }),
+
+      setSpecification: (specificationUrl: string | null) =>
+        set((state) => {
+          if (!specificationUrl) return state;
+
+          const specs = state.specifications || {};
+          // Initialize with default structure if it doesn't exist
+          const currentSpec = specs[specificationUrl || ""] || {
+            forms: {},
+            selectedServer: "",
+            selectedServerVariables: {},
+            responses: {},
+          };
+
+          return {
+            specificationUrl,
+            specifications: {
+              ...specs,
+              [specificationUrl || ""]: currentSpec,
+            },
+          };
+        }),
 
       /**
        * Clear form values for a specific operation
        */
-      clearForm: (operationId) =>
+      clearForm: (specificationUrl, operationId) =>
         set((state) => {
-          const forms = { ...state.forms };
+          if (!specificationUrl) return state;
+
+          const forms = {
+            ...state.specifications[specificationUrl].forms,
+          };
 
           delete forms[operationId];
 
-          return { forms };
+          return {
+            specifications: {
+              ...state.specifications,
+              [specificationUrl]: {
+                ...state.specifications[specificationUrl],
+                forms,
+              },
+            },
+          };
         }),
 
       /**
        * Set the global selected server and its variables
        */
-      setSelectedServer: (selectedServer, selectedServerVariables) => {
-        set((state) => ({
-          selectedServer,
-          selectedServerVariables,
-          forms: state.forms,
-        }));
+      setSelectedServer: (
+        specificationUrl,
+        selectedServer,
+        selectedServerVariables
+      ) => {
+        set((state) => {
+          if (!specificationUrl) return state;
+
+          return {
+            specifications: {
+              ...state.specifications,
+              [specificationUrl || ""]: {
+                ...state.specifications[specificationUrl || ""],
+                selectedServer,
+                selectedServerVariables,
+              },
+            },
+          };
+        });
       },
 
       /**
        * Set the selected server and its variables for a specific operation
        */
       setOperationServer: (
+        specificationUrl,
         operationId,
         selectedServer,
         selectedServerVariables
       ) => {
         set((state) => {
-          const existingForm = state.forms[operationId] || {
+          if (!specificationUrl) return state;
+
+          const existingForm = state.specifications[specificationUrl].forms[
+            operationId
+          ] || {
             parameters: {
               path: {},
               query: {},
@@ -191,36 +281,83 @@ export const useRequestForms = create<RequestFormsState>()(
           };
 
           return {
-            forms: {
-              ...state.forms,
-              [operationId]: {
-                ...existingForm,
-                selectedServer,
-                selectedServerVariables,
+            specifications: {
+              ...state.specifications,
+              [specificationUrl]: {
+                ...state.specifications[specificationUrl],
+                forms: {
+                  ...state.specifications[specificationUrl].forms,
+                  [operationId]: {
+                    ...existingForm,
+                    selectedServer,
+                    selectedServerVariables,
+                  },
+                },
               },
             },
           };
         });
       },
 
-      getResponse: (operationId: string) => {
-        return get().responses[operationId] || null;
+      getResponse: (specificationUrl, operationId) => {
+        if (!specificationUrl) return null;
+
+        const state = get();
+        const specs = state.specifications || {};
+        const currentSpec = specs[specificationUrl];
+
+        if (!currentSpec || !currentSpec.responses) {
+          return { loading: false, data: null };
+        }
+
+        return (
+          currentSpec.responses[operationId] || { loading: false, data: null }
+        );
       },
 
-      setResponseLoading: (operationId: string) => {
-        set((state) => ({
-          responses: {
-            ...state.responses,
-            [operationId]: {
-              loading: true,
-              data: state?.responses?.[operationId]?.data || null,
+      setResponseLoading: (specificationUrl, operationId) => {
+        set((state) => {
+          if (!specificationUrl) return state;
+
+          // Ensure specifications object exists
+          const specs = state.specifications || {};
+
+          // Ensure specification URL entry exists with default values
+          const currentSpec = specs[specificationUrl] || {
+            forms: {},
+            selectedServer: "",
+            selectedServerVariables: {},
+            responses: {},
+          };
+
+          // Get current responses or initialize
+          const currentResponses = currentSpec.responses || {};
+
+          // Get current response data if it exists
+          const currentResponseData =
+            currentSpec.responses?.[operationId]?.data || null;
+
+          return {
+            specifications: {
+              ...specs,
+              [specificationUrl]: {
+                ...currentSpec,
+                responses: {
+                  ...currentResponses,
+                  [operationId]: {
+                    loading: true,
+                    data: currentResponseData,
+                  },
+                },
+              },
             },
-          },
-        }));
+          };
+        });
       },
 
       setResponseSuccess: (
-        operationId: string,
+        specificationUrl,
+        operationId,
         data: {
           body: { [key: string]: any } | string;
           data: string;
@@ -234,12 +371,36 @@ export const useRequestForms = create<RequestFormsState>()(
           date: Date;
         } | null
       ) => {
-        set((state) => ({
-          responses: {
-            ...state.responses,
-            [operationId]: { loading: false, data },
-          },
-        }));
+        set((state) => {
+          if (!specificationUrl) return state;
+
+          // Ensure specifications object exists
+          const specs = state.specifications || {};
+
+          // Ensure specification URL entry exists with default values
+          const currentSpec = specs[specificationUrl] || {
+            forms: {},
+            selectedServer: "",
+            selectedServerVariables: {},
+            responses: {},
+          };
+
+          // Get current responses or initialize
+          const currentResponses = currentSpec.responses || {};
+
+          return {
+            specifications: {
+              ...specs,
+              [specificationUrl]: {
+                ...currentSpec,
+                responses: {
+                  ...currentResponses,
+                  [operationId]: { loading: false, data },
+                },
+              },
+            },
+          };
+        });
       },
     }),
     {

@@ -1,63 +1,60 @@
 import { Button } from "@heroui/button";
-import { useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 
 interface FormFieldFileProps {
-  onChange: (file: File | null) => void;
+  onChange: (file: File | string | null) => void;
   id?: string;
-  label?: string;
+  name?: string;
   required?: boolean;
-  accept?: string;
   className?: string;
 }
 
 export const FormFieldFile = ({
   id,
+  name,
   onChange,
-  label = "Upload file",
   required = false,
-  accept,
   className = "",
 }: FormFieldFileProps) => {
+  const generatedId = useId();
+  const inputId = id || generatedId;
   const [fileName, setFileName] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFileChange = (event: Event) => {
-    const input = event.target as HTMLInputElement;
-    const file = input.files?.[0] || null;
+  useEffect(() => {
+    onChange(inputId);
+  }, []);
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0] || null;
 
     setFileName(file?.name || null);
     onChange(file);
   };
 
+  const handleClick = () => {
+    fileInputRef.current?.click();
+  };
+
   return (
-    <div className={`flex flex-col gap-2 ${className}`} id={id}>
-      <label className="text-sm font-medium">
-        {label}
+    <div className={`flex flex-col gap-2 ${className}`}>
+      <label className="text-sm font-medium" htmlFor={inputId}>
+        Upload file
         {required && <span className="ml-1 text-danger">*</span>}
       </label>
       <div className="flex items-center gap-2">
         <input
-          accept={accept}
+          ref={fileInputRef}
           className="hidden"
-          id="file-upload"
+          id={inputId}
+          name={name}
+          required={required}
           type="file"
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-            handleFileChange(e.nativeEvent)
-          }
+          onChange={handleFileChange}
         />
-        <Button
-          size="sm"
-          variant="flat"
-          onClick={() => {
-            const input = document.getElementById(
-              "file-upload"
-            ) as HTMLInputElement;
-
-            if (input) input.click();
-          }}
-        >
+        <Button size="sm" variant="flat" onClick={handleClick}>
           Choose file
         </Button>
-
         <span className="text-sm">
           {fileName ? (
             <span className="text-primary underline">{fileName}</span>

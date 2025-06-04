@@ -28,13 +28,8 @@ export class OperationModel {
   //private callbacks: { [callbackName: string]: Referenced<OpenAPICallback> };
   //private security: Array<{ [name: string]: string[] }>;
 
-  constructor(
-    path: string,
-    method: string,
-    operation: OpenAPIOperation,
-    specificationUrl?: string
-  ) {
-    this.id = this.generateId(path, method, specificationUrl);
+  constructor(path: string, method: string, operation: OpenAPIOperation) {
+    this.id = this.generateId(path, method);
     this.path = path;
     this.method = method;
 
@@ -58,12 +53,8 @@ export class OperationModel {
     //this.security = operation.security || [];
   }
 
-  private generateId(
-    path: string,
-    method: string,
-    specificationUrl?: string
-  ): string {
-    return `${method}-${specificationUrl ? specificationUrl + path : path}`;
+  private generateId(path: string, method: string): string {
+    return `${method}-${path}`;
   }
 
   private processServers(servers: OpenAPIServer[]) {

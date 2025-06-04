@@ -15,16 +15,31 @@ export const OperationResponse = ({
   operation,
   acceptHeader = "",
 }: OperationResponseProps) => {
-  const [selectedResponse, setSelectedResponse] = useState<string>("");
-
   // Get response data
   const responses = operation.getResponses();
   const hasResponses = responses.accepted.length > 0;
   const responseStatusCodes = Object.keys(responses.responses || {});
 
-  // Set initial selected response
+  // Use state with a function to ensure it's only calculated once on mount
+  const [selectedResponse, setSelectedResponse] = useState<string>("");
+
+  // Reset selection when operation changes
   useEffect(() => {
-    if (responseStatusCodes.length > 0 && !selectedResponse) {
+    // When operation changes, always select the first status code
+    if (responseStatusCodes.length > 0) {
+      setSelectedResponse(responseStatusCodes[0]);
+    } else {
+      setSelectedResponse("");
+    }
+  }, [operation]); // Only depend on operation changes
+
+  // Fallback selection if current selection becomes invalid
+  useEffect(() => {
+    if (
+      responseStatusCodes.length > 0 &&
+      selectedResponse &&
+      !responseStatusCodes.includes(selectedResponse)
+    ) {
       setSelectedResponse(responseStatusCodes[0]);
     }
   }, [responseStatusCodes, selectedResponse]);
@@ -59,16 +74,21 @@ export const OperationResponse = ({
     );
   }
 
+  // Force a default selection for rendering if somehow we don't have one
+  const effectiveSelection =
+    selectedResponse ||
+    (responseStatusCodes.length > 0 ? responseStatusCodes[0] : "");
+
   return (
     <div className="flex flex-col space-y-4">
       <div className="space-y-2">
         <Subtitle>Response Examples</Subtitle>
 
-        {/* Status Code Selector - Reverted to CardSelectableButtons */}
+        {/* Status Code Selector */}
         <CardSelectableButtons
           options={responseStatusCodes.map((statusCode) => ({
             value: statusCode,
-            selected: selectedResponse === statusCode,
+            selected: effectiveSelection === statusCode,
           }))}
           onClick={(value: string) => setSelectedResponse(value)}
         >
@@ -84,19 +104,18 @@ export const OperationResponse = ({
               strokeLinecap="round"
               strokeLinejoin="round"
             />
-            {/* Simple triangle/list icon as before */}
           </svg>
           <span>Status Code</span>
         </CardSelectableButtons>
       </div>
 
       <div className="space-y-2">
-        {/* Response Content */}
-        {selectedResponse && (
+        {/* Response Content - Always render with effective selection */}
+        {effectiveSelection && (
           <ResponseContent
             acceptHeader={acceptHeader}
             operation={operation}
-            statusCode={selectedResponse}
+            statusCode={effectiveSelection}
           />
         )}
       </div>

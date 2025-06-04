@@ -1,4 +1,4 @@
-import { OpenAPIServerVariable } from '../types/openapi';
+import { OpenAPIServerVariable } from "@/types/openapi";
 
 export class ServerModel {
   constructor(

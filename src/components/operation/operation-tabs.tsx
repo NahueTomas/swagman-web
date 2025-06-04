@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Chip } from "@heroui/chip";
 import { Tabs, Tab } from "@heroui/tabs";
 import { Card } from "@heroui/card";
@@ -21,20 +21,23 @@ import {
   HeadersIcon,
   ParametersIcon,
 } from "@/components/icons";
-import { Collapse } from "@/components/collapse";
 
 export const OperationTabs = ({ operation }: { operation: OperationModel }) => {
-  const { isFocusModeEnabled, operationFocused, spec } = useStore(
-    (state) => state
-  );
+  const [selectedTab, setSelectedTab] = useState("parameters");
+  const [selectedResponseTab, setSelectedResponseTab] = useState("responses");
+  const { operationFocused, spec } = useStore((state) => state);
 
   const body = operation.getRequestBody();
   const isBodyRequired = body?.required || false;
   const bodyMimeTypes = body?.getMimeTypes() || [];
 
   // Get form state from Zustand store and initialize it or create a new one
-  const { forms, setFormValues } = useRequestForms();
-  const currentForm = forms[operation.id] || {
+  const { specificationUrl, specifications, setFormValues } = useRequestForms(
+    (state) => state
+  );
+  const currentForm = specifications?.[specificationUrl || ""]?.forms?.[
+    operation.id
+  ] || {
     parameters: operation.getParameterDefaultValues(),
     contentType: bodyMimeTypes?.[0] || "",
     requestBody: body?.getFieldDefaultValues() || null,
@@ -47,11 +50,19 @@ export const OperationTabs = ({ operation }: { operation: OperationModel }) => {
 
   useEffect(() => {
     // Update form state
-    setFormValues(operation.id, { ...currentForm });
+    setFormValues(specificationUrl || "", operation.id, { ...currentForm });
 
     // Generate and set the request preview
     // TODO: Ensure the request preview
   }, [operation.id]);
+
+  useEffect(() => {
+    // Reset tabs when operation changes
+    if (!body) {
+      setSelectedTab("parameters");
+    }
+    setSelectedResponseTab("responses");
+  }, [operation.id, body]);
 
   const handleParameterChange = (
     name: string,
@@ -77,7 +88,7 @@ export const OperationTabs = ({ operation }: { operation: OperationModel }) => {
       requestBody: currentForm.requestBody,
     };
 
-    setFormValues(operation.id, updatedForm);
+    setFormValues(specificationUrl || "", operation.id, updatedForm);
   };
 
   const handleContentTypeChange = (contentType: string) => {
@@ -100,7 +111,7 @@ export const OperationTabs = ({ operation }: { operation: OperationModel }) => {
     }
 
     // Update form in store
-    setFormValues(operation.id, updatedForm);
+    setFormValues(specificationUrl || "", operation.id, updatedForm);
   };
 
   const updateBody = (bodyMediaType: string, bodyValues: any) => {
@@ -115,7 +126,7 @@ export const OperationTabs = ({ operation }: { operation: OperationModel }) => {
       },
     };
 
-    setFormValues(operation.id, updatedForm);
+    setFormValues(specificationUrl || "", operation.id, updatedForm);
   };
 
   if (!operationFocused) return null;
@@ -128,7 +139,7 @@ export const OperationTabs = ({ operation }: { operation: OperationModel }) => {
   );
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
       <div className="flex flex-col gap-4">
         <Tabs
           aria-label="Parameters, Headers and Body"
@@ -140,8 +151,10 @@ export const OperationTabs = ({ operation }: { operation: OperationModel }) => {
             tab: "max-w-fit px-0 h-12",
           }}
           color="default"
+          selectedKey={selectedTab}
           size="lg"
           variant="underlined"
+          onSelectionChange={(key) => setSelectedTab(key.toString())}
         >
           <Tab
             key="parameters"
@@ -312,30 +325,31 @@ export const OperationTabs = ({ operation }: { operation: OperationModel }) => {
               </div>
 
               <div className="space-y-2">
-                {currentForm?.requestBody?.[currentForm.contentType] && (
-                  <>
-                    <Subtitle>Body content</Subtitle>
+                {currentForm?.requestBody?.[currentForm.contentType] !==
+                  undefined &&
+                  currentForm?.requestBody?.[currentForm.contentType] !==
+                    null && (
+                    <>
+                      <Subtitle>Body content</Subtitle>
 
-                    <RequestBody
-                      bodyMediaType={body?.getMimeType(currentForm.contentType)}
-                      currentValues={
-                        currentForm.requestBody[currentForm.contentType]
-                      }
-                      updateBody={updateBody}
-                    />
-                  </>
-                )}
+                      <RequestBody
+                        bodyMediaType={body?.getMimeType(
+                          currentForm.contentType
+                        )}
+                        currentValues={
+                          currentForm.requestBody[currentForm.contentType]
+                        }
+                        updateBody={updateBody}
+                      />
+                    </>
+                  )}
               </div>
             </div>
           </Tab>
         </Tabs>
       </div>
 
-      <Collapse
-        active={!isFocusModeEnabled}
-        classNameContent="flex flex-col gap-4 w-full"
-        variant="zoom"
-      >
+      <div className="flex flex-col gap-4">
         <Tabs
           aria-label="Responses and Code"
           classNames={{
@@ -346,8 +360,10 @@ export const OperationTabs = ({ operation }: { operation: OperationModel }) => {
             tab: "max-w-fit px-0 h-12",
           }}
           color="default"
+          selectedKey={selectedResponseTab}
           size="lg"
           variant="underlined"
+          onSelectionChange={(key) => setSelectedResponseTab(key.toString())}
         >
           <Tab
             key="responses"
@@ -386,7 +402,7 @@ export const OperationTabs = ({ operation }: { operation: OperationModel }) => {
             />
           </Tab>
         </Tabs>
-      </Collapse>
+      </div>
     </div>
   );
 };

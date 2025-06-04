@@ -32,21 +32,18 @@ export class RequestBodyModel {
   public getFieldDefaultValues(): {
     [mime: string]:
       | { [key: string]: { value: any; included: boolean } }
-      | { value: any; included: boolean };
+      | string;
   } {
     const mimeTypes = this.getMimeTypes();
     const mimeTypesAndObjects = mimeTypes.reduce<{
       [mime: string]:
         | { [key: string]: { value: any; included: boolean } }
-        | { value: any; included: boolean };
+        | string;
     }>((acc, mimeType) => {
       const bodyMediaType = this.getMimeType(mimeType);
 
       if (bodyMediaType?.getMediaTypeFormat() === "text") {
-        acc[mimeType] = {
-          value: bodyMediaType.getFullExample() || "",
-          included: true,
-        };
+        acc[mimeType] = bodyMediaType.getFullExample() || "";
 
         return acc;
       } else {
