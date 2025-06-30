@@ -202,6 +202,35 @@ export const OperationBottomBar = () => {
   const responseData = responseState?.data as ResponseData;
   const isLoading = responseState?.loading || false;
 
+  // Inject loading animation keyframes
+  useEffect(() => {
+    const keyframesId = "loading-wave-keyframes";
+
+    if (!document.querySelector(`#${keyframesId}`)) {
+      const style = document.createElement("style");
+      style.id = keyframesId;
+      style.textContent = `
+        @keyframes loadingWave {
+          0% {
+            transform: translateX(-100%);
+            opacity: 0;
+          }
+          20% {
+            opacity: 1;
+          }
+          80% {
+            opacity: 1;
+          }
+          100% {
+            transform: translateX(233%);
+            opacity: 0;
+          }
+        }
+      `;
+      document.head.appendChild(style);
+    }
+  }, []);
+
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
     setIsDragging(true);
@@ -279,14 +308,53 @@ export const OperationBottomBar = () => {
     );
   }
 
+  // Show loading state if waiting for response
+  if (!responseData && isLoading) {
+    return (
+      <Card
+        className="shadow-large border-t border-divider bg-background/95 backdrop-blur-sm"
+        radius="none"
+        shadow="lg"
+        style={{ height: 48 }}
+      >
+        <div className="absolute top-0 left-0 w-full h-0.5 bg-transparent overflow-hidden">
+          <div
+            className="h-full bg-primary"
+            style={{
+              animation: "loadingWave 2s ease-in-out infinite",
+              width: "30%",
+            }}
+          />
+        </div>
+        <div className="flex items-center justify-center py-3 text-sm text-default-500 gap-2">
+          <Spinner size="sm" />
+          <span>Waiting for response...</span>
+        </div>
+      </Card>
+    );
+  }
+
   return (
     <Card
       ref={containerRef}
-      className="shadow-large border-t border-divider bg-background/95 backdrop-blur-sm"
+      className="shadow-large border-t border-divider bg-background/95 backdrop-blur-sm relative overflow-hidden"
       radius="none"
       shadow="lg"
       style={{ height: currentHeight }}
     >
+      {/* Loading Animation Bar */}
+      {isLoading && (
+        <div className="absolute top-0 left-0 w-full h-0.5 bg-transparent overflow-hidden">
+          <div
+            className="h-full bg-primary"
+            style={{
+              animation: "loadingWave 2s ease-in-out infinite",
+              width: "30%",
+            }}
+          />
+        </div>
+      )}
+
       {/* Resize Handle */}
       <div
         ref={dragRef}
