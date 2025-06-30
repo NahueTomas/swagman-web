@@ -12,10 +12,10 @@ export default function SpecificationOperationsPage() {
   }
 
   return (
-    <section className="relative overflow-y-auto h-full flex flex-col">
+    <section className="relative overflow-y-auto h-full flex flex-col select-none">
       <Header />
 
-      <div className="flex px-8 pt-8 pb-4 flex-1">
+      <div className="flex p-8 flex-1">
         <section className="flex flex-col w-full">
           {operationFocused.summary && (
             <h2 className="text-md">{operationFocused.summary}</h2>

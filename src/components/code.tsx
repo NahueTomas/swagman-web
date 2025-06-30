@@ -1,6 +1,5 @@
-import type { BeforeMount, OnChange } from "@monaco-editor/react";
-
 import { Editor } from "@monaco-editor/react";
+import type { BeforeMount, OnChange } from "@monaco-editor/react";
 
 export interface CodeProps {
   value: string;
@@ -17,14 +16,16 @@ export interface CodeProps {
   height?: string;
   readOnly?: boolean;
   onChange?: (value: string) => void;
+  rounded?: boolean;
 }
 
 export const Code = ({
   value,
   language = "plaintext",
-  height = "300px",
+  height = "200px",
   readOnly = true,
   onChange,
+  rounded = true,
 }: CodeProps) => {
   // Define custom theme using beforeMount API
   const handleEditorWillMount: BeforeMount = (monaco) => {
@@ -192,12 +193,15 @@ export const Code = ({
             horizontal: "auto",
             verticalScrollbarSize: 8,
             horizontalScrollbarSize: 8,
+            alwaysConsumeMouseWheel: false,
           },
           stickyScroll: { enabled: false },
           contextmenu: false,
           folding: true,
           renderLineHighlight: "none",
           padding: { top: 8, bottom: 8 },
+          overviewRulerLanes: 0,
+          mouseWheelScrollSensitivity: 1,
         }}
         theme={theme}
         value={getDisplayValue()}

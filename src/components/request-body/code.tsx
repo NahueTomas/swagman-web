@@ -58,7 +58,7 @@ export const Code = ({
       className="space-y-3 bg-content1/10 border border-divider"
       shadow="none"
       style={{
-        height: "300px",
+        height: "600px",
         minHeight: "300px",
         maxHeight: "100%",
         resize: "vertical",

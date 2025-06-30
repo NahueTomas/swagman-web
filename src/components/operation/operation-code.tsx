@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Card } from "@heroui/card";
 
 import { Subtitle } from "../subtitle";
 
@@ -27,10 +26,12 @@ export const OperationCode = ({
 
         {/* Language Selector */}
         <CardSelectableButtons
-          options={["JavaScript", "cURL"].map((lang) => ({
-            value: lang,
-            selected: selectedLanguage === lang,
-          }))}
+          options={["JavaScript", "cURL", "TypeScript", "Python", "PHP"].map(
+            (lang) => ({
+              value: lang,
+              selected: selectedLanguage === lang,
+            })
+          )}
           onClick={(value: string) =>
             setSelectedLanguage(value as SupportedLanguage)
           }
