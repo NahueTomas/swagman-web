@@ -1,7 +1,8 @@
 import type { BeforeMount, OnChange } from "@monaco-editor/react";
-import { memo, useMemo, useCallback } from "react";
 
+import { memo, useMemo, useCallback } from "react";
 import { Editor } from "@monaco-editor/react";
+
 import { memoize } from "@/utils/memoize";
 
 export interface CodeProps {
@@ -164,6 +165,7 @@ export const Code = memo<CodeProps>(
       if (typeof value === "string") {
         return value;
       }
+
       return JSON.stringify(value, null, 2);
     }, [value]);
 
@@ -175,6 +177,7 @@ export const Code = memo<CodeProps>(
     // Memoize theme calculation
     const theme = useMemo(() => {
       const isDark = document.documentElement.classList.contains("dark");
+
       return isDark ? "swagman-dark" : "swagman-light";
     }, []);
 
