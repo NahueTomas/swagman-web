@@ -95,6 +95,7 @@ function ResponsePanel({
             </div>
             <div className="flex-1 overflow-hidden">
               <Code
+                main
                 height="100%"
                 language={getLanguageFromContentType(contentType)}
                 readOnly={true}
