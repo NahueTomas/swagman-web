@@ -262,7 +262,7 @@ export const statusCodesNames: Record<
       "The user has sent too many requests in a given amount of time. Intended for use with rate-limiting schemes.",
   },
   431: {
-    short: "Request Header Fileds Too Large",
+    short: "Request Header Fields Too Large",
     large:
       "The server is unwilling to process the request because either an individual header field, or all the header fields collectively, are too large.",
   },

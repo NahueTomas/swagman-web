@@ -4,10 +4,11 @@ import { Chip } from "@heroui/chip";
 import { Tabs, Tab } from "@heroui/tabs";
 import { Divider } from "@heroui/divider";
 import { Spinner } from "@heroui/spinner";
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useMemo, memo } from "react";
 
 import { useRequestForms } from "@/hooks/use-request-forms";
 import { useStore } from "@/hooks/use-store";
+import { useDragResize } from "@/hooks/use-drag-resize";
 import { Code } from "@/components/code";
 import {
   ChevronDown,
@@ -15,6 +16,12 @@ import {
   Maximize2,
   Minimize2,
 } from "@/components/icons";
+import {
+  RESPONSE_PANEL,
+  KEYFRAMES,
+  HTTP_STATUS_RANGES,
+} from "@/utils/constants";
+import { memoize } from "@/utils/memoize";
 
 interface ResponseData {
   body: string;
@@ -35,12 +42,9 @@ interface ResponsePanelProps {
   isLoading?: boolean;
 }
 
-function ResponsePanel({
-  response,
-  responseDate,
-  isLoading = false,
-}: ResponsePanelProps) {
-  const getLanguageFromContentType = (
+// Memoized language detection function
+const getLanguageFromContentType = memoize(
+  (
     contentType: string
   ): "json" | "xml" | "html" | "javascript" | "css" | "plaintext" => {
     const lowerType = contentType.toLowerCase();
@@ -52,149 +56,164 @@ function ResponsePanel({
     if (lowerType.includes("css")) return "css";
 
     return "plaintext";
-  };
+  }
+);
 
-  const contentType =
-    (response.headers["content-type"] as string) || "application/json";
+const ResponsePanel = memo<ResponsePanelProps>(
+  ({ response, responseDate, isLoading = false }) => {
+    const contentType =
+      (response.headers["content-type"] as string) || "application/json";
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <div className="flex flex-col items-center gap-4">
-          <Spinner size="lg" />
-          <p className="text-sm text-default-500">Loading response...</p>
+    // Memoize formatted body to avoid re-stringifying on every render
+    const formattedBody = useMemo(() => {
+      return typeof response.body === "string"
+        ? response.body
+        : JSON.stringify(response.body, null, 2);
+    }, [response.body]);
+
+    if (isLoading) {
+      return (
+        <div className="flex items-center justify-center h-full">
+          <div className="flex flex-col items-center gap-4">
+            <Spinner size="lg" />
+            <p className="text-sm text-default-500">Loading response...</p>
+          </div>
         </div>
+      );
+    }
+
+    return (
+      <div className="h-full flex flex-col">
+        <Tabs
+          className="flex-1 h-full"
+          classNames={{
+            tabList:
+              "gap-2 w-full relative rounded-none p-0 border-b border-divider bg-content1/10",
+            panel: "p-0 h-full overflow-hidden",
+            cursor: "w-full",
+            tab: "max-w-fit px-4 h-8",
+          }}
+          color="default"
+          defaultSelectedKey="body"
+          size="sm"
+          variant="underlined"
+        >
+          <Tab key="body" title="Body">
+            <div className="flex flex-col h-full">
+              <div className="flex items-center justify-between p-2 border-b border-divider bg-content1/5">
+                <div className="flex items-center gap-2">
+                  <Chip color="default" size="sm" variant="flat">
+                    {contentType}
+                  </Chip>
+                </div>
+              </div>
+              <div className="flex-1 overflow-hidden">
+                <Code
+                  height="100%"
+                  language={getLanguageFromContentType(contentType)}
+                  readOnly={true}
+                  value={formattedBody}
+                />
+              </div>
+            </div>
+          </Tab>
+
+          <Tab
+            key="headers"
+            title={`Headers (${Object.keys(response.headers).length})`}
+          >
+            <div className="flex flex-col h-full">
+              <div className="flex-1 overflow-auto">
+                <div className="divide-y divide-divider">
+                  {Object.entries(response.headers).map(([key, value]) => (
+                    <div
+                      key={key}
+                      className="grid grid-cols-2 gap-4 p-3 hover:bg-content1/20 transition-colors"
+                    >
+                      <div className="font-mono text-[12px] font-medium text-primary">
+                        {key}
+                      </div>
+                      <div className="font-mono text-[12px] text-default-600 break-all">
+                        {Array.isArray(value) ? value.join(", ") : value}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </Tab>
+
+          <Tab key="info" title="Info">
+            <div className="p-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <div className="text-xs font-medium text-default-500 uppercase tracking-wide">
+                    URL
+                  </div>
+                  <p className="text-[12px] font-mono text-default-700 break-all">
+                    {response.url}
+                  </p>
+                </div>
+                <div className="space-y-1">
+                  <div className="text-xs font-medium text-default-500 uppercase tracking-wide">
+                    Status
+                  </div>
+                  <p className="text-[12px] text-default-700">
+                    {response.status}{" "}
+                    {response.statusText ? ` ${response.statusText}` : ""}
+                  </p>
+                </div>
+                <div className="space-y-1">
+                  <div className="text-xs font-medium text-default-500 uppercase tracking-wide">
+                    Date
+                  </div>
+                  <p className="text-[12px] text-default-700">{responseDate}</p>
+                </div>
+                <div className="space-y-1">
+                  <div className="text-xs font-medium text-default-500 uppercase tracking-wide">
+                    Content Type
+                  </div>
+                  <p className="text-[12px] text-default-700">{contentType}</p>
+                </div>
+                <div className="space-y-1">
+                  <div className="text-xs font-medium text-default-500 uppercase tracking-wide">
+                    Success
+                  </div>
+                  <p className="text-[12px] text-default-700">
+                    {response.ok ? "Yes" : "No"}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </Tab>
+        </Tabs>
       </div>
     );
   }
+);
 
-  return (
-    <div className="h-full flex flex-col">
-      <Tabs
-        className="flex-1 h-full"
-        classNames={{
-          tabList:
-            "gap-2 w-full relative rounded-none p-0 border-b border-divider bg-content1/10",
-          panel: "p-0 h-full overflow-hidden",
-          cursor: "w-full",
-          tab: "max-w-fit px-4 h-8",
-        }}
-        color="default"
-        defaultSelectedKey="body"
-        size="sm"
-        variant="underlined"
-      >
-        <Tab key="body" title="Body">
-          <div className="flex flex-col h-full">
-            <div className="flex items-center justify-between p-2 border-b border-divider bg-content1/5">
-              <div className="flex items-center gap-2">
-                <Chip color="default" size="sm" variant="flat">
-                  {contentType}
-                </Chip>
-              </div>
-            </div>
-            <div className="flex-1 overflow-hidden">
-              <Code
-                main
-                height="100%"
-                language={getLanguageFromContentType(contentType)}
-                readOnly={true}
-                value={
-                  typeof response.body === "string"
-                    ? response.body
-                    : JSON.stringify(response.body, null, 2)
-                }
-              />
-            </div>
-          </div>
-        </Tab>
-
-        <Tab
-          key="headers"
-          title={`Headers (${Object.keys(response.headers).length})`}
-        >
-          <div className="flex flex-col h-full">
-            <div className="flex-1 overflow-auto">
-              <div className="divide-y divide-divider">
-                {Object.entries(response.headers).map(([key, value]) => (
-                  <div
-                    key={key}
-                    className="grid grid-cols-2 gap-4 p-3 hover:bg-content1/20 transition-colors"
-                  >
-                    <div className="font-mono text-[12px] font-medium text-primary">
-                      {key}
-                    </div>
-                    <div className="font-mono text-[12px] text-default-600 break-all">
-                      {Array.isArray(value) ? value.join(", ") : value}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </Tab>
-
-        <Tab key="info" title="Info">
-          <div className="p-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-1">
-                <div className="text-xs font-medium text-default-500 uppercase tracking-wide">
-                  URL
-                </div>
-                <p className="text-[12px] font-mono text-default-700 break-all">
-                  {response.url}
-                </p>
-              </div>
-              <div className="space-y-1">
-                <div className="text-xs font-medium text-default-500 uppercase tracking-wide">
-                  Status
-                </div>
-                <p className="text-[12px] text-default-700">
-                  {response.status}{" "}
-                  {response.statusText ? ` ${response.statusText}` : ""}
-                </p>
-              </div>
-              <div className="space-y-1">
-                <div className="text-xs font-medium text-default-500 uppercase tracking-wide">
-                  Date
-                </div>
-                <p className="text-[12px] text-default-700">{responseDate}</p>
-              </div>
-              <div className="space-y-1">
-                <div className="text-xs font-medium text-default-500 uppercase tracking-wide">
-                  Content Type
-                </div>
-                <p className="text-[12px] text-default-700">{contentType}</p>
-              </div>
-              <div className="space-y-1">
-                <div className="text-xs font-medium text-default-500 uppercase tracking-wide">
-                  Success
-                </div>
-                <p className="text-[12px] text-default-700">
-                  {response.ok ? "Yes" : "No"}
-                </p>
-              </div>
-            </div>
-          </div>
-        </Tab>
-      </Tabs>
-    </div>
-  );
-}
+ResponsePanel.displayName = "ResponsePanel";
 
 export const OperationBottomBar = () => {
   const { specificationUrl, getResponse } = useRequestForms((state) => state);
   const { operationFocused } = useStore((state) => state);
 
-  const [height, setHeight] = useState(300);
-  const [isCollapsed, setIsCollapsed] = useState(false);
-  const [isDragging, setIsDragging] = useState(false);
-  const [isMaximized, setIsMaximized] = useState(false);
-  const dragRef = useRef<HTMLDivElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  const minHeight = 100;
-  const maxHeight = window.innerHeight * 0.8;
+  // Use custom drag resize hook
+  const {
+    isDragging,
+    isCollapsed,
+    isMaximized,
+    currentHeight,
+    containerRef,
+    dragRef,
+    handleMouseDown,
+    toggleCollapse,
+    toggleMaximize,
+  } = useDragResize({
+    minHeight: RESPONSE_PANEL.MIN_HEIGHT,
+    defaultHeight: RESPONSE_PANEL.DEFAULT_HEIGHT,
+    maxHeightRatio: RESPONSE_PANEL.MAX_HEIGHT_RATIO,
+  });
 
   const responseState = getResponse(
     specificationUrl || "",
@@ -203,90 +222,27 @@ export const OperationBottomBar = () => {
   const responseData = responseState?.data as ResponseData;
   const isLoading = responseState?.loading || false;
 
-  // Inject loading animation keyframes
+  // Inject loading animation keyframes with cleanup
   useEffect(() => {
     const keyframesId = "loading-wave-keyframes";
 
     if (!document.querySelector(`#${keyframesId}`)) {
       const style = document.createElement("style");
+
       style.id = keyframesId;
-      style.textContent = `
-        @keyframes loadingWave {
-          0% {
-            transform: translateX(-100%);
-            opacity: 0;
-          }
-          20% {
-            opacity: 1;
-          }
-          80% {
-            opacity: 1;
-          }
-          100% {
-            transform: translateX(233%);
-            opacity: 0;
-          }
-        }
-      `;
+      style.textContent = KEYFRAMES.LOADING_WAVE;
       document.head.appendChild(style);
+
+      // Cleanup function
+      return () => {
+        const existingStyle = document.querySelector(`#${keyframesId}`);
+
+        if (existingStyle) {
+          document.head.removeChild(existingStyle);
+        }
+      };
     }
   }, []);
-
-  const handleMouseDown = useCallback((e: React.MouseEvent) => {
-    e.preventDefault();
-    setIsDragging(true);
-  }, []);
-
-  const handleMouseMove = useCallback(
-    (e: MouseEvent) => {
-      if (!isDragging || !containerRef.current) return;
-
-      const containerRect = containerRef.current.getBoundingClientRect();
-      const newHeight = containerRect.bottom - e.clientY;
-
-      if (newHeight >= minHeight && newHeight <= maxHeight) {
-        setHeight(newHeight);
-      }
-    },
-    [isDragging, minHeight, maxHeight]
-  );
-
-  const handleMouseUp = useCallback(() => {
-    setIsDragging(false);
-  }, []);
-
-  useEffect(() => {
-    if (isDragging) {
-      document.addEventListener("mousemove", handleMouseMove);
-      document.addEventListener("mouseup", handleMouseUp);
-      document.body.style.cursor = "ns-resize";
-      document.body.style.userSelect = "none";
-    } else {
-      document.removeEventListener("mousemove", handleMouseMove);
-      document.removeEventListener("mouseup", handleMouseUp);
-      document.body.style.cursor = "";
-      document.body.style.userSelect = "";
-    }
-
-    return () => {
-      document.removeEventListener("mousemove", handleMouseMove);
-      document.removeEventListener("mouseup", handleMouseUp);
-      document.body.style.cursor = "";
-      document.body.style.userSelect = "";
-    };
-  }, [isDragging, handleMouseMove, handleMouseUp]);
-
-  const toggleCollapse = () => {
-    setIsCollapsed(!isCollapsed);
-    if (isMaximized) setIsMaximized(false);
-  };
-
-  const toggleMaximize = () => {
-    setIsMaximized(!isMaximized);
-    if (isCollapsed) setIsCollapsed(false);
-  };
-
-  const currentHeight = isCollapsed ? 48 : isMaximized ? maxHeight : height;
 
   // Don't render if no operation is selected
   if (!operationFocused) {
@@ -473,14 +429,21 @@ export const OperationBottomBar = () => {
   );
 };
 
-// Helper function for status color (moved outside component for reusability)
-function getStatusColorVariant(
-  status: number
-): "success" | "warning" | "danger" | "secondary" | "default" {
-  if (status >= 200 && status < 300) return "success";
-  if (status >= 300 && status < 400) return "warning";
-  if (status >= 400 && status < 500) return "danger";
-  if (status >= 500) return "secondary";
+// Helper function for status color using constants
+const getStatusColorVariant = memoize(
+  (
+    status: number
+  ): "success" | "warning" | "danger" | "secondary" | "default" => {
+    const { SUCCESS, REDIRECT, CLIENT_ERROR, SERVER_ERROR } =
+      HTTP_STATUS_RANGES;
 
-  return "default";
-}
+    if (status >= SUCCESS.min && status <= SUCCESS.max) return "success";
+    if (status >= REDIRECT.min && status <= REDIRECT.max) return "warning";
+    if (status >= CLIENT_ERROR.min && status <= CLIENT_ERROR.max)
+      return "danger";
+    if (status >= SERVER_ERROR.min && status <= SERVER_ERROR.max)
+      return "secondary";
+
+    return "default";
+  }
+);
