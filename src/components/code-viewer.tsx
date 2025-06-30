@@ -1,13 +1,11 @@
+import { useRef } from "react";
 import { Editor, OnMount } from "@monaco-editor/react";
 import { Button } from "@heroui/button";
 import { Card } from "@heroui/card";
-import { useRef } from "react";
 
-export enum CodeViewerLanguage {
-  JSON = "JSON",
-  XML = "XML",
-  TEXT = "TEXT",
-}
+import { Copy } from "./icons";
+
+import { CodeViewerLanguage } from "@/types";
 
 export const CodeViewer = ({
   language = CodeViewerLanguage.JSON,
@@ -55,8 +53,8 @@ export const CodeViewer = ({
               : "TEXT"}
         </h6>
         <Button
-          className="text-xs"
           size="sm"
+          startContent={<Copy className="size-3" />}
           variant="flat"
           onClick={onClickCopy}
         >

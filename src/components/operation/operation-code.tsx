@@ -44,15 +44,11 @@ export const OperationCode = ({
       <div className="space-y-2">
         {/* Code Preview Component */}
         <Subtitle>Code Preview</Subtitle>
-        <Card
-          className="space-y-4 p-3 bg-content1/10 border border-divider"
-          shadow="none"
-        >
-          <CodePreview
-            language={selectedLanguage}
-            requestPreview={requestPreview}
-          />
-        </Card>
+
+        <CodePreview
+          language={selectedLanguage}
+          requestPreview={requestPreview}
+        />
       </div>
     </div>
   );

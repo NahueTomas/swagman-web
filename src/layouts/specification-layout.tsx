@@ -50,7 +50,7 @@ export default function SpecificationLayout() {
         </div>
       )}
 
-      <main className="flex-1 w-full items-center justify-center bg-content1/30 overflow-hidden">
+      <main className="flex-1 w-full items-center justify-center bg-content1/15 overflow-hidden">
         {error ? (
           <Error message={error} title="Error to get specification" />
         ) : isLoading ? (

@@ -1,0 +1,417 @@
+import { Button } from "@heroui/button";
+import { Card } from "@heroui/card";
+import { Chip } from "@heroui/chip";
+import { Tabs, Tab } from "@heroui/tabs";
+import { Divider } from "@heroui/divider";
+import { Spinner } from "@heroui/spinner";
+import { useEffect, useState, useRef, useCallback } from "react";
+
+import { useRequestForms } from "@/hooks/use-request-forms";
+import { useStore } from "@/hooks/use-store";
+import { Code } from "@/components/code";
+import {
+  ChevronDown,
+  ChevronUp,
+  Maximize2,
+  Minimize2,
+} from "@/components/icons";
+
+interface ResponseData {
+  body: string;
+  data: string;
+  headers: { [key: string]: string | string[] };
+  obj: { [key: string]: any } | string;
+  ok: boolean;
+  status: number;
+  statusText: string;
+  text: string;
+  url: string;
+  date: string;
+}
+
+interface ResponsePanelProps {
+  response: ResponseData;
+  responseDate?: string;
+  isLoading?: boolean;
+}
+
+function ResponsePanel({
+  response,
+  responseDate,
+  isLoading = false,
+}: ResponsePanelProps) {
+  const getLanguageFromContentType = (
+    contentType: string
+  ): "json" | "xml" | "html" | "javascript" | "css" | "plaintext" => {
+    const lowerType = contentType.toLowerCase();
+
+    if (lowerType.includes("json")) return "json";
+    if (lowerType.includes("xml")) return "xml";
+    if (lowerType.includes("html")) return "html";
+    if (lowerType.includes("javascript")) return "javascript";
+    if (lowerType.includes("css")) return "css";
+
+    return "plaintext";
+  };
+
+  const contentType =
+    (response.headers["content-type"] as string) || "application/json";
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <div className="flex flex-col items-center gap-4">
+          <Spinner size="lg" />
+          <p className="text-sm text-default-500">Loading response...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="h-full flex flex-col">
+      <Tabs
+        className="flex-1 h-full"
+        classNames={{
+          tabList:
+            "gap-2 w-full relative rounded-none p-0 border-b border-divider bg-content1/10",
+          panel: "p-0 h-full overflow-hidden",
+          cursor: "w-full",
+          tab: "max-w-fit px-4 h-8",
+        }}
+        color="default"
+        defaultSelectedKey="body"
+        size="sm"
+        variant="underlined"
+      >
+        <Tab key="body" title="Body">
+          <div className="flex flex-col h-full">
+            <div className="flex items-center justify-between p-2 border-b border-divider bg-content1/5">
+              <div className="flex items-center gap-2">
+                <Chip color="default" size="sm" variant="flat">
+                  {contentType}
+                </Chip>
+              </div>
+            </div>
+            <div className="flex-1 overflow-hidden">
+              <Code
+                height="100%"
+                language={getLanguageFromContentType(contentType)}
+                readOnly={true}
+                value={
+                  typeof response.body === "string"
+                    ? response.body
+                    : JSON.stringify(response.body, null, 2)
+                }
+              />
+            </div>
+          </div>
+        </Tab>
+
+        <Tab
+          key="headers"
+          title={`Headers (${Object.keys(response.headers).length})`}
+        >
+          <div className="flex flex-col h-full">
+            <div className="flex-1 overflow-auto">
+              <div className="divide-y divide-divider">
+                {Object.entries(response.headers).map(([key, value]) => (
+                  <div
+                    key={key}
+                    className="grid grid-cols-2 gap-4 p-3 hover:bg-content1/20 transition-colors"
+                  >
+                    <div className="font-mono text-[12px] font-medium text-primary">
+                      {key}
+                    </div>
+                    <div className="font-mono text-[12px] text-default-600 break-all">
+                      {Array.isArray(value) ? value.join(", ") : value}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </Tab>
+
+        <Tab key="info" title="Info">
+          <div className="p-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-1">
+                <div className="text-xs font-medium text-default-500 uppercase tracking-wide">
+                  URL
+                </div>
+                <p className="text-[12px] font-mono text-default-700 break-all">
+                  {response.url}
+                </p>
+              </div>
+              <div className="space-y-1">
+                <div className="text-xs font-medium text-default-500 uppercase tracking-wide">
+                  Status
+                </div>
+                <p className="text-[12px] text-default-700">
+                  {response.status}{" "}
+                  {response.statusText ? ` ${response.statusText}` : ""}
+                </p>
+              </div>
+              <div className="space-y-1">
+                <div className="text-xs font-medium text-default-500 uppercase tracking-wide">
+                  Date
+                </div>
+                <p className="text-[12px] text-default-700">{responseDate}</p>
+              </div>
+              <div className="space-y-1">
+                <div className="text-xs font-medium text-default-500 uppercase tracking-wide">
+                  Content Type
+                </div>
+                <p className="text-[12px] text-default-700">{contentType}</p>
+              </div>
+              <div className="space-y-1">
+                <div className="text-xs font-medium text-default-500 uppercase tracking-wide">
+                  Success
+                </div>
+                <p className="text-[12px] text-default-700">
+                  {response.ok ? "Yes" : "No"}
+                </p>
+              </div>
+            </div>
+          </div>
+        </Tab>
+      </Tabs>
+    </div>
+  );
+}
+
+export const OperationBottomBar = () => {
+  const { specificationUrl, getResponse } = useRequestForms((state) => state);
+  const { operationFocused } = useStore((state) => state);
+
+  const [height, setHeight] = useState(300);
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const [isMaximized, setIsMaximized] = useState(false);
+  const dragRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const minHeight = 100;
+  const maxHeight = window.innerHeight * 0.8;
+
+  const responseState = getResponse(
+    specificationUrl || "",
+    operationFocused?.id || ""
+  );
+  const responseData = responseState?.data as ResponseData;
+  const isLoading = responseState?.loading || false;
+
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  }, []);
+
+  const handleMouseMove = useCallback(
+    (e: MouseEvent) => {
+      if (!isDragging || !containerRef.current) return;
+
+      const containerRect = containerRef.current.getBoundingClientRect();
+      const newHeight = containerRect.bottom - e.clientY;
+
+      if (newHeight >= minHeight && newHeight <= maxHeight) {
+        setHeight(newHeight);
+      }
+    },
+    [isDragging, minHeight, maxHeight]
+  );
+
+  const handleMouseUp = useCallback(() => {
+    setIsDragging(false);
+  }, []);
+
+  useEffect(() => {
+    if (isDragging) {
+      document.addEventListener("mousemove", handleMouseMove);
+      document.addEventListener("mouseup", handleMouseUp);
+      document.body.style.cursor = "ns-resize";
+      document.body.style.userSelect = "none";
+    } else {
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleMouseUp);
+      document.body.style.cursor = "";
+      document.body.style.userSelect = "";
+    }
+
+    return () => {
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleMouseUp);
+      document.body.style.cursor = "";
+      document.body.style.userSelect = "";
+    };
+  }, [isDragging, handleMouseMove, handleMouseUp]);
+
+  const toggleCollapse = () => {
+    setIsCollapsed(!isCollapsed);
+    if (isMaximized) setIsMaximized(false);
+  };
+
+  const toggleMaximize = () => {
+    setIsMaximized(!isMaximized);
+    if (isCollapsed) setIsCollapsed(false);
+  };
+
+  const currentHeight = isCollapsed ? 48 : isMaximized ? maxHeight : height;
+
+  // Don't render if no operation is selected
+  if (!operationFocused) {
+    return null;
+  }
+
+  // Show loading state if waiting for response
+  if (!responseData && !isLoading) {
+    return (
+      <Card
+        className="shadow-large border-t border-divider bg-background/95 backdrop-blur-sm"
+        radius="none"
+        shadow="lg"
+        style={{ height: 48 }}
+      >
+        <div className="flex items-center justify-center py-3 text-sm text-default-500">
+          Execute a request to see the response
+        </div>
+      </Card>
+    );
+  }
+
+  return (
+    <Card
+      ref={containerRef}
+      className="shadow-large border-t border-divider bg-background/95 backdrop-blur-sm"
+      radius="none"
+      shadow="lg"
+      style={{ height: currentHeight }}
+    >
+      {/* Resize Handle */}
+      <div
+        ref={dragRef}
+        aria-label="Resize response panel"
+        className={`
+          h-1 cursor-ns-resize
+          hover:bg-primary/50 transition-all duration-200
+          ${isDragging ? "bg-primary" : "bg-transparent"}
+          ${isCollapsed || isMaximized ? "cursor-default opacity-0" : "cursor-ns-resize"}
+        `}
+        role="button"
+        style={{
+          pointerEvents: isCollapsed || isMaximized ? "none" : "auto",
+        }}
+        tabIndex={0}
+        onMouseDown={handleMouseDown}
+      />
+
+      {/* Header Bar */}
+      <div className="flex items-center justify-between px-4 py-2 border-b border-divider">
+        <div className="flex items-center gap-3">
+          <Button
+            isIconOnly
+            className="min-w-6 w-6 h-6"
+            color="default"
+            size="sm"
+            variant="light"
+            onClick={toggleCollapse}
+          >
+            {isCollapsed ? (
+              <ChevronUp className="size-3" />
+            ) : (
+              <ChevronDown className="size-3" />
+            )}
+          </Button>
+
+          <span className="text-sm font-semibold text-default-700">
+            Response
+          </span>
+
+          {(responseData || isLoading) && (
+            <>
+              <Divider className="h-4" orientation="vertical" />
+              <div className="flex items-center gap-3 text-xs text-default-500">
+                {isLoading ? (
+                  <>
+                    <Spinner size="sm" />
+                    <span>Loading...</span>
+                  </>
+                ) : responseData ? (
+                  <>
+                    <span>{responseData.date}</span>
+                    <Chip
+                      className="h-5"
+                      color={getStatusColorVariant(responseData.status)}
+                      size="sm"
+                      title={`${responseData.status}: ${responseData.statusText}`}
+                      variant="flat"
+                    >
+                      {responseData.status} {responseData.statusText}
+                    </Chip>
+                  </>
+                ) : null}
+              </div>
+            </>
+          )}
+        </div>
+
+        <div className="flex items-center gap-1">
+          <Button
+            isIconOnly
+            className="min-w-6 w-6 h-6"
+            color="default"
+            size="sm"
+            variant="light"
+            onClick={toggleMaximize}
+          >
+            {isMaximized ? (
+              <Minimize2 className="size-3" />
+            ) : (
+              <Maximize2 className="size-3" />
+            )}
+          </Button>
+        </div>
+      </div>
+
+      {/* Content */}
+      {!isCollapsed && (
+        <div className="flex-1 overflow-hidden">
+          {responseData ? (
+            <ResponsePanel
+              isLoading={isLoading}
+              response={responseData}
+              responseDate={responseData.date}
+            />
+          ) : isLoading ? (
+            <div className="flex items-center justify-center h-full">
+              <div className="flex flex-col items-center gap-4">
+                <Spinner size="lg" />
+                <p className="text-sm text-default-500">
+                  Waiting for response...
+                </p>
+              </div>
+            </div>
+          ) : (
+            <div className="flex items-center justify-center h-full">
+              <p className="text-sm text-default-500">
+                Click execute to get a response
+              </p>
+            </div>
+          )}
+        </div>
+      )}
+    </Card>
+  );
+};
+
+// Helper function for status color (moved outside component for reusability)
+function getStatusColorVariant(
+  status: number
+): "success" | "warning" | "danger" | "secondary" | "default" {
+  if (status >= 200 && status < 300) return "success";
+  if (status >= 300 && status < 400) return "warning";
+  if (status >= 400 && status < 500) return "danger";
+  if (status >= 500) return "secondary";
+
+  return "default";
+}

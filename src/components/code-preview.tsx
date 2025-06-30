@@ -1,5 +1,4 @@
-import { Button } from "@heroui/button";
-import { Card } from "@heroui/card";
+import { Code } from "@/components/code";
 
 export type SupportedLanguage = "JavaScript" | "cURL";
 
@@ -104,40 +103,23 @@ ${Object.entries(requestPreview.headers)
     }
   };
 
-  const handleCopy = () => {
-    navigator.clipboard.writeText(generateCode());
-  };
-
-  const getLanguageTitle = (): string => {
+  const getCodeLanguage = (): "javascript" | "plaintext" => {
     switch (language) {
       case "JavaScript":
-        return "JavaScript (Fetch)";
+        return "javascript";
       case "cURL":
-        return "cURL";
+        return "plaintext"; // cURL se muestra como texto plano
       default:
-        return language;
+        return "plaintext";
     }
   };
 
-  const code = generateCode();
-  const escapedCode = code
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;");
-
   return (
-    <div className="overflow-hidden flex flex-col gap-3">
-      <div className="flex gap-3 justify-between items-center">
-        <h6 className="text-xs font-medium">{getLanguageTitle()}</h6>
-        <Button size="sm" variant="flat" onClick={handleCopy}>
-          Copy
-        </Button>
-      </div>
-      <Card className="border border-divider" shadow="none">
-        <pre className="p-3 text-xs overflow-x-auto rounded-md leading-relaxed">
-          <code dangerouslySetInnerHTML={{ __html: escapedCode }} />
-        </pre>
-      </Card>
-    </div>
+    <Code
+      height="150px"
+      language={getCodeLanguage()}
+      readOnly={true}
+      value={generateCode()}
+    />
   );
 };

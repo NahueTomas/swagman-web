@@ -18,6 +18,7 @@ import { OperationModel } from "@/models/operation.model";
 import { SwaggerConverter } from "@/lib/swagger-converter";
 import { ParameterType } from "@/hooks/use-request-forms";
 import { ServerModel } from "@/models/server.model";
+import { getStatusCodeName } from "@/utils/helpers";
 
 export class SpecModel {
   public processed: boolean;
@@ -281,6 +282,7 @@ export class SpecModel {
     text: string;
     url: string;
     date: Date;
+    statusCodeName: string;
   }> {
     try {
       const {
@@ -297,7 +299,8 @@ export class SpecModel {
         responseContentType,
         mediaType: contentType,
         responseInterceptor: (res: any) => {
-          res.date = new Date();
+          res.date = new Date().toLocaleString();
+          res.statusText = getStatusCodeName(res.status);
 
           return res;
         },

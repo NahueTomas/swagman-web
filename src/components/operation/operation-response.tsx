@@ -3,7 +3,7 @@ import { Card } from "@heroui/card";
 
 import { Subtitle } from "@/components/subtitle";
 import { OperationModel } from "@/models/operation.model";
-import { CodeViewer, CodeViewerLanguage } from "@/components/code-viewer";
+import { Code } from "@/components/code";
 import { CardSelectableButtons } from "@/components/card-selectable-buttons";
 
 type OperationResponseProps = {
@@ -142,29 +142,25 @@ const ResponseContent = ({
   return (
     <>
       <Subtitle>{response?.description || "Response"}</Subtitle>
-      {responseExample ? (
-        <CodeViewer
-          language={getLanguageFromMimeType(acceptHeader)}
-          value={responseExample}
-        />
-      ) : (
-        <Card
-          className="p-3 text-sm text-center bg-content1/10 border border-divider"
-          shadow="none"
-        >
-          No schema defined for this response
-        </Card>
-      )}
+      <Code
+        height={responseExample ? "200px" : "50px"}
+        language={getLanguageFromMimeType(acceptHeader)}
+        value={responseExample || "No schema defined for this response"}
+      />
     </>
   );
 };
 
-const getLanguageFromMimeType = (mimeType: string): CodeViewerLanguage => {
-  const subtype = mimeType?.split("/")?.[1]?.toUpperCase() || "TEXT";
+const getLanguageFromMimeType = (
+  mimeType: string
+): "json" | "xml" | "html" | "javascript" | "css" | "plaintext" => {
+  const lowerType = mimeType?.toLowerCase() || "";
 
-  return Object.values(CodeViewerLanguage).includes(
-    subtype as CodeViewerLanguage
-  )
-    ? (subtype as CodeViewerLanguage)
-    : CodeViewerLanguage.TEXT;
+  if (lowerType.includes("json")) return "json";
+  if (lowerType.includes("xml")) return "xml";
+  if (lowerType.includes("html")) return "html";
+  if (lowerType.includes("javascript")) return "javascript";
+  if (lowerType.includes("css")) return "css";
+
+  return "plaintext";
 };

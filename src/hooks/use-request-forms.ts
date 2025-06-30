@@ -73,7 +73,7 @@ export interface RequestFormsState {
             statusText: string;
             text: string;
             url: string;
-            date: Date;
+            date: string;
           } | null;
         };
       };
@@ -112,7 +112,7 @@ export interface RequestFormsState {
       statusText: string;
       text: string;
       url: string;
-      date: Date;
+      date: string;
     } | null
   ) => void;
   setSpecification: (specificationUrl: string | null) => void;
@@ -121,7 +121,18 @@ export interface RequestFormsState {
     operationId: string
   ) => {
     loading: boolean;
-    data: object | null;
+    data: {
+      body: { [key: string]: any } | string;
+      data: string;
+      headers: { [key: string]: string | string[] };
+      obj: { [key: string]: any } | string;
+      ok: boolean;
+      status: number;
+      statusText: string;
+      text: string;
+      url: string;
+      date: string;
+    } | null;
   } | null;
 }
 
@@ -368,7 +379,7 @@ export const useRequestForms = create<RequestFormsState>()(
           statusText: string;
           text: string;
           url: string;
-          date: Date;
+          date: string;
         } | null
       ) => {
         set((state) => {
