@@ -207,10 +207,8 @@ export function getBodyExample(schema: any, format: string | undefined) {
     return typeof result === "string"
       ? result
       : JSON.stringify(result, null, 2);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (err) {
-    // eslint-disable-next-line no-console
-    console.error(err);
-
     return "";
   }
 }

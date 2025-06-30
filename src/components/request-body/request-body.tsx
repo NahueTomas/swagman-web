@@ -1,5 +1,6 @@
 import { RequestBodyMediaType } from "@/models/request-body-media-type";
-import { Code, CodeLanguage } from "@/components/request-body/code";
+import { Code } from "@/components/request-body/code";
+import { CodeLanguage } from "@/types";
 import { RequestBodyRow } from "@/components/request-body/request-body.row";
 
 type RequestBodyValues =

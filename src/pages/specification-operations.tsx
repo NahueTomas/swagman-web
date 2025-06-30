@@ -1,39 +1,38 @@
 import { useStore } from "@/hooks/use-store";
 import { SelectOperation } from "@/components/operation/select-operation";
 import { Header } from "@/components/operation/header";
-import { CardMd } from "@/components/card-md";
-import { Collapse } from "@/components/collapse";
 import { OperationTabs } from "@/components/operation/operation-tabs";
+import { OperationBottomBar } from "@/components/operation/operation-bottom-bar";
 
 export default function SpecificationOperationsPage() {
-  const { operationFocused, isFocusModeEnabled } = useStore();
+  const { operationFocused } = useStore();
 
   if (!operationFocused) {
     return <SelectOperation />;
   }
 
   return (
-    <section className="relative overflow-y-auto h-full">
+    <section className="relative overflow-y-auto h-full flex flex-col select-none">
       <Header />
 
-      <div className="overflow-auto px-8 pt-8 pb-4">
-        <section className="flex flex-col">
+      <div className="flex p-8 flex-1">
+        <section className="flex flex-col w-full">
           {operationFocused.summary && (
             <h2 className="text-md">{operationFocused.summary}</h2>
           )}
           {operationFocused.description && (
-            <Collapse active={!isFocusModeEnabled}>
-              <CardMd
-                className="w-fit mt-6"
-                markdown={operationFocused.description}
-              />
-            </Collapse>
+            <div className="text-sm text-foreground/50">
+              Description: {operationFocused.description}
+            </div>
           )}
 
           <section className="mt-8">
             <OperationTabs operation={operationFocused} />
           </section>
         </section>
+      </div>
+      <div className="mt-auto sticky bottom-0 z-50 bg-background">
+        <OperationBottomBar />
       </div>
     </section>
   );

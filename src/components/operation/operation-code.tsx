@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Card } from "@heroui/card";
 
 import { Subtitle } from "../subtitle";
 
@@ -27,10 +26,12 @@ export const OperationCode = ({
 
         {/* Language Selector */}
         <CardSelectableButtons
-          options={["JavaScript", "cURL"].map((lang) => ({
-            value: lang,
-            selected: selectedLanguage === lang,
-          }))}
+          options={["JavaScript", "cURL", "TypeScript", "Python", "PHP"].map(
+            (lang) => ({
+              value: lang,
+              selected: selectedLanguage === lang,
+            })
+          )}
           onClick={(value: string) =>
             setSelectedLanguage(value as SupportedLanguage)
           }
@@ -44,15 +45,11 @@ export const OperationCode = ({
       <div className="space-y-2">
         {/* Code Preview Component */}
         <Subtitle>Code Preview</Subtitle>
-        <Card
-          className="space-y-4 p-3 bg-content1/10 border border-divider"
-          shadow="none"
-        >
-          <CodePreview
-            language={selectedLanguage}
-            requestPreview={requestPreview}
-          />
-        </Card>
+
+        <CodePreview
+          language={selectedLanguage}
+          requestPreview={requestPreview}
+        />
       </div>
     </div>
   );

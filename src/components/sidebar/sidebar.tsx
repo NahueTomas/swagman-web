@@ -195,7 +195,7 @@ export const Sidebar = React.memo(({ className }: SidebarProps) => {
         <Resizable axis="x" defaultWidth={300}>
           <Card
             className={clsx(
-              "flex flex-col h-full space-y-3 bg-content1/20",
+              "flex flex-col h-full space-y-3 bg-background",
               className
             )}
             radius="none"
