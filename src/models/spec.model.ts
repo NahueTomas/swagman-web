@@ -281,7 +281,7 @@ export class SpecModel {
     statusText: string;
     text: string;
     url: string;
-    date: Date;
+    date: string;
     statusCodeName: string;
   }> {
     try {

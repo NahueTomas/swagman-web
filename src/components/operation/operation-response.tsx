@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { Card } from "@heroui/card";
 
 import { Subtitle } from "@/components/subtitle";
 import { OperationModel } from "@/models/operation.model";
