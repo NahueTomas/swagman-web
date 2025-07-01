@@ -1,5 +1,5 @@
 import { useStore } from "@/hooks/use-store";
-import { SelectOperation } from "@/features/operation/select-operation";
+import { OperationSelectOperation } from "@/features/operation/operation-select-operation";
 import { OperationHeader } from "@/features/operation/operation-header";
 import { OperationTabs } from "@/features/operation/operation-tabs";
 import { OperationBottomBar } from "@/features/operation/operation-bottom-bar";
@@ -8,7 +8,7 @@ export default function SpecificationOperationsPage() {
   const { operationFocused } = useStore();
 
   if (!operationFocused) {
-    return <SelectOperation />;
+    return <OperationSelectOperation />;
   }
 
   return (

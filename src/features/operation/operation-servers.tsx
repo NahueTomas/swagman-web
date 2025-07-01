@@ -23,7 +23,7 @@ interface ServerProps {
   onClose: () => void;
 }
 
-export const Servers = ({ isOpen, onClose }: ServerProps) => {
+export const OperationServers = ({ isOpen, onClose }: ServerProps) => {
   // Get the request forms state management functions
   const {
     specificationUrl,

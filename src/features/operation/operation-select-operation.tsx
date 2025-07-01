@@ -2,7 +2,7 @@ import { Chip } from "@heroui/chip";
 
 import { ThunderIcon } from "@/shared/components/ui/icons";
 
-export const SelectOperation = () => {
+export const OperationSelectOperation = () => {
   return (
     <div className="flex flex-col items-center justify-center h-full text-center p-6">
       <div className="flex flex-col items-center gap-4 max-w-md">

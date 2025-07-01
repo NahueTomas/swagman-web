@@ -5,7 +5,7 @@ import { useRequestForms } from "@/hooks/use-request-forms";
 import { HeadersIcon, ServerIcon } from "@/shared/components/ui/icons";
 import { FormFieldSelect } from "@/shared/components/ui/form-fields/form-field-select";
 import { OperationHeaderUrlSection } from "@/features/operation/operation-header-url-section";
-import { Servers } from "@/features/operation/servers";
+import { OperationServers } from "@/features/operation/operation-servers";
 
 export const OperationHeader = () => {
   const [isServerModalOpen, setIsServerModalOpen] = useState(false);
@@ -80,7 +80,7 @@ export const OperationHeader = () => {
       </div>
 
       {isServerModalOpen && (
-        <Servers
+        <OperationServers
           isOpen={isServerModalOpen}
           onClose={() => setIsServerModalOpen(false)}
         />
