@@ -253,12 +253,12 @@ export const OperationBottomBar = () => {
   if (!responseData && !isLoading) {
     return (
       <Card
-        className="shadow-large border-t border-divider bg-background/95 backdrop-blur-sm"
+        className="shadow-large border-t border-divider bg-background/95 backdrop-blur-sm flex flex-col"
         radius="none"
         shadow="lg"
         style={{ height: 48 }}
       >
-        <div className="flex items-center justify-center py-3 text-sm text-default-500">
+        <div className="flex items-center justify-center flex-1 text-sm text-default-500">
           Execute a request to see the response
         </div>
       </Card>
@@ -269,7 +269,7 @@ export const OperationBottomBar = () => {
   if (!responseData && isLoading) {
     return (
       <Card
-        className="shadow-large border-t border-divider bg-background/95 backdrop-blur-sm"
+        className="shadow-large border-t border-divider bg-background/95 backdrop-blur-sm flex flex-col relative"
         radius="none"
         shadow="lg"
         style={{ height: 48 }}
@@ -283,7 +283,7 @@ export const OperationBottomBar = () => {
             }}
           />
         </div>
-        <div className="flex items-center justify-center py-3 text-sm text-default-500 gap-2">
+        <div className="flex items-center justify-center flex-1 text-sm text-default-500 gap-2">
           <Spinner size="sm" />
           <span>Waiting for response...</span>
         </div>
@@ -294,7 +294,7 @@ export const OperationBottomBar = () => {
   return (
     <Card
       ref={containerRef}
-      className="shadow-large border-t border-divider bg-background/95 backdrop-blur-sm relative overflow-hidden"
+      className="shadow-large border-t border-divider bg-background/95 backdrop-blur-sm relative overflow-hidden flex flex-col"
       radius="none"
       shadow="lg"
       style={{ height: currentHeight }}
@@ -400,7 +400,7 @@ export const OperationBottomBar = () => {
 
       {/* Content */}
       {!isCollapsed && (
-        <div className="flex-1 overflow-hidden">
+        <div className="flex-1 overflow-y-auto min-h-0">
           {responseData ? (
             <ResponsePanel
               isLoading={isLoading}

@@ -12,28 +12,31 @@ export default function SpecificationOperationsPage() {
   }
 
   return (
-    <section className="relative overflow-y-auto h-full flex flex-col select-none">
+    <section className="relative h-full flex flex-col select-none">
       <OperationHeader />
 
-      <div className="flex p-8 flex-1">
-        <section className="flex flex-col w-full">
-          {operationFocused.summary && (
-            <h2 className="text-md">{operationFocused.summary}</h2>
-          )}
-          {operationFocused.description && (
-            <div className="text-sm text-foreground/50">
-              Description: {operationFocused.description}
-            </div>
-          )}
+      {/* Main Content Area - Takes remaining space after bottom panel */}
+      <div className="flex-1 overflow-y-auto min-h-0">
+        <div className="flex p-8 h-full">
+          <section className="flex flex-col w-full">
+            {operationFocused.summary && (
+              <h2 className="text-md">{operationFocused.summary}</h2>
+            )}
+            {operationFocused.description && (
+              <div className="text-sm text-foreground/50">
+                Description: {operationFocused.description}
+              </div>
+            )}
 
-          <section className="mt-8">
-            <OperationTabs operation={operationFocused} />
+            <section className="mt-8">
+              <OperationTabs operation={operationFocused} />
+            </section>
           </section>
-        </section>
+        </div>
       </div>
-      <div className="mt-auto sticky bottom-0 z-50 bg-background">
-        <OperationBottomBar />
-      </div>
+
+      {/* Bottom Panel Area - Resizable height */}
+      <OperationBottomBar />
     </section>
   );
 }
