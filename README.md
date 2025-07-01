@@ -1,6 +1,6 @@
 # Swagman Web
 
-A modern, lightweight OpenAPI/Swagger explorer built with React, TypeScript, and Vite. Swagman Minimal provides an intuitive interface for exploring, testing, and generating code for REST APIs.
+A modern, lightweight OpenAPI/Swagger explorer built with React, TypeScript, and Vite. Swagman Web provides an intuitive interface for exploring, testing, and generating code for REST APIs.
 
 ## ✨ Features
 
@@ -42,10 +42,10 @@ A modern, lightweight OpenAPI/Swagger explorer built with React, TypeScript, and
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/swagman-minimal.git
+git clone https://github.com/yourusername/swagman-web.git
 
 # Navigate to project directory
-cd swagman-minimal
+cd swagman-web
 
 # Install dependencies
 npm install
