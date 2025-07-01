@@ -1,50 +1,161 @@
-# Vite & HeroUI Template
+# Swagman Web
 
-This is a template for creating applications using Vite and HeroUI (v2).
+A modern, lightweight OpenAPI/Swagger explorer built with React, TypeScript, and Vite. Swagman Minimal provides an intuitive interface for exploring, testing, and generating code for REST APIs.
 
-[Try it on CodeSandbox](https://githubbox.com/frontio-ai/vite-template)
+## ✨ Features
 
-## Technologies Used
+### 🚀 Core Features
 
-- [Vite](https://vitejs.dev/guide/)
-- [HeroUI](https://heroui.com)
-- [Tailwind CSS](https://tailwindcss.com)
-- [Tailwind Variants](https://tailwind-variants.org)
-- [TypeScript](https://www.typescriptlang.org)
-- [Framer Motion](https://www.framer.com/motion)
+- **Interactive API Explorer**: Browse and test OpenAPI/Swagger specifications
+- **Real-time Request Testing**: Send HTTP requests directly from the interface
+- **Multi-language Code Generation**: Generate code snippets in JavaScript, TypeScript, Python, PHP, and cURL
+- **Responsive Design**: Works seamlessly across desktop and mobile devices
+- **Dark/Light Theme**: Built-in theme switcher for better user experience
 
-## How to Use
+### 🔧 Advanced Features
 
-To clone the project, run the following command:
+- **Monaco Editor Integration**: Syntax highlighting and code editing with Monaco Editor
+- **Drag & Resize Panels**: Customizable layout with resizable panels
+- **Request Body Builder**: Interactive forms for building complex request payloads
+- **Response Viewer**: Formatted response display with syntax highlighting
+- **Server Selection**: Switch between different API server environments
+- **Parameter Management**: Easy handling of path, query, and header parameters
+
+## 🛠️ Tech Stack
+
+- **Frontend**: React 18, TypeScript, Vite
+- **UI Library**: HeroUI (NextUI successor)
+- **Styling**: Tailwind CSS, Framer Motion
+- **State Management**: Zustand
+- **Editor**: Monaco Editor
+- **HTTP Client**: Swagger Client
+- **Build Tool**: Vite
+
+## 🚀 Quick Start
+
+### Prerequisites
+
+- Node.js 18+
+- npm or yarn
+
+### Installation
 
 ```bash
-git clone https://github.com/frontio-ai/vite-template.git
-```
+# Clone the repository
+git clone https://github.com/yourusername/swagman-minimal.git
 
-### Install dependencies
+# Navigate to project directory
+cd swagman-minimal
 
-You can use one of them `npm`, `yarn`, `pnpm`, `bun`, Example using `npm`:
-
-```bash
+# Install dependencies
 npm install
-```
 
-### Run the development server
-
-```bash
+# Start development server
 npm run dev
 ```
 
-### Setup pnpm (optional)
+The application will be available at `http://localhost:5173`
 
-If you are using `pnpm`, you need to add the following code to your `.npmrc` file:
+### Available Scripts
 
 ```bash
-public-hoist-pattern[]=*@heroui/*
+# Development
+npm run dev          # Start development server
+
+# Build
+npm run build        # Build for production
+npm run preview      # Preview production build
+
+# Code Quality
+npm run lint         # Run ESLint
 ```
 
-After modifying the `.npmrc` file, you need to run `pnpm install` again to ensure that the dependencies are installed correctly.
+## 📁 Project Structure
 
-## License
+```
+src/
+├── app/                    # Application setup and providers
+├── features/              # Feature-based modules
+│   ├── api-explorer/     # API exploration components
+│   ├── operation/        # API operation components
+│   ├── request-body/     # Request body builder
+│   └── specification/    # Spec loading components
+├── hooks/                # Custom React hooks
+├── layouts/              # Layout components
+├── lib/                  # External library configurations
+├── models/               # TypeScript models/interfaces
+├── pages/                # Page components
+└── shared/               # Shared utilities and components
+    ├── components/       # Reusable UI components
+    ├── constants/        # Application constants
+    ├── styles/           # Global styles
+    ├── types/            # TypeScript type definitions
+    └── utils/            # Utility functions
+```
 
-Licensed under the [MIT license](https://github.com/frontio-ai/vite-template/blob/main/LICENSE).
+## 🔧 Usage
+
+### Loading an API Specification
+
+- **From URL**: Enter the URL of your OpenAPI specification
+
+### Testing API Endpoints
+
+1. **Select Operation**: Choose an endpoint from the API explorer
+2. **Configure Parameters**: Fill in required parameters, headers, and request body
+3. **Select Server**: Choose the target server environment
+4. **Send Request**: Execute the request and view the response
+
+### Generating Code
+
+1. **Configure Request**: Set up your API call with all parameters
+2. **Select Language**: Choose from JavaScript, TypeScript, Python, PHP, or cURL
+3. **Copy Code**: Use the generated code snippet in your application
+
+### Configuration
+
+Key configuration options can be found in:
+
+- `src/shared/constants/` - Application constants
+- `tailwind.config.js` - Tailwind CSS configuration
+- `vite.config.ts` - Build configuration
+
+## 🚀 Deployment
+
+Build the project and serve the `dist` folder:
+
+```bash
+npm run build
+# Serve the dist folder with your preferred static file server
+```
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+### Development Guidelines
+
+1. Follow the existing code style and patterns
+2. Write TypeScript types for all new code
+3. Update documentation as needed
+4. Run linting before submitting: `npm run lint`
+
+### Feature Requests
+
+Have an idea for a new feature? Please open an issue to discuss it first.
+
+## 📝 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- [HeroUI](https://github.com/heroui-inc/heroui) for the amazing component library
+- [Monaco Editor](https://microsoft.github.io/monaco-editor/) for the code editor
+- [OpenAPI Initiative](https://www.openapis.org/) for the OpenAPI specification
+- [Swagger](https://swagger.io/) for API development tools
+
+---
+
+**I hope you find this tool useful :)**
+**Both constructive and destructive feedback will be appreciated.**
