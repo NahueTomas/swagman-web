@@ -6,22 +6,12 @@ import { addToast } from "@heroui/toast";
 
 import { useStore } from "@/hooks/use-store";
 import { useRequestForms } from "@/hooks/use-request-forms";
-import { ServerIcon, ThunderIcon, Copy } from "@/shared/components/ui/icons";
-
-// Simple check icon component
-const CheckIcon = ({ className = "w-4 h-4" }: { className?: string }) => (
-  <svg
-    className={className}
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    viewBox="0 0 24 24"
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round" />
-  </svg>
-);
-
+import {
+  ServerIcon,
+  ThunderIcon,
+  Copy,
+  Check,
+} from "@/shared/components/ui/icons";
 import { OperationHeaderUrl } from "@/features/operation/operation-header-url";
 import { OperationServers } from "@/features/operation/operation-servers";
 
@@ -107,6 +97,7 @@ export const OperationHeader = () => {
       });
 
       setTimeout(() => setIsCopied(false), 2000);
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       addToast({
         title: "Copy Failed",
@@ -234,7 +225,7 @@ export const OperationHeader = () => {
                 onClick={handleCopyUrl}
               >
                 {isCopied ? (
-                  <CheckIcon className="w-3.5 h-3.5 text-foreground/60" />
+                  <Check className="w-3.5 h-3.5 text-foreground/60" />
                 ) : (
                   <Copy className="w-3.5 h-3.5 text-foreground/60" />
                 )}
