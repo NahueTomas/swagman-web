@@ -2,7 +2,7 @@ import type {
   OpenAPIOperation,
   OpenAPIParameter,
   OpenAPIServer,
-} from "../types/openapi";
+} from "../shared/types/openapi";
 
 import { ParameterModel } from "./parameter.model";
 import { RequestBodyModel } from "./request-body.model";

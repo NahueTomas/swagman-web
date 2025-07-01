@@ -1,5 +1,5 @@
-import { OpenAPISchema } from '../types/openapi';
-import { getParameterDefaultValue } from '../utils/openapi';
+import { getParameterDefaultValue } from "@/shared/utils/openapi";
+import { OpenAPISchema } from "@/shared/types/openapi";
 
 export class RequestBodyField {
   public name: string;

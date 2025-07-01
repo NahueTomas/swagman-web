@@ -1,4 +1,4 @@
-import { OpenAPISpec } from "../types/openapi";
+import { OpenAPISpec } from "../shared/types/openapi";
 
 export class SwaggerConverter {
   static async convert(specification: object): Promise<OpenAPISpec> {

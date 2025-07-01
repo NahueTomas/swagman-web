@@ -6,9 +6,9 @@ import type {
   OpenAPIParameterLocation,
   OpenAPIParameterStyle,
   OpenAPISchema,
-} from "../types/openapi";
+} from "../shared/types/openapi";
 
-import { getParameterDefaultValue } from "../utils/openapi";
+import { getParameterDefaultValue } from "@/shared/utils/openapi";
 
 export class ParameterModel {
   id: string;

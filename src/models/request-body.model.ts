@@ -1,4 +1,7 @@
-import type { OpenAPIRequestBody, OpenAPIMediaType } from "../types/openapi";
+import type {
+  OpenAPIRequestBody,
+  OpenAPIMediaType,
+} from "../shared/types/openapi";
 
 import { RequestBodyMediaType } from "./request-body-media-type";
 

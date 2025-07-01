@@ -2,12 +2,12 @@ import { useEffect, useState } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import { Divider } from "@heroui/divider";
 
-import { Sidebar } from "@/components/sidebar/sidebar";
+import { ApiExplorer } from "@/features/api-explorer";
 import { SpecModel } from "@/models/spec.model";
 import { useStore } from "@/hooks/use-store";
-import { Error } from "@/components/error";
-import { Loading } from "@/components/loading";
-import { unescapeUrl } from "@/utils/helpers";
+import { Error } from "@/shared/components/ui/error";
+import { Loading } from "@/features/specification/loading";
+import { unescapeUrl } from "@/shared/utils/helpers";
 import { useRequestForms } from "@/hooks/use-request-forms";
 
 export default function SpecificationLayout() {
@@ -45,7 +45,7 @@ export default function SpecificationLayout() {
     <div className="flex h-dvh w-full">
       {!error && !isLoading && (
         <div className="flex flex-row h-full">
-          <Sidebar />
+          <ApiExplorer />
           <Divider orientation="vertical" />
         </div>
       )}
