@@ -86,8 +86,17 @@ export const OperationHeader = () => {
 
   const handleCopyUrl = async () => {
     try {
-      const baseUrl = spec?.servers?.[0]?.getUrl() || window.location.origin;
-      const fullUrl = `${baseUrl}${operation.path}`;
+      if (!spec) return;
+
+      // Use spec.buildRequest to get the properly formatted URL
+      const request = spec.buildRequest(
+        operation,
+        null, // requestBody
+        currentValues?.parameters || null, // parameters
+        null // contentType
+      );
+
+      const fullUrl = request.url;
 
       await navigator.clipboard.writeText(fullUrl);
       setIsCopied(true);
