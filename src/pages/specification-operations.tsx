@@ -1,8 +1,8 @@
 import { useStore } from "@/hooks/use-store";
-import { SelectOperation } from "@/components/operation/select-operation";
-import { Header } from "@/components/operation/header";
-import { OperationTabs } from "@/components/operation/operation-tabs";
-import { OperationBottomBar } from "@/components/operation/operation-bottom-bar";
+import { SelectOperation } from "@/features/operation/select-operation";
+import { OperationHeader } from "@/features/operation/operation-header";
+import { OperationTabs } from "@/features/operation/operation-tabs";
+import { OperationBottomBar } from "@/features/operation/operation-bottom-bar";
 
 export default function SpecificationOperationsPage() {
   const { operationFocused } = useStore();
@@ -13,7 +13,7 @@ export default function SpecificationOperationsPage() {
 
   return (
     <section className="relative overflow-y-auto h-full flex flex-col select-none">
-      <Header />
+      <OperationHeader />
 
       <div className="flex p-8 flex-1">
         <section className="flex flex-col w-full">

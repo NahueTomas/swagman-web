@@ -5,7 +5,7 @@ import { Chip } from "@heroui/chip";
 import { Divider } from "@heroui/divider";
 
 import { useStore } from "@/hooks/use-store";
-import { Error } from "@/components/error";
+import { Error } from "@/shared/components/ui/error";
 import {
   AnchorIcon,
   DocumentTextIcon,
@@ -15,7 +15,7 @@ import {
   UserIcon,
   UsersIcon,
   ThunderIcon,
-} from "@/components/icons";
+} from "@/shared/components/ui/icons";
 
 export default function SpecificationPage() {
   const { spec } = useStore();
