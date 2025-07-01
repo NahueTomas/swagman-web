@@ -1,6 +1,6 @@
-import type { OpenAPIMediaType } from "@/types/openapi";
+import type { OpenAPIMediaType } from "@/shared/types/openapi";
 
-import { getBodyExample } from "@/utils/openapi";
+import { getBodyExample } from "@/shared/utils/openapi";
 import { RequestBodyField } from "@/models/request-body-field";
 
 const FORM_MEDIA_TYPES = [

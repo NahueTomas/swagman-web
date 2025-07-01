@@ -6,7 +6,7 @@ import { Link } from "@heroui/link";
 import { Button } from "@heroui/button";
 import { useSearchParams, useNavigate } from "react-router-dom";
 
-import { escapeUrl } from "@/utils/helpers";
+import { escapeUrl } from "@/shared/utils/helpers";
 
 export default function IndexPage() {
   const [specificationLink, setSpecificationLink] = useState<string>("");

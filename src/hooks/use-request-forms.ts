@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-import { OpenAPIServerVariable } from "@/types/openapi";
+import { OpenAPIServerVariable } from "@/shared/types/openapi";
 
 /**
  * Interface for form field structure

@@ -1,5 +1,5 @@
-import { OpenAPIResponses } from "../types/openapi";
-import { getBodyExample } from "../utils/openapi";
+import { getBodyExample } from "@/shared/utils/openapi";
+import { OpenAPIResponses } from "@/shared/types/openapi";
 
 export class ResponsesModel {
   public responses: OpenAPIResponses;
