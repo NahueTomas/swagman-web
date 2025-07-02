@@ -88,7 +88,16 @@ export const OperationTabs = React.memo(function OperationTabs({
   // Optimizar manejo de cambios de parámetros
   const handleParameterChange = useCallback(
     (name: string, inType: string = "query", value: any, included: boolean) => {
-      const updatedForm = { ...currentForm };
+      // Hacer copia profunda para evitar errores de solo lectura
+      const updatedForm = {
+        ...currentForm,
+        parameters: {
+          ...currentForm.parameters,
+          query: { ...currentForm.parameters.query },
+          path: { ...currentForm.parameters.path },
+          header: { ...currentForm.parameters.header },
+        },
+      };
 
       if (name === "Content-Type") {
         updatedForm.contentType = value;
@@ -111,7 +120,16 @@ export const OperationTabs = React.memo(function OperationTabs({
   // Optimizar manejo de cambios de Content-Type
   const handleContentTypeChange = useCallback(
     (contentType: string) => {
-      const updatedForm = { ...currentForm };
+      // Hacer copia profunda para evitar errores de solo lectura
+      const updatedForm = {
+        ...currentForm,
+        parameters: {
+          ...currentForm.parameters,
+          query: { ...currentForm.parameters.query },
+          path: { ...currentForm.parameters.path },
+          header: { ...currentForm.parameters.header },
+        },
+      };
 
       if (
         contentType === currentForm.contentType &&
@@ -146,6 +164,7 @@ export const OperationTabs = React.memo(function OperationTabs({
     (bodyMediaType: string, bodyValues: any) => {
       if (!currentForm.requestBody) return;
 
+      // Hacer copia profunda para evitar errores de solo lectura
       const updatedForm = {
         ...currentForm,
         requestBody: {
@@ -163,14 +182,20 @@ export const OperationTabs = React.memo(function OperationTabs({
   useEffect(() => {
     // Solo actualizar si no existe el formulario en el store
     if (!specifications?.[specificationUrl || ""]?.forms?.[operation.id]) {
-      setFormValues(specificationUrl || "", operation.id, currentForm);
+      const defaultForm = {
+        parameters: operation.getParameterDefaultValues(),
+        contentType: operationData.bodyMimeTypes?.[0] || "",
+        requestBody: operationData.body?.getFieldDefaultValues() || null,
+      };
+      setFormValues(specificationUrl || "", operation.id, defaultForm);
     }
   }, [
     operation.id,
     specifications,
     specificationUrl,
     setFormValues,
-    currentForm,
+    operationData.bodyMimeTypes,
+    operationData.body,
   ]);
 
   // Efecto optimizado para resetear tabs
