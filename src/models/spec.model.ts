@@ -33,12 +33,18 @@ export class SpecModel {
   public client: SwaggerClient;
 
   public servers: Array<ServerModel>;
+
+  // Cache para operaciones costosas
   private operations: Array<OperationModel>;
   private tagList: Array<{
     title: string;
     description?: string;
     operationsResume: { id: string; title: string; method: string }[];
   }>;
+
+  // Flags para saber si ya se generaron (memoización)
+  private _operationsGenerated: boolean = false;
+  private _tagListGenerated: boolean = false;
 
   constructor() {
     this.processed = false;
@@ -53,6 +59,8 @@ export class SpecModel {
     this.servers = [];
     this.operations = [];
     this.tagList = [];
+    this._operationsGenerated = false;
+    this._tagListGenerated = false;
   }
 
   public async processSpec(config: string | object) {
@@ -81,9 +89,9 @@ export class SpecModel {
 
     this.servers = this.generateServers(spec.servers || []);
 
-    // TODO: Improve this
-    this.operations = this.generateOperations();
-    this.tagList = this.generateTagList();
+    // Reset cache flags cuando se procesa nueva spec
+    this._operationsGenerated = false;
+    this._tagListGenerated = false;
   }
 
   private generateServers(servers: OpenAPIServer[]) {
@@ -127,6 +135,12 @@ export class SpecModel {
 
   private generateTagList() {
     if (!this.processed) throw new Error("Spec not processed");
+
+    // Asegurarse de que las operaciones están generadas primero
+    if (!this._operationsGenerated) {
+      this.operations = this.generateOperations();
+      this._operationsGenerated = true;
+    }
 
     const tagsObj: {
       [title: string]: {
@@ -179,10 +193,20 @@ export class SpecModel {
   }
 
   public getOperations() {
+    // Memoización: solo generar operaciones si no se han generado antes
+    if (!this._operationsGenerated) {
+      this.operations = this.generateOperations();
+      this._operationsGenerated = true;
+    }
     return this.operations;
   }
 
   public getTagList() {
+    // Memoización: solo generar tagList si no se ha generado antes
+    if (!this._tagListGenerated) {
+      this.tagList = this.generateTagList();
+      this._tagListGenerated = true;
+    }
     return this.tagList;
   }
 

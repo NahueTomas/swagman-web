@@ -13,6 +13,9 @@ interface StoreState {
   isOriginalUrlSectionVisible: boolean;
   isFocusModeEnabled: boolean;
 
+  // Cache para optimizar búsquedas
+  _operationsCache: Map<string, OperationModel>;
+
   setSpec: (spec: SpecModel) => void;
   toggleSidebar: () => void;
   setSidebarWidth: (width: number) => void;
@@ -30,11 +33,24 @@ export const useStore = create<StoreState>((set) => ({
   sidebarWidth: 256, // Valor predeterminado igual a 'w-64' en Tailwind (16 * 16px)
   isOriginalUrlSectionVisible: true,
   isFocusModeEnabled: false,
+  _operationsCache: new Map(),
 
   setSpec: (spec: SpecModel) => {
-    set(() => ({
-      spec,
-    }));
+    set((state) => {
+      // Limpiar cache cuando se cambia la spec
+      state._operationsCache.clear();
+
+      // Poblar cache con operaciones para búsquedas O(1)
+      const operations = spec.getOperations();
+      const cache = new Map<string, OperationModel>();
+      operations.forEach((op) => cache.set(op.id, op));
+
+      return {
+        spec,
+        _operationsCache: cache,
+        operationFocused: null, // Reset focused operation
+      };
+    });
   },
 
   toggleSidebar: () =>
@@ -49,22 +65,19 @@ export const useStore = create<StoreState>((set) => ({
 
   focusOperation: (operationId) =>
     set((state) => {
-      if (!state.spec || !operationId) return { operationFocused: null };
+      if (!operationId) return { operationFocused: null };
 
-      const operation: OperationModel | null =
-        state.spec
-          .getOperations()
-          .find((op: OperationModel) => op.id === operationId) || null;
+      // Usar cache para búsqueda O(1) en lugar de O(n)
+      const operation = state._operationsCache.get(operationId) || null;
 
       return { operationFocused: operation };
     }),
 
   setOriginalUrlSectionVisible: (isVisible) =>
-    set({ isOriginalUrlSectionVisible: isVisible }),
+    set(() => ({ isOriginalUrlSectionVisible: isVisible })),
 
   toggleFocusMode: () =>
     set((state) => ({
-      ...state,
       isFocusModeEnabled: !state.isFocusModeEnabled,
     })),
 }));

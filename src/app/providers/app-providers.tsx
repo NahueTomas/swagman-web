@@ -1,3 +1,4 @@
+import React from "react";
 import { HashRouter, type NavigateOptions } from "react-router-dom";
 import { HeroUIProvider } from "@heroui/system";
 import { useHref, useNavigate } from "react-router-dom";
@@ -9,21 +10,29 @@ declare module "@react-types/shared" {
   }
 }
 
-function HeroUIProviderWithRouter({ children }: { children: React.ReactNode }) {
-  const navigate = useNavigate();
+const HeroUIProviderWithRouter = React.memo(
+  ({ children }: { children: React.ReactNode }) => {
+    const navigate = useNavigate();
 
-  return (
-    <HeroUIProvider navigate={navigate} useHref={useHref}>
-      <ToastProvider />
-      {children}
-    </HeroUIProvider>
-  );
-}
+    return (
+      <HeroUIProvider navigate={navigate} useHref={useHref}>
+        <ToastProvider />
+        {children}
+      </HeroUIProvider>
+    );
+  }
+);
 
-export function AppProviders({ children }: { children: React.ReactNode }) {
-  return (
-    <HashRouter>
-      <HeroUIProviderWithRouter>{children}</HeroUIProviderWithRouter>
-    </HashRouter>
-  );
-}
+HeroUIProviderWithRouter.displayName = "HeroUIProviderWithRouter";
+
+export const AppProviders = React.memo(
+  ({ children }: { children: React.ReactNode }) => {
+    return (
+      <HashRouter>
+        <HeroUIProviderWithRouter>{children}</HeroUIProviderWithRouter>
+      </HashRouter>
+    );
+  }
+);
+
+AppProviders.displayName = "AppProviders";

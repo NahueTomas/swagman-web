@@ -1,5 +1,6 @@
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { persist, subscribeWithSelector } from "zustand/middleware";
+import { produce } from "immer";
 
 import { OpenAPIServerVariable } from "@/shared/types/openapi";
 
@@ -52,14 +53,9 @@ export interface RequestFormsState {
   specificationUrl: string | null;
   specifications: {
     [specificationUrl: string]: {
-      // Forms data by operation ID
       forms: Record<string, OperationFormState>;
-
-      // Global selected server
       selectedServer: string;
       selectedServerVariables: { [key: string]: OpenAPIServerVariable };
-
-      // Response by operation ID
       responses: {
         [operationId: string]: {
           loading: boolean;
@@ -136,313 +132,217 @@ export interface RequestFormsState {
   } | null;
 }
 
+// Función helper para inicializar especificación
+const initializeSpecification = () => ({
+  forms: {},
+  selectedServer: "",
+  selectedServerVariables: {},
+  responses: {},
+});
+
+// Función helper para inicializar formulario
+const initializeForm = (): OperationFormState => ({
+  parameters: {
+    path: {},
+    query: {},
+    header: {},
+    cookie: {},
+  },
+  contentType: "",
+  requestBody: null,
+});
+
 /**
  * Hook for managing request forms state
- * Provides persistent storage of form values, server selection, and server variables
+ * Optimizado con Immer para mutaciones inmutables y mejor rendimiento
  */
 export const useRequestForms = create<RequestFormsState>()(
-  persist(
-    (set, get) => ({
-      // Initial state
-      specificationUrl: null,
-      specifications: {},
+  subscribeWithSelector(
+    persist(
+      (set, get) => ({
+        // Initial state
+        specificationUrl: null,
+        specifications: {},
 
-      /**
-       * Set form values for a specific operation
-       */
-      setFormValues: (specificationUrl, operationId, data) =>
-        set((state) => {
-          if (!specificationUrl) return state;
-          // Ensure specifications object exists
-          const specs = state.specifications || {};
+        /**
+         * Set form values for a specific operation - Optimizado con Immer
+         */
+        setFormValues: (specificationUrl, operationId, data) =>
+          set(
+            produce((state: RequestFormsState) => {
+              if (!specificationUrl) return;
 
-          // Ensure specification URL entry exists with default values
-          const currentSpec = specs[specificationUrl] || {
-            forms: {},
-            selectedServer: "",
-            selectedServerVariables: {},
-            responses: {},
-          };
+              // Inicializar especificación si no existe
+              if (!state.specifications[specificationUrl]) {
+                state.specifications[specificationUrl] =
+                  initializeSpecification();
+              }
 
-          // Get current forms or initialize
-          const currentForms = currentSpec.forms || {};
+              const spec = state.specifications[specificationUrl];
 
-          // Get current form or initialize with defaults
-          const currentForm = currentForms[operationId] || {
-            parameters: {
-              path: {},
-              query: {},
-              header: {},
-              cookie: {},
-            },
-            contentType: null,
-            requestBody: null,
-          };
+              // Inicializar formulario si no existe
+              if (!spec.forms[operationId]) {
+                spec.forms[operationId] = initializeForm();
+              }
 
-          return {
-            specifications: {
-              ...specs,
-              [specificationUrl]: {
-                ...currentSpec,
-                forms: {
-                  ...currentForms,
-                  [operationId]: {
-                    ...currentForm,
-                    ...data,
-                  },
-                },
-              },
-            },
-          };
-        }),
+              // Aplicar cambios usando draft de Immer (mutación directa pero inmutable)
+              Object.assign(spec.forms[operationId], data);
+            })
+          ),
 
-      setSpecification: (specificationUrl: string | null) =>
-        set((state) => {
-          if (!specificationUrl) return state;
+        setSpecification: (specificationUrl: string | null) =>
+          set(
+            produce((state: RequestFormsState) => {
+              state.specificationUrl = specificationUrl;
 
-          const specs = state.specifications || {};
-          // Initialize with default structure if it doesn't exist
-          const currentSpec = specs[specificationUrl || ""] || {
-            forms: {},
-            selectedServer: "",
-            selectedServerVariables: {},
-            responses: {},
-          };
+              // Inicializar especificación si no existe
+              if (specificationUrl && !state.specifications[specificationUrl]) {
+                state.specifications[specificationUrl] =
+                  initializeSpecification();
+              }
+            })
+          ),
 
-          return {
-            specificationUrl,
-            specifications: {
-              ...specs,
-              [specificationUrl || ""]: currentSpec,
-            },
-          };
-        }),
+        /**
+         * Clear form values for a specific operation - Optimizado
+         */
+        clearForm: (specificationUrl, operationId) =>
+          set(
+            produce((state: RequestFormsState) => {
+              if (!specificationUrl || !state.specifications[specificationUrl])
+                return;
 
-      /**
-       * Clear form values for a specific operation
-       */
-      clearForm: (specificationUrl, operationId) =>
-        set((state) => {
-          if (!specificationUrl) return state;
+              delete state.specifications[specificationUrl].forms[operationId];
+            })
+          ),
 
-          const forms = {
-            ...state.specifications[specificationUrl].forms,
-          };
+        /**
+         * Set the global selected server and its variables - Optimizado
+         */
+        setSelectedServer: (
+          specificationUrl,
+          selectedServer,
+          selectedServerVariables
+        ) =>
+          set(
+            produce((state: RequestFormsState) => {
+              if (!specificationUrl) return;
 
-          delete forms[operationId];
+              if (!state.specifications[specificationUrl]) {
+                state.specifications[specificationUrl] =
+                  initializeSpecification();
+              }
 
-          return {
-            specifications: {
-              ...state.specifications,
-              [specificationUrl]: {
-                ...state.specifications[specificationUrl],
-                forms,
-              },
-            },
-          };
-        }),
+              const spec = state.specifications[specificationUrl];
+              spec.selectedServer = selectedServer;
+              spec.selectedServerVariables = selectedServerVariables;
+            })
+          ),
 
-      /**
-       * Set the global selected server and its variables
-       */
-      setSelectedServer: (
-        specificationUrl,
-        selectedServer,
-        selectedServerVariables
-      ) => {
-        set((state) => {
-          if (!specificationUrl) return state;
+        /**
+         * Set the selected server and its variables for a specific operation - Optimizado
+         */
+        setOperationServer: (
+          specificationUrl,
+          operationId,
+          selectedServer,
+          selectedServerVariables
+        ) =>
+          set(
+            produce((state: RequestFormsState) => {
+              if (!specificationUrl) return;
 
-          return {
-            specifications: {
-              ...state.specifications,
-              [specificationUrl || ""]: {
-                ...state.specifications[specificationUrl || ""],
-                selectedServer,
-                selectedServerVariables,
-              },
-            },
-          };
-        });
-      },
+              if (!state.specifications[specificationUrl]) {
+                state.specifications[specificationUrl] =
+                  initializeSpecification();
+              }
 
-      /**
-       * Set the selected server and its variables for a specific operation
-       */
-      setOperationServer: (
-        specificationUrl,
-        operationId,
-        selectedServer,
-        selectedServerVariables
-      ) => {
-        set((state) => {
-          if (!specificationUrl) return state;
+              const spec = state.specifications[specificationUrl];
 
-          const existingForm = state.specifications[specificationUrl].forms[
-            operationId
-          ] || {
-            parameters: {
-              path: {},
-              query: {},
-              header: {},
-              cookie: {},
-            },
-            contentType: "none",
-            requestBody: null,
-          };
+              if (!spec.forms[operationId]) {
+                spec.forms[operationId] = initializeForm();
+              }
 
-          return {
-            specifications: {
-              ...state.specifications,
-              [specificationUrl]: {
-                ...state.specifications[specificationUrl],
-                forms: {
-                  ...state.specifications[specificationUrl].forms,
-                  [operationId]: {
-                    ...existingForm,
-                    selectedServer,
-                    selectedServerVariables,
-                  },
-                },
-              },
-            },
-          };
-        });
-      },
+              const form = spec.forms[operationId];
+              form.selectedServer = selectedServer;
+              form.selectedServerVariables = selectedServerVariables;
+            })
+          ),
 
-      getResponse: (specificationUrl, operationId) => {
-        if (!specificationUrl) return null;
+        /**
+         * Optimizado con early return y menos mutaciones
+         */
+        getResponse: (specificationUrl, operationId) => {
+          if (!specificationUrl) return null;
 
-        const state = get();
-        const specs = state.specifications || {};
-        const currentSpec = specs[specificationUrl];
+          const state = get();
+          const spec = state.specifications[specificationUrl];
 
-        if (!currentSpec || !currentSpec.responses) {
-          return { loading: false, data: null };
-        }
-
-        return (
-          currentSpec.responses[operationId] || { loading: false, data: null }
-        );
-      },
-
-      setResponseLoading: (specificationUrl, operationId) => {
-        set((state) => {
-          if (!specificationUrl) return state;
-
-          // Ensure specifications object exists
-          const specs = state.specifications || {};
-
-          // Ensure specification URL entry exists with default values
-          const currentSpec = specs[specificationUrl] || {
-            forms: {},
-            selectedServer: "",
-            selectedServerVariables: {},
-            responses: {},
-          };
-
-          // Get current responses or initialize
-          const currentResponses = currentSpec.responses || {};
-
-          // Get current response data if it exists
-          const currentResponseData =
-            currentSpec.responses?.[operationId]?.data || null;
-
-          return {
-            specifications: {
-              ...specs,
-              [specificationUrl]: {
-                ...currentSpec,
-                responses: {
-                  ...currentResponses,
-                  [operationId]: {
-                    loading: true,
-                    data: currentResponseData,
-                  },
-                },
-              },
-            },
-          };
-        });
-      },
-
-      setResponseSuccess: (
-        specificationUrl,
-        operationId,
-        data: {
-          body: { [key: string]: any } | string;
-          data: string;
-          headers: { [key: string]: string | string[] };
-          obj: { [key: string]: any } | string;
-          ok: boolean;
-          status: number;
-          statusText: string;
-          text: string;
-          url: string;
-          date: string;
-        } | null
-      ) => {
-        set((state) => {
-          if (!specificationUrl) return state;
-
-          // Ensure specifications object exists
-          const specs = state.specifications || {};
-
-          // Ensure specification URL entry exists with default values
-          const currentSpec = specs[specificationUrl] || {
-            forms: {},
-            selectedServer: "",
-            selectedServerVariables: {},
-            responses: {},
-          };
-
-          // Get current responses or initialize
-          const currentResponses = currentSpec.responses || {};
-
-          return {
-            specifications: {
-              ...specs,
-              [specificationUrl]: {
-                ...currentSpec,
-                responses: {
-                  ...currentResponses,
-                  [operationId]: { loading: false, data },
-                },
-              },
-            },
-          };
-        });
-      },
-    }),
-    {
-      name: "request-forms-storage",
-      storage: {
-        getItem: (name) => {
-          try {
-            const str = localStorage.getItem(name);
-
-            if (!str) return null;
-
-            return JSON.parse(str);
-          } catch (error) {
-            return error;
+          if (!spec?.responses?.[operationId]) {
+            return { loading: false, data: null };
           }
+
+          return spec.responses[operationId];
         },
-        setItem: (name, value) => {
-          try {
-            localStorage.setItem(name, JSON.stringify(value));
-          } catch (error) {
-            return error;
-          }
-        },
-        removeItem: (name) => {
-          try {
-            localStorage.removeItem(name);
-          } catch (error) {
-            return error;
-          }
-        },
-      },
-    }
+
+        /**
+         * Set response loading state - Optimizado
+         */
+        setResponseLoading: (specificationUrl, operationId) =>
+          set(
+            produce((state: RequestFormsState) => {
+              if (!specificationUrl) return;
+
+              if (!state.specifications[specificationUrl]) {
+                state.specifications[specificationUrl] =
+                  initializeSpecification();
+              }
+
+              const spec = state.specifications[specificationUrl];
+
+              if (!spec.responses[operationId]) {
+                spec.responses[operationId] = { loading: false, data: null };
+              }
+
+              spec.responses[operationId].loading = true;
+            })
+          ),
+
+        /**
+         * Set response success data - Optimizado
+         */
+        setResponseSuccess: (specificationUrl, operationId, data) =>
+          set(
+            produce((state: RequestFormsState) => {
+              if (!specificationUrl) return;
+
+              if (!state.specifications[specificationUrl]) {
+                state.specifications[specificationUrl] =
+                  initializeSpecification();
+              }
+
+              const spec = state.specifications[specificationUrl];
+              spec.responses[operationId] = { loading: false, data };
+            })
+          ),
+      }),
+      {
+        name: "request-forms-storage",
+        // Optimizar la persistencia excluyendo datos temporales
+        partialize: (state) => ({
+          specificationUrl: state.specificationUrl,
+          specifications: Object.fromEntries(
+            Object.entries(state.specifications).map(([url, spec]) => [
+              url,
+              {
+                ...spec,
+                // No persistir respuestas para reducir tamaño del storage
+                responses: {},
+              },
+            ])
+          ),
+        }),
+      }
+    )
   )
 );

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import { Divider } from "@heroui/divider";
 
@@ -15,31 +15,46 @@ export default function SpecificationLayout() {
   const { setSpecification } = useRequestForms();
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [currentSpecUrl, setCurrentSpecUrl] = useState<string>("");
 
   const { pathname } = useLocation();
 
-  useEffect(() => {
+  // Memoizar el parsing de URL para evitar recálculos innecesarios
+  const specUrl = useMemo(() => {
     const pathParts = pathname.split("/");
     const urlIndex = pathParts.indexOf("specification") + 1;
-    const specUrl = unescapeUrl(urlIndex > 0 ? pathParts[urlIndex] : "");
+    return unescapeUrl(urlIndex > 0 ? pathParts[urlIndex] : "");
+  }, [pathname]);
 
-    const spec = new SpecModel();
+  // Función memoizada para cargar especificación
+  const loadSpec = useCallback(
+    async (url: string) => {
+      if (!url) return;
 
-    setSpecification(specUrl);
+      setIsLoading(true);
+      setError(null);
 
-    spec
-      .processSpec(specUrl)
-      .then(() => {
+      try {
+        const spec = new SpecModel();
+        await spec.processSpec(url);
         setSpec(spec);
-        setError(null);
-      })
-      .catch((err) => {
+        setSpecification(url);
+        setCurrentSpecUrl(url);
+      } catch (err: any) {
         setError(err.message || "Failed to load or process the specification.");
-      })
-      .finally(() => {
+      } finally {
         setIsLoading(false);
-      });
-  }, []);
+      }
+    },
+    [setSpec, setSpecification]
+  );
+
+  // Solo cargar la especificación si la URL cambió
+  useEffect(() => {
+    if (specUrl && specUrl !== currentSpecUrl) {
+      loadSpec(specUrl);
+    }
+  }, [specUrl, currentSpecUrl, loadSpec]);
 
   return (
     <div className="flex h-dvh w-full">

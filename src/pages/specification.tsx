@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 import { marked } from "marked";
 import { Card } from "@heroui/card";
 import { Chip } from "@heroui/chip";
@@ -17,40 +17,42 @@ import {
   ThunderIcon,
 } from "@/shared/components/ui/icons";
 
+// Mover el renderer fuera del componente para evitar recrearlo
+const markdownRenderer = new marked.Renderer();
+
+// Configurar marked una sola vez al inicio del módulo
+marked.setOptions({
+  renderer: markdownRenderer,
+  gfm: true,
+  breaks: true,
+  silent: true,
+});
+
 export default function SpecificationPage() {
   const { spec } = useStore();
-  const [parsedDescription, setParsedDescription] = useState("");
 
-  // Parse the description as markdown when it changes
-  useEffect(() => {
-    if (description) {
-      try {
-        // Configure marked for secure rendering
-        const renderer = new marked.Renderer();
+  // Memoizar valores costosos antes del early return
+  const operationCount = useMemo(
+    () => spec?.getOperations()?.length || 0,
+    [spec]
+  );
+  const tagCount = useMemo(() => spec?.getTagList()?.length || 0, [spec]);
 
-        // Set security options
-        marked.setOptions({
-          renderer,
-          gfm: true,
-          breaks: true,
-          silent: true,
-        });
+  // Optimizar el parsing de markdown con useMemo
+  const parsedDescription = useMemo(() => {
+    const description = spec?.info?.description;
+    if (!description) return "";
 
-        // Parse the description
-        const html = marked.parse(description);
-
-        setParsedDescription(typeof html === "string" ? html : "");
-      } catch (_) {
-        setParsedDescription(JSON.stringify(_));
-      }
+    try {
+      const html = marked.parse(description);
+      return typeof html === "string" ? html : "";
+    } catch (error) {
+      return JSON.stringify(error);
     }
   }, [spec?.info?.description]);
 
   if (!spec?.info) return <Error message="No info found" title="Error" />;
   const { title, version, contact, license, description } = spec?.info;
-
-  const operationCount = spec.getOperations().length;
-  const tagCount = spec.getTagList().length;
 
   return (
     <div className="p-8 transition-all duration-250 h-full flex flex-col gap-8 overflow-auto">
