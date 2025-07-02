@@ -198,6 +198,7 @@ export class SpecModel {
       this.operations = this.generateOperations();
       this._operationsGenerated = true;
     }
+
     return this.operations;
   }
 
@@ -207,6 +208,7 @@ export class SpecModel {
       this.tagList = this.generateTagList();
       this._tagListGenerated = true;
     }
+
     return this.tagList;
   }
 

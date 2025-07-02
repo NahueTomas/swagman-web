@@ -234,6 +234,7 @@ export const useRequestForms = create<RequestFormsState>()(
               }
 
               const spec = state.specifications[specificationUrl];
+
               spec.selectedServer = selectedServer;
               spec.selectedServerVariables = selectedServerVariables;
             })
@@ -264,6 +265,7 @@ export const useRequestForms = create<RequestFormsState>()(
               }
 
               const form = spec.forms[operationId];
+
               form.selectedServer = selectedServer;
               form.selectedServerVariables = selectedServerVariables;
             })
@@ -322,6 +324,7 @@ export const useRequestForms = create<RequestFormsState>()(
               }
 
               const spec = state.specifications[specificationUrl];
+
               spec.responses[operationId] = { loading: false, data };
             })
           ),

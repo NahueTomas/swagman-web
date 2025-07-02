@@ -23,6 +23,7 @@ export default function SpecificationLayout() {
   const specUrl = useMemo(() => {
     const pathParts = pathname.split("/");
     const urlIndex = pathParts.indexOf("specification") + 1;
+
     return unescapeUrl(urlIndex > 0 ? pathParts[urlIndex] : "");
   }, [pathname]);
 
@@ -36,6 +37,7 @@ export default function SpecificationLayout() {
 
       try {
         const spec = new SpecModel();
+
         await spec.processSpec(url);
         setSpec(spec);
         setSpecification(url);

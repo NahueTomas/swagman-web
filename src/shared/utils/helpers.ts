@@ -24,7 +24,9 @@ export const escapeUrl = (url: string): string => {
     .replace(/ /g, "%20")
     .replace(/\//g, "%2F")
     .replace(/\?/g, "%3F");
+
   urlCache.set(`escape_${url}`, escaped);
+
   return escaped;
 };
 
@@ -37,7 +39,9 @@ export const unescapeUrl = (url: string): string => {
     .replace(/%20/g, " ")
     .replace(/%2F/g, "/")
     .replace(/%3F/g, "?");
+
   urlCache.set(`unescape_${url}`, unescaped);
+
   return unescaped;
 };
 
@@ -371,11 +375,13 @@ const statusCodeNameCache = new Map<
 export const getStatusCodeName = (statusCode: number) => {
   if (statusCodeNameCache.has(statusCode)) {
     const cached = statusCodeNameCache.get(statusCode);
+
     return cached ? cached.short : "(Unknown)";
   }
 
   const statusCodes = getStatusCodesNames();
   const result = statusCodes[statusCode] || null;
+
   statusCodeNameCache.set(statusCode, result);
 
   return result ? result.short : "(Unknown)";

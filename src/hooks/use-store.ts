@@ -43,6 +43,7 @@ export const useStore = create<StoreState>((set) => ({
       // Poblar cache con operaciones para búsquedas O(1)
       const operations = spec.getOperations();
       const cache = new Map<string, OperationModel>();
+
       operations.forEach((op) => cache.set(op.id, op));
 
       return {
