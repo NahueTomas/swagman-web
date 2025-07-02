@@ -37,39 +37,30 @@ export const OperationHeader = () => {
   const responseStatus = getResponse(specificationUrl || "", operation.id);
 
   const methodUpper = operation.method.toUpperCase();
-  const methodColors: Record<
-    string,
-    { bg: string; text: string; border: string }
-  > = {
+  const methodColors: Record<string, { bg: string; text: string }> = {
     GET: {
-      bg: "bg-blue-500/10",
-      text: "text-blue-600",
-      border: "border-blue-500/20",
+      bg: "bg-primary/20",
+      text: "text-primary-600",
     },
     POST: {
-      bg: "bg-green-500/10",
-      text: "text-green-600",
-      border: "border-green-500/20",
+      bg: "bg-secondary/20",
+      text: "text-secondary-600",
     },
     PUT: {
-      bg: "bg-orange-500/10",
+      bg: "bg-orange-500/20",
       text: "text-orange-600",
-      border: "border-orange-500/20",
     },
     PATCH: {
-      bg: "bg-yellow-500/10",
-      text: "text-yellow-600",
-      border: "border-yellow-500/20",
+      bg: "bg-success/20",
+      text: "text-success-600",
     },
     DELETE: {
-      bg: "bg-red-500/10",
-      text: "text-red-600",
-      border: "border-red-500/20",
+      bg: "bg-danger/20",
+      text: "text-danger-600",
     },
     DEFAULT: {
-      bg: "bg-gray-500/10",
-      text: "text-gray-600",
-      border: "border-gray-500/20",
+      bg: "bg-divider/10",
+      text: "text-divider",
     },
   };
   const colorSet = methodColors[methodUpper] || methodColors.DEFAULT;
@@ -134,14 +125,17 @@ export const OperationHeader = () => {
 
   return (
     <header className="sticky top-0 z-50 bg-background/60 backdrop-blur border-b border-divider/10">
-      <div className="w-full px-4 lg:px-8 pt-3 pb-2">
+      <div className="w-full px-4 lg:px-8 pt-3 pb-1.5">
         {/* Responsive Layout */}
         <div className="border border-divider rounded-lg bg-background overflow-hidden">
           {/* Mobile Layout (Column) - Hidden on md+ */}
           <div className="flex flex-col md:hidden">
             {/* Mobile: Method + Tags Row */}
             <div className="flex items-center justify-between p-3 border-b border-divider/30">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 relative">
+                <div
+                  className={`absolute inset-0 ${colorSet.bg} blur-md select-none pointer-events-none`}
+                />
                 <Badge
                   color="default"
                   content={operation.deprecated ? "!" : undefined}
@@ -221,7 +215,7 @@ export const OperationHeader = () => {
               </div>
 
               <Button
-                color="primary"
+                color="default"
                 disabled={responseStatus?.loading}
                 radius="md"
                 size="sm"
@@ -244,7 +238,10 @@ export const OperationHeader = () => {
           {/* Desktop Layout (Row) - Hidden on mobile, shown on md+ */}
           <div className="hidden md:flex items-stretch h-14">
             {/* Desktop: HTTP Method Badge */}
-            <div className="flex items-center">
+            <div className={`flex items-center relative`}>
+              <div
+                className={`absolute inset-0 ${colorSet.bg} blur-2xl select-none pointer-events-none`}
+              />
               <Badge
                 color="default"
                 content={operation.deprecated ? "!" : undefined}
@@ -253,9 +250,11 @@ export const OperationHeader = () => {
                 shape="circle"
               >
                 <div
-                  className={`h-full min-w-20 ${colorSet.text} flex items-center justify-center`}
+                  className={`h-full min-w-20 flex items-center justify-center`}
                 >
-                  <span className="font-bold text-sm uppercase tracking-wider">
+                  <span
+                    className={`text-xl uppercase tracking-wider ${colorSet.text}`}
+                  >
                     {methodUpper}
                   </span>
                 </div>
@@ -279,7 +278,7 @@ export const OperationHeader = () => {
             {/* Desktop: Execute Button */}
             <div className="flex items-center px-2">
               <Button
-                color="primary"
+                color="default"
                 disabled={responseStatus?.loading}
                 radius="md"
                 size="md"
@@ -301,7 +300,7 @@ export const OperationHeader = () => {
         </div>
 
         {/* Desktop Secondary Row - Only shown on md+ */}
-        <div className="hidden md:flex items-center justify-between mt-3 pt-2 border-t border-divider/10">
+        <div className="hidden md:flex items-center justify-between mt-3 pt-1.5 border-t border-divider/10">
           <div className="flex items-center gap-2">
             <Tooltip content="Server Settings">
               <Button
