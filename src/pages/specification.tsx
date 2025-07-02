@@ -41,10 +41,12 @@ export default function SpecificationPage() {
   // Optimizar el parsing de markdown con useMemo
   const parsedDescription = useMemo(() => {
     const description = spec?.info?.description;
+
     if (!description) return "";
 
     try {
       const html = marked.parse(description);
+
       return typeof html === "string" ? html : "";
     } catch (error) {
       return JSON.stringify(error);
