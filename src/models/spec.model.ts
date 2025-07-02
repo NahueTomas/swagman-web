@@ -34,7 +34,7 @@ export class SpecModel {
 
   public servers: Array<ServerModel>;
 
-  // Cache para operaciones costosas
+  // Cache for expensive operations
   private operations: Array<OperationModel>;
   private tagList: Array<{
     title: string;
@@ -42,7 +42,7 @@ export class SpecModel {
     operationsResume: { id: string; title: string; method: string }[];
   }>;
 
-  // Flags para saber si ya se generaron (memoización)
+  // Flags to know if they have been generated (memoization)
   private _operationsGenerated: boolean = false;
   private _tagListGenerated: boolean = false;
 
@@ -89,7 +89,7 @@ export class SpecModel {
 
     this.servers = this.generateServers(spec.servers || []);
 
-    // Reset cache flags cuando se procesa nueva spec
+    // Reset cache flags when processing new spec
     this._operationsGenerated = false;
     this._tagListGenerated = false;
   }
@@ -136,7 +136,7 @@ export class SpecModel {
   private generateTagList() {
     if (!this.processed) throw new Error("Spec not processed");
 
-    // Asegurarse de que las operaciones están generadas primero
+    // Ensure operations are generated first
     if (!this._operationsGenerated) {
       this.operations = this.generateOperations();
       this._operationsGenerated = true;
@@ -193,7 +193,7 @@ export class SpecModel {
   }
 
   public getOperations() {
-    // Memoización: solo generar operaciones si no se han generado antes
+    // Memoization: Only generate operations if they haven't been generated before
     if (!this._operationsGenerated) {
       this.operations = this.generateOperations();
       this._operationsGenerated = true;
@@ -203,7 +203,7 @@ export class SpecModel {
   }
 
   public getTagList() {
-    // Memoización: solo generar tagList si no se ha generado antes
+    // Memoization: Only generate tagList if it hasn't been generated before
     if (!this._tagListGenerated) {
       this.tagList = this.generateTagList();
       this._tagListGenerated = true;

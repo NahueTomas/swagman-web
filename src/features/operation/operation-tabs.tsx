@@ -29,11 +29,10 @@ export const OperationTabs = React.memo(function OperationTabs({
   const [selectedTab, setSelectedTab] = useState("parameters");
   const [selectedResponseTab, setSelectedResponseTab] = useState("responses");
 
-  // Usar selectores específicos para evitar loops infinitos
   const operationFocused = useStore((state) => state.operationFocused);
   const spec = useStore((state) => state.spec);
 
-  // Memoizar datos costosos de la operación
+  // Memoize expensive operation data
   const operationData = useMemo(() => {
     const body = operation.getRequestBody();
 
@@ -47,19 +46,19 @@ export const OperationTabs = React.memo(function OperationTabs({
     };
   }, [operation]);
 
-  // Usar selectores específicos para useRequestForms también
+  // Use specific selectors for useRequestForms
   const specificationUrl = useRequestForms((state) => state.specificationUrl);
   const specifications = useRequestForms((state) => state.specifications);
   const setFormValues = useRequestForms((state) => state.setFormValues);
 
-  // Memoizar el formulario actual
+  // Memoize the current form
   const currentForm = useMemo(() => {
     const formFromStore =
       specifications?.[specificationUrl || ""]?.forms?.[operation.id];
 
     if (formFromStore) return formFromStore;
 
-    // Default form si no existe
+    // Default form if it doesn't exist
     return {
       parameters: operation.getParameterDefaultValues(),
       contentType: operationData.bodyMimeTypes?.[0] || "",
@@ -73,7 +72,7 @@ export const OperationTabs = React.memo(function OperationTabs({
     operationData,
   ]);
 
-  // Memoizar la vista previa de la solicitud
+  // Memoize the request preview
   const requestPreview = useMemo(() => {
     if (!operationFocused || !spec) return null;
 
@@ -85,10 +84,10 @@ export const OperationTabs = React.memo(function OperationTabs({
     );
   }, [operationFocused, spec, currentForm]);
 
-  // Optimizar manejo de cambios de parámetros
+  // Optimize handling of parameter changes
   const handleParameterChange = useCallback(
     (name: string, inType: string = "query", value: any, included: boolean) => {
-      // Hacer copia profunda para evitar errores de solo lectura
+      // Deep copy to avoid read-only errors
       const updatedForm = {
         ...currentForm,
         parameters: {
@@ -103,7 +102,7 @@ export const OperationTabs = React.memo(function OperationTabs({
         updatedForm.contentType = value;
       }
 
-      // Actualizar parámetros según el tipo
+      // Update parameters according to the type
       if (inType === "query") {
         updatedForm.parameters.query[name] = { value, included };
       } else if (inType === "path") {
@@ -117,10 +116,10 @@ export const OperationTabs = React.memo(function OperationTabs({
     [currentForm, setFormValues, specificationUrl, operation.id]
   );
 
-  // Optimizar manejo de cambios de Content-Type
+  // Optimize handling of Content-Type changes
   const handleContentTypeChange = useCallback(
     (contentType: string) => {
-      // Hacer copia profunda para evitar errores de solo lectura
+      // Deep copy to avoid read-only errors
       const updatedForm = {
         ...currentForm,
         parameters: {
@@ -159,12 +158,12 @@ export const OperationTabs = React.memo(function OperationTabs({
     ]
   );
 
-  // Optimizar actualización del body
+  // Optimize body update
   const updateBody = useCallback(
     (bodyMediaType: string, bodyValues: any) => {
       if (!currentForm.requestBody) return;
 
-      // Hacer copia profunda para evitar errores de solo lectura
+      // Deep copy to avoid read-only errors
       const updatedForm = {
         ...currentForm,
         requestBody: {
@@ -178,15 +177,16 @@ export const OperationTabs = React.memo(function OperationTabs({
     [currentForm, setFormValues, specificationUrl, operation.id]
   );
 
-  // Efecto optimizado para inicializar el formulario
+  // Optimized effect to initialize the form
   useEffect(() => {
-    // Solo actualizar si no existe el formulario en el store
+    // Only update if the form doesn't exist in the store
     if (!specifications?.[specificationUrl || ""]?.forms?.[operation.id]) {
       const defaultForm = {
         parameters: operation.getParameterDefaultValues(),
         contentType: operationData.bodyMimeTypes?.[0] || "",
         requestBody: operationData.body?.getFieldDefaultValues() || null,
       };
+
       setFormValues(specificationUrl || "", operation.id, defaultForm);
     }
   }, [
@@ -198,7 +198,7 @@ export const OperationTabs = React.memo(function OperationTabs({
     operationData.body,
   ]);
 
-  // Efecto optimizado para resetear tabs
+  // Optimized effect to reset tabs
   useEffect(() => {
     if (!operationData.body) {
       setSelectedTab("parameters");

@@ -14,7 +14,6 @@ import {
 } from "@/shared/components/ui/icons";
 import { Resizable } from "@/shared/components/ui/resizable";
 
-// Constantes para reducir creación de objetos
 const ICON_STYLES = "text-lg";
 const HOME_PATH = "/";
 
@@ -25,10 +24,9 @@ interface ApiExplorerItemProps {
   onClick?: (e: React.MouseEvent) => void;
 }
 
-// Componente con memoización para evitar renderizados innecesarios
 const ApiExplorerItem = React.memo(
   ({ icon, to, isActive = false, onClick }: ApiExplorerItemProps) => {
-    // Función de clase memoizada
+    // Memoized class name function
     const getClassName = useCallback(
       () =>
         clsx(
@@ -41,7 +39,7 @@ const ApiExplorerItem = React.memo(
       [isActive]
     );
 
-    // Manejador para eventos de teclado para accesibilidad
+    // Keyboard event handler for accessibility
     const handleKeyDown = useCallback(
       (e: React.KeyboardEvent) => {
         if (e.key === "Enter" || e.key === " ") {
@@ -52,7 +50,7 @@ const ApiExplorerItem = React.memo(
       [onClick]
     );
 
-    // Si hay un onClick personalizado, lo usamos en lugar de NavLink para mayor rapidez
+    // If there is a custom onClick, use it instead of NavLink for faster navigation
     if (onClick) {
       return (
         <div
@@ -68,7 +66,7 @@ const ApiExplorerItem = React.memo(
       );
     }
 
-    // Fallback a NavLink cuando no hay onClick
+    // Fallback to NavLink when there is no onClick
     return (
       <NavLink className={getClassName} to={to}>
         <span className={ICON_STYLES}>{icon}</span>
@@ -77,7 +75,6 @@ const ApiExplorerItem = React.memo(
   }
 );
 
-// Asignar nombre para el display name
 ApiExplorerItem.displayName = "ApiExplorerItem";
 
 interface ApiExplorerProps {
@@ -88,17 +85,13 @@ export const ApiExplorer = React.memo(({ className }: ApiExplorerProps) => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Extraer información de la ruta actual de forma optimizada
+  // Obtain information from the current path
   const { specUrl, isSpecificationPage, isOperationsPage, hasSpecUrl } =
     useMemo(() => {
       const pathname = location.pathname;
 
-      // Extraemos la URL directamente de la ruta usando expresiones regulares
-      // Esto es más rápido que dividir la cadena y buscar en el array resultante
       const specUrlMatch = pathname.match(/\/specification\/([^/]+)(?:\/.*)?$/);
       const urlParam = specUrlMatch ? specUrlMatch[1] : "";
-
-      // Verificamos directamente los patrones en la ruta
       const isOpsPage = pathname.includes("/operations");
       const isSpecPage = pathname.includes("/specification") && !isOpsPage;
 
@@ -110,7 +103,7 @@ export const ApiExplorer = React.memo(({ className }: ApiExplorerProps) => {
       };
     }, [location.pathname]);
 
-  // Creamos las rutas solo una vez para todo el componente
+  // Create routes only once for the entire component
   const routes = useMemo(
     () => ({
       home: HOME_PATH,
@@ -120,7 +113,7 @@ export const ApiExplorer = React.memo(({ className }: ApiExplorerProps) => {
     [specUrl]
   );
 
-  // Funciones de navegación directa para evitar retrasos
+  // Direct navigation functions to avoid delays
   const handleClickHome = useCallback(
     (e: React.MouseEvent) => {
       e.preventDefault();
@@ -211,5 +204,4 @@ export const ApiExplorer = React.memo(({ className }: ApiExplorerProps) => {
   );
 });
 
-// Asignar nombre para el display name
 ApiExplorer.displayName = "ApiExplorer";

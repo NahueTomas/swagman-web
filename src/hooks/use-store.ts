@@ -13,7 +13,7 @@ interface StoreState {
   isOriginalUrlSectionVisible: boolean;
   isFocusModeEnabled: boolean;
 
-  // Cache para optimizar búsquedas
+  // Cache
   _operationsCache: Map<string, OperationModel>;
 
   setSpec: (spec: SpecModel) => void;
@@ -30,17 +30,17 @@ export const useStore = create<StoreState>((set) => ({
   operationsTabs: [],
   operationFocused: null,
   isSidebarCollapsed: false,
-  sidebarWidth: 256, // Valor predeterminado igual a 'w-64' en Tailwind (16 * 16px)
+  sidebarWidth: 256, // Default value equal to 'w-64' in Tailwind (16 * 16px)
   isOriginalUrlSectionVisible: true,
   isFocusModeEnabled: false,
   _operationsCache: new Map(),
 
   setSpec: (spec: SpecModel) => {
     set((state) => {
-      // Limpiar cache cuando se cambia la spec
+      // Clear cache when spec changes
       state._operationsCache.clear();
 
-      // Poblar cache con operaciones para búsquedas O(1)
+      // Populate cache with operations for O(1) searches
       const operations = spec.getOperations();
       const cache = new Map<string, OperationModel>();
 
@@ -68,7 +68,7 @@ export const useStore = create<StoreState>((set) => ({
     set((state) => {
       if (!operationId) return { operationFocused: null };
 
-      // Usar cache para búsqueda O(1) en lugar de O(n)
+      // Use cache for O(1) search instead of O(n)
       const operation = state._operationsCache.get(operationId) || null;
 
       return { operationFocused: operation };

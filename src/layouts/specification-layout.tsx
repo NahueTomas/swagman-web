@@ -19,7 +19,6 @@ export default function SpecificationLayout() {
 
   const { pathname } = useLocation();
 
-  // Memoizar el parsing de URL para evitar recálculos innecesarios
   const specUrl = useMemo(() => {
     const pathParts = pathname.split("/");
     const urlIndex = pathParts.indexOf("specification") + 1;
@@ -27,7 +26,6 @@ export default function SpecificationLayout() {
     return unescapeUrl(urlIndex > 0 ? pathParts[urlIndex] : "");
   }, [pathname]);
 
-  // Función memoizada para cargar especificación
   const loadSpec = useCallback(
     async (url: string) => {
       if (!url) return;
@@ -51,7 +49,6 @@ export default function SpecificationLayout() {
     [setSpec, setSpecification]
   );
 
-  // Solo cargar la especificación si la URL cambió
   useEffect(() => {
     if (specUrl && specUrl !== currentSpecUrl) {
       loadSpec(specUrl);

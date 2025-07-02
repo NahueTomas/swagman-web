@@ -132,7 +132,7 @@ export interface RequestFormsState {
   } | null;
 }
 
-// Función helper para inicializar especificación
+// Helper function to initialize specification
 const initializeSpecification = () => ({
   forms: {},
   selectedServer: "",
@@ -140,7 +140,7 @@ const initializeSpecification = () => ({
   responses: {},
 });
 
-// Función helper para inicializar formulario
+// Helper function to initialize form
 const initializeForm = (): OperationFormState => ({
   parameters: {
     path: {},
@@ -154,7 +154,7 @@ const initializeForm = (): OperationFormState => ({
 
 /**
  * Hook for managing request forms state
- * Optimizado con Immer para mutaciones inmutables y mejor rendimiento
+ * Optimized with Immer for immutable mutations and better performance
  */
 export const useRequestForms = create<RequestFormsState>()(
   subscribeWithSelector(
@@ -172,7 +172,7 @@ export const useRequestForms = create<RequestFormsState>()(
             produce((state: RequestFormsState) => {
               if (!specificationUrl) return;
 
-              // Inicializar especificación si no existe
+              // Initialize specification if it doesn't exist
               if (!state.specifications[specificationUrl]) {
                 state.specifications[specificationUrl] =
                   initializeSpecification();
@@ -180,12 +180,12 @@ export const useRequestForms = create<RequestFormsState>()(
 
               const spec = state.specifications[specificationUrl];
 
-              // Inicializar formulario si no existe
+              // Initialize form if it doesn't exist
               if (!spec.forms[operationId]) {
                 spec.forms[operationId] = initializeForm();
               }
 
-              // Aplicar cambios usando draft de Immer (mutación directa pero inmutable)
+              // Apply changes using Immer draft (direct mutation but immutable)
               Object.assign(spec.forms[operationId], data);
             })
           ),
@@ -195,7 +195,7 @@ export const useRequestForms = create<RequestFormsState>()(
             produce((state: RequestFormsState) => {
               state.specificationUrl = specificationUrl;
 
-              // Inicializar especificación si no existe
+              // Initialize specification if it doesn't exist
               if (specificationUrl && !state.specifications[specificationUrl]) {
                 state.specifications[specificationUrl] =
                   initializeSpecification();
@@ -204,7 +204,7 @@ export const useRequestForms = create<RequestFormsState>()(
           ),
 
         /**
-         * Clear form values for a specific operation - Optimizado
+         * Clear form values for a specific operation
          */
         clearForm: (specificationUrl, operationId) =>
           set(
@@ -217,7 +217,7 @@ export const useRequestForms = create<RequestFormsState>()(
           ),
 
         /**
-         * Set the global selected server and its variables - Optimizado
+         * Set the global selected server and its variables
          */
         setSelectedServer: (
           specificationUrl,
@@ -241,7 +241,7 @@ export const useRequestForms = create<RequestFormsState>()(
           ),
 
         /**
-         * Set the selected server and its variables for a specific operation - Optimizado
+         * Set the selected server and its variables for a specific operation
          */
         setOperationServer: (
           specificationUrl,
@@ -272,7 +272,7 @@ export const useRequestForms = create<RequestFormsState>()(
           ),
 
         /**
-         * Optimizado con early return y menos mutaciones
+         * Get response data
          */
         getResponse: (specificationUrl, operationId) => {
           if (!specificationUrl) return null;
@@ -288,7 +288,7 @@ export const useRequestForms = create<RequestFormsState>()(
         },
 
         /**
-         * Set response loading state - Optimizado
+         * Set response loading state
          */
         setResponseLoading: (specificationUrl, operationId) =>
           set(
@@ -311,7 +311,7 @@ export const useRequestForms = create<RequestFormsState>()(
           ),
 
         /**
-         * Set response success data - Optimizado
+         * Set response success data
          */
         setResponseSuccess: (specificationUrl, operationId, data) =>
           set(
@@ -331,7 +331,7 @@ export const useRequestForms = create<RequestFormsState>()(
       }),
       {
         name: "request-forms-storage",
-        // Optimizar la persistencia excluyendo datos temporales
+        // Optimize persistence excluding temporary data
         partialize: (state) => ({
           specificationUrl: state.specificationUrl,
           specifications: Object.fromEntries(
@@ -339,7 +339,7 @@ export const useRequestForms = create<RequestFormsState>()(
               url,
               {
                 ...spec,
-                // No persistir respuestas para reducir tamaño del storage
+                // Don't persist responses to reduce storage size
                 responses: {},
               },
             ])

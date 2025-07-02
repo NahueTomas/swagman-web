@@ -5,7 +5,6 @@ import { ApiExplorerTag } from "@/features/api-explorer/api-explorer-tag";
 
 export const ApiExplorerTagList = React.memo(
   ({ className }: { className?: string }) => {
-    // Usar selector directo para evitar loops infinitos
     const tagList = useStore((state) => state.spec?.getTagList() || []);
 
     return (

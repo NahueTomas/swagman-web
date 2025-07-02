@@ -12,7 +12,7 @@ export const isObject = (item: unknown): item is Record<string, unknown> =>
 export const isNumeric = (n: unknown): n is number =>
   !isNaN(parseFloat(n as string)) && isFinite(n as number);
 
-// Cache para URLs escapadas/desescapadas
+// Cache for URLs
 const urlCache = new Map<string, string>();
 
 export const escapeUrl = (url: string): string => {
@@ -45,7 +45,7 @@ export const unescapeUrl = (url: string): string => {
   return unescaped;
 };
 
-// Lazy loading del diccionario de códigos de estado para mejorar el tiempo de carga inicial
+// Lazy loading
 let statusCodesNames: Record<number, { short: string; large: string }> | null =
   null;
 
@@ -366,7 +366,7 @@ const getStatusCodesNames = () => {
   return statusCodesNames;
 };
 
-// Cache para getStatusCodeName
+// Cache for getStatusCodeName
 const statusCodeNameCache = new Map<
   number,
   { short: string; large: string } | null

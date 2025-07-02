@@ -27,12 +27,12 @@ export const FormFieldSelect = ({
   const [selectedValue, setSelectedValue] = useState<string | undefined>(value);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Sincronizar con el valor externo cuando cambia
+  // Sync with external value when it changes
   useEffect(() => {
     setSelectedValue(value);
   }, [value]);
 
-  // Cerrar el dropdown cuando se hace clic fuera
+  // Close the dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -63,7 +63,7 @@ export const FormFieldSelect = ({
   };
 
   const handleClear = (e: React.MouseEvent) => {
-    e.stopPropagation(); // Evitar que se abra el dropdown
+    e.stopPropagation(); // Avoid opening the dropdown
     onChange("");
     setSelectedValue(undefined);
   };

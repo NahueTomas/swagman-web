@@ -17,10 +17,10 @@ import {
   ThunderIcon,
 } from "@/shared/components/ui/icons";
 
-// Mover el renderer fuera del componente para evitar recrearlo
+// Move the renderer outside the component to avoid recreating it
 const markdownRenderer = new marked.Renderer();
 
-// Configurar marked una sola vez al inicio del módulo
+// Configure marked only once at the beginning of the module
 marked.setOptions({
   renderer: markdownRenderer,
   gfm: true,
@@ -31,14 +31,14 @@ marked.setOptions({
 export default function SpecificationPage() {
   const { spec } = useStore();
 
-  // Memoizar valores costosos antes del early return
+  // Memoize expensive values before the early return
   const operationCount = useMemo(
     () => spec?.getOperations()?.length || 0,
     [spec]
   );
   const tagCount = useMemo(() => spec?.getTagList()?.length || 0, [spec]);
 
-  // Optimizar el parsing de markdown con useMemo
+  // Optimize markdown parsing with useMemo
   const parsedDescription = useMemo(() => {
     const description = spec?.info?.description;
 
