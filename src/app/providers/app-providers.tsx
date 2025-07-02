@@ -1,4 +1,4 @@
-import { BrowserRouter, type NavigateOptions } from "react-router-dom";
+import { HashRouter, type NavigateOptions } from "react-router-dom";
 import { HeroUIProvider } from "@heroui/system";
 import { useHref, useNavigate } from "react-router-dom";
 import { ToastProvider } from "@heroui/toast";
@@ -22,8 +22,8 @@ function HeroUIProviderWithRouter({ children }: { children: React.ReactNode }) {
 
 export function AppProviders({ children }: { children: React.ReactNode }) {
   return (
-    <BrowserRouter>
+    <HashRouter>
       <HeroUIProviderWithRouter>{children}</HeroUIProviderWithRouter>
-    </BrowserRouter>
+    </HashRouter>
   );
 }
