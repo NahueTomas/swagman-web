@@ -1,4 +1,4 @@
-import { ReactNode, useRef, useState, useEffect } from "react";
+import { ReactNode, useRef, useState, useEffect, useCallback } from "react";
 
 type ResizableProps = {
   children: ReactNode;
@@ -24,59 +24,107 @@ export const Resizable = ({
   className = "",
 }: ResizableProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const [resizing, setResizing] = useState(false);
   const [size, setSize] = useState({
     width: defaultWidth,
     height: defaultHeight,
   });
-  const [resizing, setResizing] = useState(false);
-  const [startPos, setStartPos] = useState({ x: 0, y: 0 });
 
-  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    setResizing(true);
-    setStartPos({
-      x: e.clientX,
-      y: e.clientY,
-    });
-  };
+  // Use refs to avoid re-renders during resize
+  const resizeRef = useRef<{
+    startPos: { x: number; y: number };
+    currentSize: { width: number; height: number };
+    rafId?: number;
+  }>({
+    startPos: { x: 0, y: 0 },
+    currentSize: { width: defaultWidth, height: defaultHeight },
+  });
 
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      if (!resizing) return;
+  // Optimized mouse move handler with requestAnimationFrame
+  const handleMouseMove = useCallback(
+    (e: MouseEvent) => {
+      if (!resizing || !containerRef.current) return;
 
-      const deltaX = e.clientX - startPos.x;
-      const deltaY = e.clientY - startPos.y;
+      // Cancel previous animation frame
+      if (resizeRef.current.rafId) {
+        cancelAnimationFrame(resizeRef.current.rafId);
+      }
 
-      setSize((prev) => {
-        const newSize = { ...prev };
+      // Schedule update for next frame
+      resizeRef.current.rafId = requestAnimationFrame(() => {
+        const deltaX = e.clientX - resizeRef.current.startPos.x;
+        const deltaY = e.clientY - resizeRef.current.startPos.y;
+
+        const newSize = { ...resizeRef.current.currentSize };
 
         if (axis === "x" || axis === "all") {
           newSize.width = Math.max(
-            Math.min(prev.width + deltaX, maxWidth),
+            Math.min(resizeRef.current.currentSize.width + deltaX, maxWidth),
             minWidth
           );
         }
 
         if (axis === "y" || axis === "all") {
           newSize.height = Math.max(
-            Math.min(prev.height + deltaY, maxHeight),
+            Math.min(resizeRef.current.currentSize.height + deltaY, maxHeight),
             minHeight
           );
         }
 
-        return newSize;
+        // Update container style directly for smooth animation
+        if (containerRef.current) {
+          if (axis === "x" || axis === "all") {
+            containerRef.current.style.width = `${newSize.width}px`;
+          }
+          if (axis === "y" || axis === "all") {
+            containerRef.current.style.height = `${newSize.height}px`;
+          }
+        }
+
+        // Update refs
+        resizeRef.current.startPos = { x: e.clientX, y: e.clientY };
+        resizeRef.current.currentSize = newSize;
       });
+    },
+    [resizing, axis, minWidth, maxWidth, minHeight, maxHeight]
+  );
 
-      setStartPos({
-        x: e.clientX,
-        y: e.clientY,
-      });
-    };
+  const handleMouseUp = useCallback(() => {
+    if (resizeRef.current.rafId) {
+      cancelAnimationFrame(resizeRef.current.rafId);
+    }
 
-    const handleMouseUp = () => {
-      setResizing(false);
-    };
+    // Update state with final size
+    setSize(resizeRef.current.currentSize);
+    setResizing(false);
 
+    // Remove cursor styles
+    document.body.style.cursor = "";
+    document.body.style.userSelect = "";
+  }, []);
+
+  const handleMouseDown = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      e.preventDefault();
+      setResizing(true);
+
+      // Initialize refs
+      resizeRef.current.startPos = { x: e.clientX, y: e.clientY };
+      resizeRef.current.currentSize = { ...size };
+
+      // Set cursor styles
+      document.body.style.cursor = {
+        x: "ew-resize",
+        y: "ns-resize",
+        all: "nwse-resize",
+      }[axis];
+      document.body.style.userSelect = "none";
+    },
+    [size, axis]
+  );
+
+  // Mouse event listeners
+  useEffect(() => {
     if (resizing) {
       document.addEventListener("mousemove", handleMouseMove);
       document.addEventListener("mouseup", handleMouseUp);
@@ -85,8 +133,11 @@ export const Resizable = ({
     return () => {
       document.removeEventListener("mousemove", handleMouseMove);
       document.removeEventListener("mouseup", handleMouseUp);
+      if (resizeRef.current.rafId) {
+        cancelAnimationFrame(resizeRef.current.rafId);
+      }
     };
-  }, [resizing, startPos, minWidth, maxWidth, minHeight, maxHeight, axis]);
+  }, [resizing, handleMouseMove, handleMouseUp]);
 
   const cursorType = {
     x: "ew-resize",
@@ -97,7 +148,11 @@ export const Resizable = ({
   return (
     <div
       ref={containerRef}
-      className={`relative ${className} ${resizing ? "border-r border-r-primary" : ""}`}
+      className={`relative ${className} ${
+        resizing
+          ? "border-r border-r-primary"
+          : "transition-all duration-200 ease-out"
+      }`}
       style={{
         width: axis === "x" || axis === "all" ? `${size.width}px` : "auto",
         height: axis === "y" || axis === "all" ? `${size.height}px` : "auto",
@@ -107,7 +162,12 @@ export const Resizable = ({
 
       <div
         aria-label="Resize"
-        className="absolute bottom-0 right-0 p-2 cursor-pointer transition-colors duration-250 border-r border-r-transparent hover:border-r-primary"
+        className={`
+          absolute bottom-0 right-0 p-2 cursor-pointer
+          transition-all duration-200 ease-out
+          border-r border-r-transparent hover:border-r-primary
+          ${resizing ? "bg-primary/10" : ""}
+        `}
         role="button"
         style={{
           cursor: cursorType,
@@ -121,7 +181,16 @@ export const Resizable = ({
         onKeyDown={(e) => {
           if (e.key === "Enter" || e.key === " ") {
             e.preventDefault();
-            setResizing(true);
+            // Simulate mouse down for keyboard users
+            const rect = containerRef.current?.getBoundingClientRect();
+
+            if (rect) {
+              handleMouseDown({
+                preventDefault: () => {},
+                clientX: rect.right,
+                clientY: rect.bottom,
+              } as React.MouseEvent<HTMLDivElement>);
+            }
           }
         }}
         onMouseDown={handleMouseDown}

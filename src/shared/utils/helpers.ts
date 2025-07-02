@@ -334,5 +334,7 @@ export const statusCodesNames: Record<
 };
 
 export const getStatusCodeName = (statusCode: number) => {
-  return statusCodesNames?.[statusCode]?.short || statusCode.toString();
+  const statusCodeInfo = statusCodesNames[statusCode];
+
+  return statusCodeInfo ? statusCodeInfo.short : "(Unknown)";
 };
