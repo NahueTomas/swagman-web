@@ -16,8 +16,8 @@ export default function SpecificationOperationsPage() {
       <OperationHeader />
 
       {/* Main Content Area - Takes remaining space after bottom panel */}
-      <div className="flex-1 overflow-y-auto min-h-0">
-        <div className="flex p-8 h-full">
+      <div className="flex-1 overflow-y-auto min-h-0 p-4 lg:p-8">
+        <div className="flex h-full">
           <section className="flex flex-col w-full">
             {operationFocused.summary && (
               <h2 className="text-md">{operationFocused.summary}</h2>
@@ -28,7 +28,7 @@ export default function SpecificationOperationsPage() {
               </div>
             )}
 
-            <section className="mt-8">
+            <section className="mt-2">
               <OperationTabs operation={operationFocused} />
             </section>
           </section>

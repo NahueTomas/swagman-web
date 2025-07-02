@@ -134,7 +134,7 @@ export const OperationHeader = () => {
 
   return (
     <header className="sticky top-0 z-50 bg-background/60 backdrop-blur border-b border-divider/10">
-      <div className="w-full px-3 sm:px-4 md:px-8 pt-3 pb-2">
+      <div className="w-full px-4 lg:px-8 pt-3 pb-2">
         {/* Responsive Layout */}
         <div className="border border-divider rounded-lg bg-background overflow-hidden">
           {/* Mobile Layout (Column) - Hidden on md+ */}
