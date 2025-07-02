@@ -146,7 +146,7 @@ export const OperationHeader = () => {
                   <div
                     className={`px-3 py-1.5 rounded-md ${colorSet.text} flex items-center justify-center`}
                   >
-                    <span className="font-bold text-xs uppercase tracking-wider">
+                    <span className="uppercase tracking-wider">
                       {methodUpper}
                     </span>
                   </div>
@@ -240,7 +240,7 @@ export const OperationHeader = () => {
             {/* Desktop: HTTP Method Badge */}
             <div className={`flex items-center relative`}>
               <div
-                className={`absolute inset-0 ${colorSet.bg} blur-2xl select-none pointer-events-none`}
+                className={`absolute inset-0 ${colorSet.bg} blur-xl select-none pointer-events-none`}
               />
               <Badge
                 color="default"
