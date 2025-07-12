@@ -10,7 +10,7 @@ A modern, lightweight OpenAPI/Swagger explorer built with React, TypeScript, and
 - **Real-time Request Testing**: Send HTTP requests directly from the interface
 - **Multi-language Code Generation**: Generate code snippets in JavaScript, TypeScript, Python, PHP, and cURL
 - **Responsive Design**: Works seamlessly across desktop and mobile devices
-- **Dark/Light Theme**: Built-in theme switcher for better user experience
+- **Dark Theme**: Always-on dark theme for better user experience
 
 ### 🔧 Advanced Features
 

@@ -4,7 +4,6 @@ import clsx from "clsx";
 import { Card } from "@heroui/card";
 import { Divider } from "@heroui/divider";
 
-import { ThemeSwitch } from "./theme-switch";
 import { ApiExplorerTagList } from "./api-explorer-tag-list";
 
 import {
@@ -178,12 +177,6 @@ export const ApiExplorer = React.memo(({ className }: ApiExplorerProps) => {
             </>
           )}
         </nav>
-
-        <Divider />
-
-        <div>
-          <ThemeSwitch />
-        </div>
       </Card>
       <Divider orientation="vertical" />
       {isOperationsPage && (

@@ -15,7 +15,11 @@ const HeroUIProviderWithRouter = React.memo(
     const navigate = useNavigate();
 
     return (
-      <HeroUIProvider navigate={navigate} useHref={useHref}>
+      <HeroUIProvider
+        disableRipple={false}
+        navigate={navigate}
+        useHref={useHref}
+      >
         <ToastProvider />
         {children}
       </HeroUIProvider>

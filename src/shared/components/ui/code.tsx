@@ -174,13 +174,6 @@ export const Code = memo<CodeProps>(
       return getLanguageMapping(language);
     }, [language]);
 
-    // Memoize theme calculation
-    const theme = useMemo(() => {
-      const isDark = document.documentElement.classList.contains("dark");
-
-      return isDark ? "swagman-dark" : "swagman-light";
-    }, []);
-
     // Memoize container class
     const containerClass = useMemo(() => {
       return height === "100%"
@@ -222,7 +215,7 @@ export const Code = memo<CodeProps>(
             overviewRulerLanes: 0,
             mouseWheelScrollSensitivity: 1,
           }}
-          theme={theme}
+          theme={"swagman-dark"}
           value={displayValue}
           onChange={handleEditorChange}
         />
