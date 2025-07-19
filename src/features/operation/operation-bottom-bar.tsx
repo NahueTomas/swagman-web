@@ -249,48 +249,6 @@ export const OperationBottomBar = () => {
     return null;
   }
 
-  // Show loading state if waiting for response
-  if (!responseData && !isLoading) {
-    return (
-      <Card
-        className="shadow-large border-t border-divider bg-background/95 backdrop-blur-sm flex flex-col"
-        radius="none"
-        shadow="lg"
-        style={{ height: 48 }}
-      >
-        <div className="flex items-center justify-center flex-1 text-sm text-default-500">
-          Execute a request to see the response
-        </div>
-      </Card>
-    );
-  }
-
-  // Show loading state if waiting for response
-  if (!responseData && isLoading) {
-    return (
-      <Card
-        className="shadow-large border-t border-divider bg-background/95 backdrop-blur-sm flex flex-col relative"
-        radius="none"
-        shadow="lg"
-        style={{ height: 48 }}
-      >
-        <div className="absolute top-0 left-0 w-full h-0.5 bg-transparent overflow-hidden">
-          <div
-            className="h-full bg-primary"
-            style={{
-              animation: "loadingWave 2s ease-in-out infinite",
-              width: "30%",
-            }}
-          />
-        </div>
-        <div className="flex items-center justify-center flex-1 text-sm text-default-500 gap-2">
-          <Spinner size="sm" />
-          <span>Waiting for response...</span>
-        </div>
-      </Card>
-    );
-  }
-
   return (
     <Card
       ref={containerRef}
@@ -407,20 +365,22 @@ export const OperationBottomBar = () => {
               response={responseData}
               responseDate={responseData.date}
             />
-          ) : isLoading ? (
-            <div className="flex items-center justify-center h-full">
-              <div className="flex flex-col items-center gap-4">
-                <Spinner size="lg" />
-                <p className="text-sm text-default-500">
-                  Waiting for response...
-                </p>
-              </div>
-            </div>
           ) : (
             <div className="flex items-center justify-center h-full">
-              <p className="text-sm text-default-500">
-                Click execute to get a response
-              </p>
+              <div className="flex flex-col items-center gap-4">
+                {isLoading ? (
+                  <>
+                    <Spinner size="lg" />
+                    <p className="text-sm text-default-500">
+                      Waiting for response...
+                    </p>
+                  </>
+                ) : (
+                  <p className="text-sm text-default-500">
+                    Execute a request to see the response
+                  </p>
+                )}
+              </div>
             </div>
           )}
         </div>
