@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
+    "build:embed": "vite build --mode embed",
     "lint": "eslint --fix",
     "preview": "vite preview"
   },
