@@ -6,7 +6,7 @@ import App from "@/app/app-main";
 
 import "@/shared/styles/globals.css";
 
-ReactDOM.createRoot(document.getElementById("root")!).render(
+ReactDOM.createRoot(document.getElementById("swagman-web")!).render(
   <React.StrictMode>
     <AppProviders>
       <App />
