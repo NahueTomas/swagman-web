@@ -2,6 +2,7 @@ import { Button } from "@heroui/button";
 import { Input } from "@heroui/input";
 
 import { isArray } from "@/shared/utils/helpers";
+import { XIcon } from "../icons";
 
 const PRIMITIVE_TYPES = ["string", "number", "boolean"];
 
@@ -58,30 +59,6 @@ export const FormFieldArray = ({
                   handleChange(index, (e.target as HTMLInputElement).value)
                 }
               />
-              {!required && v && (
-                <Button
-                  radius="full"
-                  size="sm"
-                  type="button"
-                  variant="bordered"
-                  onClick={() => handleChange(index, "")}
-                >
-                  <svg
-                    fill="none"
-                    height="14"
-                    stroke="currentColor"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    viewBox="0 0 24 24"
-                    width="14"
-                  >
-                    <circle cx="12" cy="12" r="10" />
-                    <line x1="15" x2="9" y1="9" y2="15" />
-                    <line x1="9" x2="15" y1="9" y2="15" />
-                  </svg>
-                </Button>
-              )}
             </div>
             <Button
               color="danger"
@@ -91,19 +68,7 @@ export const FormFieldArray = ({
               variant="light"
               onClick={() => handleRemove(index)}
             >
-              <svg
-                fill="none"
-                height="16"
-                stroke="currentColor"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                viewBox="0 0 24 24"
-                width="16"
-              >
-                <line x1="18" x2="6" y1="6" y2="18" />
-                <line x1="6" x2="18" y1="6" y2="18" />
-              </svg>
+              <XIcon className="size-5" />
             </Button>
           </div>
         ))}

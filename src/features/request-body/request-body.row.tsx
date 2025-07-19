@@ -51,7 +51,11 @@ export const RequestBodyRow = ({
       <div className="flex flex-col">
         <div className="flex items-center gap-2">
           <span className="font-medium text-sm">{name}</span>
-          {required && <Chip color="danger">Required</Chip>}
+          {required && (
+            <Chip color="danger" size="sm" variant="flat">
+              Required
+            </Chip>
+          )}
         </div>
         <div className="flex flex-wrap gap-2 mt-1.5">
           <Chip size="sm" variant="flat">
