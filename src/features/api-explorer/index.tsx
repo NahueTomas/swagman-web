@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo } from "react";
-import { NavLink, useLocation, useNavigate } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 import clsx from "clsx";
 import { Card } from "@heroui/card";
 import { Divider } from "@heroui/divider";
@@ -19,12 +19,10 @@ interface ApiExplorerItemProps {
   icon: React.ReactNode;
   to: string;
   isActive?: boolean;
-  onClick?: (e: React.MouseEvent) => void;
 }
 
 const ApiExplorerItem = React.memo(
   ({ icon, to, isActive = false }: ApiExplorerItemProps) => {
-    // Memoized class name function
     const getClassName = useCallback(
       () =>
         clsx(
@@ -37,7 +35,6 @@ const ApiExplorerItem = React.memo(
       [isActive]
     );
 
-    // Fallback to NavLink when there is no onClick
     return (
       <NavLink className={getClassName} to={to}>
         <span className={ICON_STYLES}>{icon}</span>
@@ -54,18 +51,13 @@ interface ApiExplorerProps {
 
 export const ApiExplorer = React.memo(({ className }: ApiExplorerProps) => {
   const location = useLocation();
-
-  // Obtain information from the current path
-  const specUrl = location.pathname.split("/")[1] || "";
-
-  // Create routes only once for the entire component
   const routes = useMemo(
     () => ({
       home: "/",
-      specification: `/${specUrl}`,
-      operations: `/${specUrl}/operations`,
+      specification: `/${location.pathname.split("/")[1]}`,
+      operations: `/${location.pathname.split("/")[1]}/operations`,
     }),
-    [specUrl]
+    [location.pathname]
   );
 
   return (
