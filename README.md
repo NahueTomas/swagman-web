@@ -11,6 +11,7 @@ A modern, lightweight OpenAPI/Swagger explorer built with React, TypeScript, and
 - **Multi-language Code Generation**: Generate code snippets in JavaScript, TypeScript, Python, PHP, and cURL
 - **Responsive Design**: Works seamlessly across desktop and mobile devices
 - **Dark Theme**: Always-on dark theme for better user experience
+- **Embed Mode**: Lightweight embeddable version for integration into existing applications
 
 ### 🔧 Advanced Features
 
@@ -64,6 +65,7 @@ npm run dev          # Start development server
 
 # Build
 npm run build        # Build for production
+npm run build:embed  # Build embed version
 npm run preview      # Preview production build
 
 # Code Quality
@@ -120,6 +122,205 @@ Key configuration options can be found in:
 - `tailwind.config.js` - Tailwind CSS configuration
 - `vite.config.ts` - Build configuration
 
+## 📦 Embed Mode
+
+Swagman Web can be embedded into existing applications as a lightweight, self-contained component. This is perfect for API documentation sites, developer portals, or any application that needs to display interactive API documentation.
+
+### Building for Embed
+
+```bash
+# Build the embed version
+npm run build:embed
+```
+
+This creates a single JavaScript file (`dist-embed/swagman-embed.js`) that can be included in any HTML page.
+
+### Basic Usage
+
+```html
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My API Documentation</title>
+  </head>
+  <body>
+    <!-- Container for Swagman -->
+    <div id="swagman-container" style="width: 100%; height: 100vh;"></div>
+
+    <!-- Load Swagman Embed -->
+    <script src="./swagman-embed.js"></script>
+    <script>
+      // Render Swagman with your API specification
+      window.renderSwagman("swagman-container", {
+        specUrl: "https://petstore.swagger.io/v2/swagger.json",
+      });
+    </script>
+  </body>
+</html>
+```
+
+### Configuration Options
+
+```javascript
+window.renderSwagman('container-id', {
+  // API Specification (choose one)
+  specUrl: 'https://api.example.com/swagger.json',     // Load from URL
+  localSpec: { openapi: '3.0.0', ... },               // Use local spec object
+
+  // UI Options
+  darkMode: true,              // Enable dark theme (default: false)
+  lockToLocal: true,           // Prevent navigation to other specs (default: false)
+
+  // Container styling
+  className: 'custom-class'    // Add CSS class to container
+});
+```
+
+### Advanced Features
+
+#### Local Specification Override
+
+You can define a global local specification that will be available in the embedded version:
+
+```html
+<script>
+  // Define your local specification
+  window.LOCAL_SPEC = {
+    openapi: "3.0.0",
+    info: {
+      title: "My API",
+      version: "1.0.0",
+    },
+    paths: {
+      // Your API paths here
+    },
+  };
+</script>
+<script src="./swagman-embed.js"></script>
+<script>
+  // Render with local spec
+  window.renderSwagman("container", {
+    localSpec: window.LOCAL_SPEC,
+    darkMode: true,
+  });
+</script>
+```
+
+#### Lock to Local Mode
+
+When `lockToLocal` is enabled, the embedded version will:
+
+- Start directly with the provided specification
+- Disable URL input functionality
+- Prevent navigation to external specifications
+- Focus purely on the provided API documentation
+
+```javascript
+window.renderSwagman("container", {
+  localSpec: myApiSpec,
+  lockToLocal: true, // Locks to the provided spec
+  darkMode: true,
+});
+```
+
+#### Dark Theme Integration
+
+The embed mode respects your application's dark theme by automatically applying the `dark` class to the container:
+
+```javascript
+window.renderSwagman("container", {
+  specUrl: "https://api.example.com/openapi.json",
+  darkMode: true, // Applies dark theme
+});
+```
+
+### Integration Examples
+
+#### Express.js Server
+
+```javascript
+const express = require("express");
+const path = require("path");
+const app = express();
+
+// Serve static files
+app.use("/docs", express.static("public"));
+
+// API documentation route
+app.get("/api-docs", (req, res) => {
+  res.send(`
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>API Documentation</title>
+    </head>
+    <body>
+      <div id="api-docs" style="width: 100%; height: 100vh;"></div>
+      <script src="/docs/swagman-embed.js"></script>
+      <script>
+        window.renderSwagman('api-docs', {
+          specUrl: '/api/swagger.json',
+          darkMode: true
+        });
+      </script>
+    </body>
+    </html>
+  `);
+});
+```
+
+#### React Integration
+
+```jsx
+import { useEffect } from "react";
+
+function ApiDocs() {
+  useEffect(() => {
+    // Load the embed script dynamically
+    const script = document.createElement("script");
+    script.src = "/swagman-embed.js";
+    script.onload = () => {
+      window.renderSwagman("swagman-react-container", {
+        specUrl: "https://api.example.com/openapi.json",
+        darkMode: true,
+      });
+    };
+    document.head.appendChild(script);
+
+    return () => {
+      document.head.removeChild(script);
+    };
+  }, []);
+
+  return (
+    <div
+      id="swagman-react-container"
+      style={{ width: "100%", height: "100vh" }}
+    />
+  );
+}
+```
+
+### Browser Support
+
+The embed mode supports all modern browsers:
+
+- Chrome 88+
+- Firefox 85+
+- Safari 14+
+- Edge 88+
+
+### Performance
+
+The embed build is optimized for size and performance:
+
+- Single JavaScript file (~2MB gzipped)
+- No external dependencies required
+- Lazy loading for optimal performance
+- Tree-shaken build for minimal footprint
+
 ## 🚀 Deployment
 
 Build the project and serve the `dist` folder:
@@ -127,6 +328,13 @@ Build the project and serve the `dist` folder:
 ```bash
 npm run build
 # Serve the dist folder with your preferred static file server
+```
+
+For embed deployments:
+
+```bash
+npm run build:embed
+# Copy dist-embed/swagman-embed.js to your server
 ```
 
 ## 🤝 Contributing
