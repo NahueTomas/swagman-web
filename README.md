@@ -135,54 +135,12 @@ npm run build:embed
 
 This creates a single JavaScript file (`dist-embed/swagman-embed.js`) that can be included in any HTML page.
 
-### Basic Usage
-
-```html
-<!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>My API Documentation</title>
-  </head>
-  <body>
-    <!-- Container for Swagman -->
-    <div id="swagman-container" style="width: 100%; height: 100vh;"></div>
-
-    <!-- Load Swagman Embed -->
-    <script src="./swagman-embed.js"></script>
-    <script>
-      // Render Swagman with your API specification
-      window.renderSwagman("swagman-container", {
-        specUrl: "https://petstore.swagger.io/v2/swagger.json",
-      });
-    </script>
-  </body>
-</html>
-```
-
-### Configuration Options
-
-```javascript
-window.renderSwagman('container-id', {
-  // API Specification (choose one)
-  specUrl: 'https://api.example.com/swagger.json',     // Load from URL
-  localSpec: { openapi: '3.0.0', ... },               // Use local spec object
-
-  // UI Options
-  darkMode: true,              // Enable dark theme (default: false)
-  lockToLocal: true,           // Prevent navigation to other specs (default: false)
-
-  // Container styling
-  className: 'custom-class'    // Add CSS class to container
-});
-```
-
-### Advanced Features
+### Basic Embed Usage
 
 #### Local Specification Override
 
-You can define a global local specification that will be available in the embedded version:
+You can define a global local specification that will be available in the embedded version.
+The embed mode respects your application's dark theme by automatically applying the `dark` class to the container.
 
 ```html
 <script>
@@ -202,41 +160,10 @@ You can define a global local specification that will be available in the embedd
 <script>
   // Render with local spec
   window.renderSwagman("container", {
-    localSpec: window.LOCAL_SPEC,
-    darkMode: true,
+    spec: window.LOCAL_SPEC,
   });
 </script>
 ```
-
-#### Lock to Local Mode
-
-When `lockToLocal` is enabled, the embedded version will:
-
-- Start directly with the provided specification
-- Disable URL input functionality
-- Prevent navigation to external specifications
-- Focus purely on the provided API documentation
-
-```javascript
-window.renderSwagman("container", {
-  localSpec: myApiSpec,
-  lockToLocal: true, // Locks to the provided spec
-  darkMode: true,
-});
-```
-
-#### Dark Theme Integration
-
-The embed mode respects your application's dark theme by automatically applying the `dark` class to the container:
-
-```javascript
-window.renderSwagman("container", {
-  specUrl: "https://api.example.com/openapi.json",
-  darkMode: true, // Applies dark theme
-});
-```
-
-### Integration Examples
 
 #### Express.js Server
 
@@ -261,46 +188,22 @@ app.get("/api-docs", (req, res) => {
       <script src="/docs/swagman-embed.js"></script>
       <script>
         window.renderSwagman('api-docs', {
-          specUrl: '/api/swagger.json',
-          darkMode: true
+          spec: {
+            openapi: "3.0.0",
+            info: {
+              title: "My API",
+              version: "1.0.0",
+            },
+            paths: {
+              // Your API paths here
+            },
+          },
         });
       </script>
     </body>
     </html>
   `);
 });
-```
-
-#### React Integration
-
-```jsx
-import { useEffect } from "react";
-
-function ApiDocs() {
-  useEffect(() => {
-    // Load the embed script dynamically
-    const script = document.createElement("script");
-    script.src = "/swagman-embed.js";
-    script.onload = () => {
-      window.renderSwagman("swagman-react-container", {
-        specUrl: "https://api.example.com/openapi.json",
-        darkMode: true,
-      });
-    };
-    document.head.appendChild(script);
-
-    return () => {
-      document.head.removeChild(script);
-    };
-  }, []);
-
-  return (
-    <div
-      id="swagman-react-container"
-      style={{ width: "100%", height: "100vh" }}
-    />
-  );
-}
 ```
 
 ### Browser Support
@@ -316,7 +219,6 @@ The embed mode supports all modern browsers:
 
 The embed build is optimized for size and performance:
 
-- Single JavaScript file (~2MB gzipped)
 - No external dependencies required
 - Lazy loading for optimal performance
 - Tree-shaken build for minimal footprint
