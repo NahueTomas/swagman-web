@@ -14,7 +14,6 @@ import {
 import { Resizable } from "@/shared/components/ui/resizable";
 
 const ICON_STYLES = "text-lg";
-const HOME_PATH = "/";
 
 interface ApiExplorerItemProps {
   icon: React.ReactNode;
@@ -24,7 +23,7 @@ interface ApiExplorerItemProps {
 }
 
 const ApiExplorerItem = React.memo(
-  ({ icon, to, isActive = false, onClick }: ApiExplorerItemProps) => {
+  ({ icon, to, isActive = false }: ApiExplorerItemProps) => {
     // Memoized class name function
     const getClassName = useCallback(
       () =>
@@ -37,33 +36,6 @@ const ApiExplorerItem = React.memo(
         ),
       [isActive]
     );
-
-    // Keyboard event handler for accessibility
-    const handleKeyDown = useCallback(
-      (e: React.KeyboardEvent) => {
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault();
-          onClick && onClick(e as unknown as React.MouseEvent);
-        }
-      },
-      [onClick]
-    );
-
-    // If there is a custom onClick, use it instead of NavLink for faster navigation
-    if (onClick) {
-      return (
-        <div
-          aria-pressed={isActive}
-          className={getClassName()}
-          role="button"
-          tabIndex={0}
-          onClick={onClick}
-          onKeyDown={handleKeyDown}
-        >
-          <span className={ICON_STYLES}>{icon}</span>
-        </div>
-      );
-    }
 
     // Fallback to NavLink when there is no onClick
     return (
@@ -82,59 +54,18 @@ interface ApiExplorerProps {
 
 export const ApiExplorer = React.memo(({ className }: ApiExplorerProps) => {
   const location = useLocation();
-  const navigate = useNavigate();
 
   // Obtain information from the current path
-  const { specUrl, isSpecificationPage, isOperationsPage, hasSpecUrl } =
-    useMemo(() => {
-      const pathname = location.pathname;
-
-      const specUrlMatch = pathname.match(/\/specification\/([^/]+)(?:\/.*)?$/);
-      const urlParam = specUrlMatch ? specUrlMatch[1] : "";
-      const isOpsPage = pathname.includes("/operations");
-      const isSpecPage = pathname.includes("/specification") && !isOpsPage;
-
-      return {
-        specUrl: urlParam,
-        isSpecificationPage: isSpecPage,
-        isOperationsPage: isOpsPage,
-        hasSpecUrl: !!urlParam,
-      };
-    }, [location.pathname]);
+  const specUrl = location.pathname.split("/")[1] || "";
 
   // Create routes only once for the entire component
   const routes = useMemo(
     () => ({
-      home: HOME_PATH,
-      specification: `/specification/${specUrl}`,
-      operations: `/specification/${specUrl}/operations`,
+      home: "/",
+      specification: `/${specUrl}`,
+      operations: `/${specUrl}/operations`,
     }),
     [specUrl]
-  );
-
-  // Direct navigation functions to avoid delays
-  const handleClickHome = useCallback(
-    (e: React.MouseEvent) => {
-      e.preventDefault();
-      navigate(HOME_PATH);
-    },
-    [navigate]
-  );
-
-  const handleClickSpecification = useCallback(
-    (e: React.MouseEvent) => {
-      e.preventDefault();
-      navigate(`/specification/${specUrl}`);
-    },
-    [navigate, specUrl]
-  );
-
-  const handleClickOperations = useCallback(
-    (e: React.MouseEvent) => {
-      e.preventDefault();
-      navigate(`/specification/${specUrl}/operations`);
-    },
-    [navigate, specUrl]
   );
 
   return (
@@ -150,48 +81,45 @@ export const ApiExplorer = React.memo(({ className }: ApiExplorerProps) => {
         <div className="flex items-center">
           <ApiExplorerItem
             icon={<ThunderIcon className="size-6" />}
-            isActive={location.pathname === HOME_PATH}
+            isActive={location.pathname === routes.home}
             to={routes.home}
-            onClick={handleClickHome}
           />
         </div>
 
         <Divider />
 
         <nav className="flex-1 space-y-1">
-          {hasSpecUrl && (
-            <>
-              <ApiExplorerItem
-                icon={<InfoIcon className="size-6" />}
-                isActive={isSpecificationPage}
-                to={routes.specification}
-                onClick={handleClickSpecification}
-              />
+          <ApiExplorerItem
+            icon={<InfoIcon className="size-6" />}
+            isActive={location.pathname === routes.specification}
+            to={routes.specification}
+          />
 
-              <ApiExplorerItem
-                icon={<OperationsIcon className="size-6" />}
-                isActive={isOperationsPage}
-                to={routes.operations}
-                onClick={handleClickOperations}
-              />
-            </>
-          )}
+          <ApiExplorerItem
+            icon={<OperationsIcon className="size-6" />}
+            isActive={location.pathname === routes.operations}
+            to={routes.operations}
+          />
         </nav>
       </Card>
-      <Divider orientation="vertical" />
-      {isOperationsPage && (
-        <Resizable axis="x" defaultWidth={300}>
-          <Card
-            className={clsx(
-              "flex flex-col h-full space-y-3 bg-background",
-              className
-            )}
-            radius="none"
-            shadow="none"
-          >
-            <ApiExplorerTagList className="overflow-y-auto h-full" />
-          </Card>
-        </Resizable>
+
+      {location.pathname === routes.operations && (
+        <>
+          <Divider orientation="vertical" />
+
+          <Resizable axis="x" defaultWidth={300}>
+            <Card
+              className={clsx(
+                "flex flex-col h-full space-y-3 bg-background",
+                className
+              )}
+              radius="none"
+              shadow="none"
+            >
+              <ApiExplorerTagList className="overflow-y-auto h-full" />
+            </Card>
+          </Resizable>
+        </>
       )}
     </aside>
   );

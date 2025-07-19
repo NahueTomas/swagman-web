@@ -1,5 +1,5 @@
-import { useEffect, useState, useMemo, useCallback } from "react";
-import { Outlet, useLocation } from "react-router-dom";
+import { useEffect, useState, useCallback } from "react";
+import { Outlet, useParams } from "react-router-dom";
 import { Divider } from "@heroui/divider";
 import { addToast } from "@heroui/toast";
 
@@ -8,7 +8,6 @@ import { SpecModel } from "@/models/spec.model";
 import { useStore } from "@/hooks/use-store";
 import { Error as ErrorComponent } from "@/shared/components/ui/error";
 import { Loading } from "@/features/specification/loading";
-import { unescapeUrl } from "@/shared/utils/helpers";
 import { useRequestForms } from "@/hooks/use-request-forms";
 
 // Declare global variable for local spec
@@ -23,16 +22,9 @@ export default function SpecificationLayout() {
   const { setSpecification } = useRequestForms();
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [currentSpecUrl, setCurrentSpecUrl] = useState<string>("");
 
-  const { pathname } = useLocation();
-
-  const specUrl = useMemo(() => {
-    const pathParts = pathname.split("/");
-    const urlIndex = pathParts.indexOf("specification") + 1;
-
-    return unescapeUrl(urlIndex > 0 ? pathParts[urlIndex] : "");
-  }, [pathname]);
+  const params = useParams();
+  const specUrl = params.url;
 
   const loadLocalSpec = useCallback((): object | undefined => {
     try {
@@ -71,19 +63,14 @@ export default function SpecificationLayout() {
       try {
         const spec = new SpecModel();
 
-        // NUEVA LÓGICA: Si URL es "local", cargar desde window.LOCAL_SPEC
         if (url === "local") {
           const localSpec = loadLocalSpec();
 
           if (localSpec) await spec.processSpec(localSpec);
-        } else {
-          // Lógica original para URLs externas
-          await spec.processSpec(url);
-        }
+        } else await spec.processSpec(url);
 
         setSpec(spec);
         setSpecification(url);
-        setCurrentSpecUrl(url);
       } catch (err: any) {
         setError(err.message || "Failed to load or process the specification.");
       } finally {
@@ -94,10 +81,8 @@ export default function SpecificationLayout() {
   );
 
   useEffect(() => {
-    if (specUrl && specUrl !== currentSpecUrl) {
-      loadSpec(specUrl);
-    }
-  }, [specUrl, currentSpecUrl, loadSpec]);
+    if (specUrl) loadSpec(specUrl);
+  }, [specUrl, loadSpec]);
 
   return (
     <div className="flex h-dvh w-full">

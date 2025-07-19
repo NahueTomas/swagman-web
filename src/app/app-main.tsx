@@ -9,7 +9,7 @@ function AppMain() {
   return (
     <Routes>
       <Route element={<IndexPage />} path="/" />
-      <Route element={<SpecificationLayout />} path="/specification/:url">
+      <Route element={<SpecificationLayout />} path="/:url">
         <Route index element={<SpecificationPage />} />
         <Route element={<SpecificationOperationsPage />} path="operations" />
       </Route>
