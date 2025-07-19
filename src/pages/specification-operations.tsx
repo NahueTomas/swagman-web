@@ -15,23 +15,24 @@ export default function SpecificationOperationsPage() {
     <section className="relative h-full flex flex-col select-none">
       <OperationHeader />
 
-      {/* Main Content Area - Takes remaining space after bottom panel */}
-      <div className="flex-1 overflow-y-auto min-h-0 p-4 lg:p-8">
-        <div className="flex h-full">
-          <section className="flex flex-col w-full">
-            {operationFocused.summary && (
-              <h2 className="text-md">{operationFocused.summary}</h2>
-            )}
-            {operationFocused.description && (
-              <div className="text-sm text-foreground/50">
-                Description: {operationFocused.description}
-              </div>
-            )}
+      <div className="flex-1 overflow-y-auto min-h-0">
+        <div className="p-4 lg:p-8">
+          <div className="flex h-full">
+            <section className="flex flex-col w-full">
+              {operationFocused.summary && (
+                <h2 className="text-md">{operationFocused.summary}</h2>
+              )}
+              {operationFocused.description && (
+                <div className="text-sm text-foreground/50">
+                  Description: {operationFocused.description}
+                </div>
+              )}
 
-            <section className="mt-2">
-              <OperationTabs operation={operationFocused} />
+              <section className="mt-2">
+                <OperationTabs operation={operationFocused} />
+              </section>
             </section>
-          </section>
+          </div>
         </div>
       </div>
 
