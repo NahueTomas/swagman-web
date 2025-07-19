@@ -1,8 +1,8 @@
 import { Button } from "@heroui/button";
 import { Input } from "@heroui/input";
 
+import { XIcon } from "@/shared/components/ui/icons";
 import { isArray } from "@/shared/utils/helpers";
-import { XIcon } from "../icons";
 
 const PRIMITIVE_TYPES = ["string", "number", "boolean"];
 
