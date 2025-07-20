@@ -3,19 +3,38 @@ import ReactDOM from "react-dom/client";
 
 import { AppProviders } from "@/app/providers/app-providers.tsx";
 import App from "@/app/app-main";
+import { OpenAPISpec } from "@/shared/types/openapi";
+import { sanitizeSpecInput, isValidContainer } from "@/shared/utils/openapi";
 
 import "@/shared/styles/globals.css";
+
+interface SwagmanEmbedOptions {
+  spec?: OpenAPISpec;
+  defaultSpec?: string;
+}
 
 // Function for embedded usage
 const renderSwagman = async (
   container: HTMLElement,
-  options: { spec?: object; defaultSpec?: string }
+  options: SwagmanEmbedOptions
 ) => {
-  // If user passes definition or spec, override window.LOCAL_SPEC
+  // Validate container
+  if (!isValidContainer(container)) {
+    throw new Error("Invalid container element provided to renderSwagman");
+  }
+
+  // If user passes definition or spec, validate and sanitize it
   if (options.spec) {
-    window.LOCAL_SPEC = options.spec;
-    // eslint-disable-next-line no-console
-    console.log("📝 window.LOCAL_SPEC updated with provided specification");
+    const sanitizedSpec = sanitizeSpecInput(options.spec);
+    if (sanitizedSpec) {
+      window.LOCAL_SPEC = sanitizedSpec;
+      // eslint-disable-next-line no-console
+      console.log("📝 window.LOCAL_SPEC updated with provided specification");
+    } else {
+      // eslint-disable-next-line no-console
+      console.error("Invalid OpenAPI specification provided to renderSwagman");
+      throw new Error("Invalid OpenAPI specification provided");
+    }
   }
 
   // Mount the normal application (no changes)
@@ -65,7 +84,7 @@ declare global {
   interface Window {
     renderSwagman: typeof renderSwagman;
     SwagmanWeb: { render: typeof renderSwagman };
-    LOCAL_SPEC?: object;
+    LOCAL_SPEC?: OpenAPISpec;
   }
 }
 

@@ -2,10 +2,11 @@ import { create } from "zustand";
 
 import { OperationModel } from "../models/operation.model";
 import { SpecModel } from "../models/spec.model";
+import { ParameterValue } from "../shared/types/parameter";
 
 interface StoreState {
   spec: SpecModel | null;
-  parametersValues: { name: string; value: any }[];
+  parametersValues: ParameterValue[];
   operationsTabs: { id: string; title: string; method: string }[];
   operationFocused: OperationModel | null;
   isSidebarCollapsed: boolean;
