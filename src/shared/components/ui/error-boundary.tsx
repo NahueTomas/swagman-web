@@ -12,12 +12,14 @@ function ErrorFallback({ error, resetErrorBoundary }: ErrorFallbackProps) {
   return (
     <Card className="p-6 m-4 border-danger">
       <div className="space-y-4">
-        <h2 className="text-xl font-semibold text-danger">Something went wrong</h2>
+        <h2 className="text-xl font-semibold text-danger">
+          Something went wrong
+        </h2>
         <p className="text-default-600">
           An unexpected error occurred while rendering this component.
         </p>
-        
-        {process.env.NODE_ENV === 'development' && (
+
+        {process.env.NODE_ENV === "development" && (
           <details className="mt-4">
             <summary className="cursor-pointer font-medium text-sm">
               Error Details (Development Mode)
@@ -28,17 +30,13 @@ function ErrorFallback({ error, resetErrorBoundary }: ErrorFallbackProps) {
             </pre>
           </details>
         )}
-        
+
         <div className="flex gap-2">
-          <Button 
-            color="primary" 
-            variant="solid"
-            onPress={resetErrorBoundary}
-          >
+          <Button color="primary" variant="solid" onPress={resetErrorBoundary}>
             Try Again
           </Button>
-          <Button 
-            color="default" 
+          <Button
+            color="default"
             variant="bordered"
             onPress={() => window.location.reload()}
           >
@@ -50,19 +48,24 @@ function ErrorFallback({ error, resetErrorBoundary }: ErrorFallbackProps) {
   );
 }
 
-interface ErrorBoundaryProps {
+interface CustomErrorBoundaryProps {
   children: ReactNode;
   fallback?: React.ComponentType<ErrorFallbackProps>;
   onError?: (error: Error, errorInfo: { componentStack: string }) => void;
 }
 
-export function ErrorBoundary({ children, fallback, onError }: ErrorBoundaryProps) {
+export function ErrorBoundary({
+  children,
+  fallback,
+  onError,
+}: CustomErrorBoundaryProps) {
   const handleError = (error: Error, errorInfo: { componentStack: string }) => {
     // Log error to console in development
-    if (process.env.NODE_ENV === 'development') {
-      console.error('ErrorBoundary caught an error:', error, errorInfo);
+    if (process.env.NODE_ENV === "development") {
+      // eslint-disable-next-line no-console
+      console.error("ErrorBoundary caught an error:", error, errorInfo);
     }
-    
+
     // Call custom error handler if provided
     onError?.(error, errorInfo);
   };
