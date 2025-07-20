@@ -2,7 +2,7 @@
 
 import { sample } from "openapi-sampler";
 
-import { OpenAPIParameter, OpenAPISchema } from "../types/openapi";
+import { OpenAPIParameter, OpenAPISchema, OpenAPISpec } from "../types/openapi";
 
 import { isArray, isBoolean } from "./helpers";
 
@@ -211,4 +211,59 @@ export function getBodyExample(schema: any, format: string | undefined) {
   } catch (err) {
     return "";
   }
+}
+
+/**
+ * Validates if an unknown object is a valid OpenAPI specification
+ * @param spec - The object to validate
+ * @returns True if the object is a valid OpenAPI spec
+ */
+export function isValidOpenAPISpec(spec: unknown): spec is OpenAPISpec {
+  if (typeof spec !== 'object' || spec === null) {
+    return false;
+  }
+  
+  const candidate = spec as Record<string, unknown>;
+  
+  // Basic validation - check for required OpenAPI fields
+  const hasValidOpenAPI = typeof candidate.openapi === 'string' && 
+    candidate.openapi.startsWith('3.');
+  
+  const hasValidInfo = typeof candidate.info === 'object' && 
+    candidate.info !== null;
+  
+  const hasValidPaths = typeof candidate.paths === 'object' && 
+    candidate.paths !== null;
+  
+  return hasValidOpenAPI && hasValidInfo && hasValidPaths;
+}
+
+/**
+ * Sanitizes and validates spec input for embedding
+ * @param spec - The spec to sanitize
+ * @returns Sanitized spec or null if invalid
+ */
+export function sanitizeSpecInput(spec: unknown): OpenAPISpec | null {
+  try {
+    if (!isValidOpenAPISpec(spec)) {
+      console.warn('Invalid OpenAPI specification provided');
+      return null;
+    }
+    
+    // Additional sanitization can be added here
+    // For now, we trust the TypeScript type checking
+    return spec;
+  } catch (error) {
+    console.error('Error validating OpenAPI spec:', error);
+    return null;
+  }
+}
+
+/**
+ * Validates container element for embedding
+ * @param container - The container element
+ * @returns True if container is valid
+ */
+export function isValidContainer(container: unknown): container is HTMLElement {
+  return container instanceof HTMLElement;
 }
