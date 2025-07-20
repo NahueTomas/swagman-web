@@ -18,11 +18,12 @@ const ICON_STYLES = "text-lg";
 interface ApiExplorerItemProps {
   icon: React.ReactNode;
   to: string;
+  title: string;
   isActive?: boolean;
 }
 
 const ApiExplorerItem = React.memo(
-  ({ icon, to, isActive = false }: ApiExplorerItemProps) => {
+  ({ icon, to, title, isActive = false }: ApiExplorerItemProps) => {
     const getClassName = useCallback(
       () =>
         clsx(
@@ -36,8 +37,13 @@ const ApiExplorerItem = React.memo(
     );
 
     return (
-      <NavLink className={getClassName} to={to}>
-        <span className={ICON_STYLES}>{icon}</span>
+      <NavLink 
+        className={getClassName} 
+        to={to}
+        aria-label={title}
+        title={title}
+      >
+        <span className={ICON_STYLES} aria-hidden="true">{icon}</span>
       </NavLink>
     );
   }
@@ -73,6 +79,7 @@ export const ApiExplorer = React.memo(({ className }: ApiExplorerProps) => {
         <div className="flex items-center">
           <ApiExplorerItem
             icon={<ThunderIcon className="size-6" />}
+            title="Home"
             isActive={location.pathname === routes.home}
             to={routes.home}
           />
@@ -83,12 +90,14 @@ export const ApiExplorer = React.memo(({ className }: ApiExplorerProps) => {
         <nav className="flex-1 space-y-1">
           <ApiExplorerItem
             icon={<InfoIcon className="size-6" />}
+            title="Specification Info"
             isActive={location.pathname === routes.specification}
             to={routes.specification}
           />
 
           <ApiExplorerItem
             icon={<OperationsIcon className="size-6" />}
+            title="API Operations"
             isActive={location.pathname === routes.operations}
             to={routes.operations}
           />
