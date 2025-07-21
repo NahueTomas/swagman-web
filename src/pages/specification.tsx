@@ -17,7 +17,6 @@ import {
   ThunderIcon,
 } from "@/shared/components/ui/icons";
 
-
 export default function SpecificationPage() {
   const { spec } = useStore();
 
@@ -27,7 +26,6 @@ export default function SpecificationPage() {
     [spec]
   );
   const tagCount = useMemo(() => spec?.getTagList()?.length || 0, [spec]);
-
 
   if (!spec?.info) return <Error message="No info found" title="Error" />;
   const { title, version, contact, license, description } = spec?.info;
@@ -66,9 +64,9 @@ export default function SpecificationPage() {
       <Divider />
 
       {description && (
-        <SanitizedMarkdown 
-          content={description} 
-          className="text-md space-y-4 marked-lg" 
+        <SanitizedMarkdown
+          className="text-md space-y-4 marked-lg"
+          content={description}
         />
       )}
 

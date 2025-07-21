@@ -37,13 +37,15 @@ const ApiExplorerItem = React.memo(
     );
 
     return (
-      <NavLink 
-        className={getClassName} 
-        to={to}
+      <NavLink
         aria-label={title}
+        className={getClassName}
         title={title}
+        to={to}
       >
-        <span className={ICON_STYLES} aria-hidden="true">{icon}</span>
+        <span aria-hidden="true" className={ICON_STYLES}>
+          {icon}
+        </span>
       </NavLink>
     );
   }
@@ -79,8 +81,8 @@ export const ApiExplorer = React.memo(({ className }: ApiExplorerProps) => {
         <div className="flex items-center">
           <ApiExplorerItem
             icon={<ThunderIcon className="size-6" />}
-            title="Home"
             isActive={location.pathname === routes.home}
+            title="Home"
             to={routes.home}
           />
         </div>
@@ -90,15 +92,15 @@ export const ApiExplorer = React.memo(({ className }: ApiExplorerProps) => {
         <nav className="flex-1 space-y-1">
           <ApiExplorerItem
             icon={<InfoIcon className="size-6" />}
-            title="Specification Info"
             isActive={location.pathname === routes.specification}
+            title="Specification Info"
             to={routes.specification}
           />
 
           <ApiExplorerItem
             icon={<OperationsIcon className="size-6" />}
-            title="API Operations"
             isActive={location.pathname === routes.operations}
+            title="API Operations"
             to={routes.operations}
           />
         </nav>

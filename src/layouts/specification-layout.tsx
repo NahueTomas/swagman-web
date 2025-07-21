@@ -10,13 +10,6 @@ import { Error as ErrorComponent } from "@/shared/components/ui/error";
 import { Loading } from "@/features/specification/loading";
 import { useRequestForms } from "@/hooks/use-request-forms";
 
-// Declare global variable for local spec
-declare global {
-  interface Window {
-    LOCAL_SPEC?: object;
-  }
-}
-
 export default function SpecificationLayout() {
   const { setSpec } = useStore();
   const { setSpecification } = useRequestForms();

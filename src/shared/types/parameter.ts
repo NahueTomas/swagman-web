@@ -2,7 +2,7 @@
 export interface ParameterValue {
   name: string;
   value: string | number | boolean | null;
-  type?: 'string' | 'number' | 'boolean' | 'array' | 'object';
+  type?: "string" | "number" | "boolean" | "array" | "object";
 }
 
 export interface FormFieldValue {

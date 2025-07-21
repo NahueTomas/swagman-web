@@ -30,13 +30,18 @@ export default function IndexPage() {
   return (
     <main className="flex flex-col items-center justify-center gap-6 py-8 md:py-10 max-w-4xl mx-auto px-4">
       {/* Manual URL Input */}
-      <Card className="w-full max-w-md" role="form" aria-labelledby="url-form-title">
+      <Card
+        aria-labelledby="url-form-title"
+        className="w-full max-w-md"
+        role="form"
+      >
         <CardHeader>
           <h1 id="url-form-title">OpenAPI Specification</h1>
         </CardHeader>
         <Divider />
         <CardBody>
           <Input
+            aria-describedby="url-input-help"
             label="Specification URL"
             placeholder="https://example.com/openapi.json"
             value={specificationLink}
@@ -46,29 +51,29 @@ export default function IndexPage() {
                 handleManualSubmit();
               }
             }}
-            aria-describedby="url-input-help"
           />
-          <div id="url-input-help" className="sr-only">
+          <div className="sr-only" id="url-input-help">
             Enter the URL of an OpenAPI specification to load and explore
           </div>
         </CardBody>
         <CardFooter>
           <Button
+            aria-describedby="load-button-help"
             color="primary"
             isDisabled={!specificationLink}
             onPress={handleManualSubmit}
-            aria-describedby="load-button-help"
           >
             Load Specification
           </Button>
-          <div id="load-button-help" className="sr-only">
-            This will navigate to the API explorer for the provided specification
+          <div className="sr-only" id="load-button-help">
+            This will navigate to the API explorer for the provided
+            specification
           </div>
         </CardFooter>
       </Card>
 
       {/* Navigation to local */}
-      <Card className="w-full max-w-md" aria-labelledby="local-spec-title">
+      <Card aria-labelledby="local-spec-title" className="w-full max-w-md">
         <CardHeader>
           <h2 id="local-spec-title">Local Specification</h2>
         </CardHeader>
@@ -77,11 +82,11 @@ export default function IndexPage() {
           <p className="text-sm text-foreground-600 mb-3">
             Use a locally defined specification (window.LOCAL_SPEC)
           </p>
-          <Button 
-            color="success" 
-            variant="flat" 
-            onPress={() => navigate("/")}
+          <Button
             aria-label="Navigate to local specification explorer"
+            color="success"
+            variant="flat"
+            onPress={() => navigate("/")}
           >
             Go to Local Specification
           </Button>

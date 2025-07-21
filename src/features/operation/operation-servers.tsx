@@ -293,7 +293,10 @@ export const OperationServers = ({ isOpen, onClose }: ServerProps) => {
                               options={variable.enum}
                               required={true}
                               size="small"
-                              value={serverVariables[key] || variable.default}
+                              value={
+                                serverVariables[key] ||
+                                String(variable.default || "")
+                              }
                               onChange={(value) =>
                                 handleVariableChange(key, value)
                               }
@@ -301,7 +304,9 @@ export const OperationServers = ({ isOpen, onClose }: ServerProps) => {
                           ) : (
                             <FormFieldText
                               aria-labelledby={`variable-${key}-label`}
-                              value={serverVariables[key] || variable.default}
+                              value={String(
+                                serverVariables[key] || variable.default || ""
+                              )}
                               onChange={(value) =>
                                 handleVariableChange(key, value)
                               }

@@ -25,6 +25,15 @@ export const OperationHeader = () => {
     (state) => state
   );
 
+  // Cleanup function for aborting requests
+  useEffect(() => {
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
+  }, []);
+
   if (!operation) return null;
 
   const currentValues = specifications?.[specificationUrl || ""]?.forms?.[
@@ -99,15 +108,6 @@ export const OperationHeader = () => {
     }
   };
 
-  // Cleanup function for aborting requests
-  useEffect(() => {
-    return () => {
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort();
-      }
-    };
-  }, []);
-
   const handleExecute = async () => {
     try {
       if (!spec) return;
@@ -123,7 +123,7 @@ export const OperationHeader = () => {
       useRequestForms
         .getState()
         .setResponseLoading(specificationUrl || "", operation.id);
-      
+
       const response = await spec.makeRequest(
         operation,
         currentValues?.requestBody?.[currentValues?.contentType] || null,
@@ -139,15 +139,20 @@ export const OperationHeader = () => {
       }
     } catch (error: unknown) {
       // Only handle error if request wasn't aborted
-      if (abortControllerRef.current && !abortControllerRef.current.signal.aborted) {
+      if (
+        abortControllerRef.current &&
+        !abortControllerRef.current.signal.aborted
+      ) {
         useRequestForms
           .getState()
           .setResponseSuccess(specificationUrl || "", operation.id, null);
-        
-        console.error("Request failed:", error);
+
         addToast({
           title: "Request Failed",
-          description: error instanceof Error ? error.message : "An unexpected error occurred",
+          description:
+            error instanceof Error
+              ? error.message
+              : "An unexpected error occurred",
           color: "danger",
         });
       }
@@ -155,10 +160,10 @@ export const OperationHeader = () => {
   };
 
   return (
-    <header 
+    <header
+      aria-label="API Operation Header"
       className="sticky top-0 z-50 bg-background/60 backdrop-blur border-b border-divider/10"
       role="banner"
-      aria-label="API Operation Header"
     >
       <div className="w-full px-4 lg:px-8 pt-3 pb-1.5">
         {/* Responsive Layout */}
@@ -190,21 +195,25 @@ export const OperationHeader = () => {
 
               {/* Mobile Tags */}
               {operation.tags && operation.tags.length > 0 && (
-                <div className="flex gap-1" role="list" aria-label="API operation tags">
+                <div
+                  aria-label="API operation tags"
+                  className="flex gap-1"
+                  role="list"
+                >
                   {operation.tags.slice(0, 1).map((tag) => (
                     <span
                       key={tag}
-                      role="listitem"
                       className="px-2 py-0.5 text-xs bg-content2/50 text-foreground/60 rounded-md border border-divider/30"
+                      role="listitem"
                     >
                       {tag}
                     </span>
                   ))}
                   {operation.tags.length > 1 && (
-                    <span 
-                      role="listitem"
-                      className="px-2 py-0.5 text-xs bg-content2/50 text-foreground/60 rounded-md border border-divider/30"
+                    <span
                       aria-label={`${operation.tags.length - 1} more tags`}
+                      className="px-2 py-0.5 text-xs bg-content2/50 text-foreground/60 rounded-md border border-divider/30"
+                      role="listitem"
                     >
                       +{operation.tags.length - 1}
                     </span>
@@ -226,51 +235,68 @@ export const OperationHeader = () => {
                 <Tooltip content="Server Settings">
                   <Button
                     isIconOnly
+                    aria-label="Open server settings"
                     className="h-7 w-7"
                     radius="md"
                     size="sm"
                     variant="flat"
                     onClick={() => setIsServerModalOpen(true)}
-                    aria-label="Open server settings"
                   >
-                    <ServerIcon className="w-3.5 h-3.5 text-foreground/60" aria-hidden="true" />
+                    <ServerIcon
+                      aria-hidden="true"
+                      className="w-3.5 h-3.5 text-foreground/60"
+                    />
                   </Button>
                 </Tooltip>
 
                 <Tooltip content={isCopied ? "Copied!" : "Copy URL"}>
                   <Button
                     isIconOnly
+                    aria-label={
+                      isCopied
+                        ? "URL copied to clipboard"
+                        : "Copy operation URL"
+                    }
                     className="h-7 w-7"
                     radius="md"
                     size="sm"
                     variant="flat"
                     onClick={handleCopyUrl}
-                    aria-label={isCopied ? "URL copied to clipboard" : "Copy operation URL"}
                   >
                     {isCopied ? (
-                      <Check className="w-3.5 h-3.5 text-success" aria-hidden="true" />
+                      <Check
+                        aria-hidden="true"
+                        className="w-3.5 h-3.5 text-success"
+                      />
                     ) : (
-                      <Copy className="w-3.5 h-3.5 text-foreground/60" aria-hidden="true" />
+                      <Copy
+                        aria-hidden="true"
+                        className="w-3.5 h-3.5 text-foreground/60"
+                      />
                     )}
                   </Button>
                 </Tooltip>
               </div>
 
               <Button
+                aria-label={
+                  responseStatus?.loading
+                    ? "Executing API request..."
+                    : "Execute API request"
+                }
                 color="default"
                 disabled={responseStatus?.loading}
                 radius="md"
                 size="sm"
                 startContent={
                   <ThunderIcon
+                    aria-hidden="true"
                     className={`w-4 h-4 ${
                       responseStatus?.loading ? "animate-spin" : ""
                     }`}
-                    aria-hidden="true"
                   />
                 }
                 onClick={handleExecute}
-                aria-label={responseStatus?.loading ? "Executing API request..." : "Execute API request"}
               >
                 <span className="text-sm">
                   {responseStatus?.loading ? "Executing..." : "Execute"}
@@ -322,20 +348,24 @@ export const OperationHeader = () => {
             {/* Desktop: Execute Button */}
             <div className="flex items-center px-2">
               <Button
+                aria-label={
+                  responseStatus?.loading
+                    ? "Executing API request..."
+                    : "Execute API request"
+                }
                 color="default"
                 disabled={responseStatus?.loading}
                 radius="md"
                 size="md"
                 startContent={
                   <ThunderIcon
+                    aria-hidden="true"
                     className={`w-4 h-4 ${
                       responseStatus?.loading ? "animate-spin" : ""
                     }`}
-                    aria-hidden="true"
                   />
                 }
                 onClick={handleExecute}
-                aria-label={responseStatus?.loading ? "Executing API request..." : "Execute API request"}
               >
                 <span className="text-sm">
                   {responseStatus?.loading ? "Executing..." : "Execute"}
@@ -351,31 +381,42 @@ export const OperationHeader = () => {
             <Tooltip content="Server Settings">
               <Button
                 isIconOnly
+                aria-label="Open server settings"
                 className="h-6 w-6"
                 radius="md"
                 size="sm"
                 variant="flat"
                 onClick={() => setIsServerModalOpen(true)}
-                aria-label="Open server settings"
               >
-                <ServerIcon className="w-3.5 h-3.5 text-foreground/60" aria-hidden="true" />
+                <ServerIcon
+                  aria-hidden="true"
+                  className="w-3.5 h-3.5 text-foreground/60"
+                />
               </Button>
             </Tooltip>
 
             <Tooltip content={isCopied ? "Copied!" : "Copy URL"}>
               <Button
                 isIconOnly
+                aria-label={
+                  isCopied ? "URL copied to clipboard" : "Copy operation URL"
+                }
                 className="h-6 w-6"
                 radius="md"
                 size="sm"
                 variant="flat"
                 onClick={handleCopyUrl}
-                aria-label={isCopied ? "URL copied to clipboard" : "Copy operation URL"}
               >
                 {isCopied ? (
-                  <Check className="w-3.5 h-3.5 text-success" aria-hidden="true" />
+                  <Check
+                    aria-hidden="true"
+                    className="w-3.5 h-3.5 text-success"
+                  />
                 ) : (
-                  <Copy className="w-3.5 h-3.5 text-foreground/60" aria-hidden="true" />
+                  <Copy
+                    aria-hidden="true"
+                    className="w-3.5 h-3.5 text-foreground/60"
+                  />
                 )}
               </Button>
             </Tooltip>
@@ -383,22 +424,26 @@ export const OperationHeader = () => {
 
           {/* Desktop Tags */}
           {operation.tags && operation.tags.length > 0 && (
-            <div className="flex items-center gap-2 flex-shrink-0" role="list" aria-label="API operation tags">
+            <div
+              aria-label="API operation tags"
+              className="flex items-center gap-2 flex-shrink-0"
+              role="list"
+            >
               <div className="flex gap-1.5">
                 {operation.tags.slice(0, 2).map((tag) => (
                   <span
                     key={tag}
-                    role="listitem"
                     className="px-2 py-0.5 text-xs bg-content2/50 text-foreground/60 rounded-md border border-divider/30"
+                    role="listitem"
                   >
                     {tag}
                   </span>
                 ))}
                 {operation.tags.length > 2 && (
-                  <span 
-                    role="listitem"
-                    className="px-2 py-0.5 text-xs bg-content2/50 text-foreground/60 rounded-md border border-divider/30"
+                  <span
                     aria-label={`${operation.tags.length - 2} more tags`}
+                    className="px-2 py-0.5 text-xs bg-content2/50 text-foreground/60 rounded-md border border-divider/30"
+                    role="listitem"
                   >
                     +{operation.tags.length - 2}
                   </span>

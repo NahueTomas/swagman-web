@@ -26,6 +26,7 @@ const renderSwagman = async (
   // If user passes definition or spec, validate and sanitize it
   if (options.spec) {
     const sanitizedSpec = sanitizeSpecInput(options.spec);
+
     if (sanitizedSpec) {
       window.LOCAL_SPEC = sanitizedSpec;
       // eslint-disable-next-line no-console

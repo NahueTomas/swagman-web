@@ -219,22 +219,22 @@ export function getBodyExample(schema: any, format: string | undefined) {
  * @returns True if the object is a valid OpenAPI spec
  */
 export function isValidOpenAPISpec(spec: unknown): spec is OpenAPISpec {
-  if (typeof spec !== 'object' || spec === null) {
+  if (typeof spec !== "object" || spec === null) {
     return false;
   }
-  
+
   const candidate = spec as Record<string, unknown>;
-  
+
   // Basic validation - check for required OpenAPI fields
-  const hasValidOpenAPI = typeof candidate.openapi === 'string' && 
-    candidate.openapi.startsWith('3.');
-  
-  const hasValidInfo = typeof candidate.info === 'object' && 
-    candidate.info !== null;
-  
-  const hasValidPaths = typeof candidate.paths === 'object' && 
-    candidate.paths !== null;
-  
+  const hasValidOpenAPI =
+    typeof candidate.openapi === "string" && candidate.openapi.startsWith("3.");
+
+  const hasValidInfo =
+    typeof candidate.info === "object" && candidate.info !== null;
+
+  const hasValidPaths =
+    typeof candidate.paths === "object" && candidate.paths !== null;
+
   return hasValidOpenAPI && hasValidInfo && hasValidPaths;
 }
 
@@ -246,15 +246,19 @@ export function isValidOpenAPISpec(spec: unknown): spec is OpenAPISpec {
 export function sanitizeSpecInput(spec: unknown): OpenAPISpec | null {
   try {
     if (!isValidOpenAPISpec(spec)) {
-      console.warn('Invalid OpenAPI specification provided');
+      // eslint-disable-next-line no-console
+      console.warn("Invalid OpenAPI specification provided");
+
       return null;
     }
-    
+
     // Additional sanitization can be added here
     // For now, we trust the TypeScript type checking
     return spec;
   } catch (error) {
-    console.error('Error validating OpenAPI spec:', error);
+    // eslint-disable-next-line no-console
+    console.error("Error validating OpenAPI spec:", error);
+
     return null;
   }
 }

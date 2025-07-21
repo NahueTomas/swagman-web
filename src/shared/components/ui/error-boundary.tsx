@@ -1,7 +1,7 @@
-import { ReactNode } from "react";
+import { ReactNode, ErrorInfo } from "react";
 import { Card } from "@heroui/card";
 import { Button } from "@heroui/button";
-import { ErrorBoundary as ReactErrorBoundary, ErrorBoundaryPropsWithFallback } from "react-error-boundary";
+import { ErrorBoundary as ReactErrorBoundary } from "react-error-boundary";
 
 interface ErrorFallbackProps {
   error: Error;
@@ -51,7 +51,7 @@ function ErrorFallback({ error, resetErrorBoundary }: ErrorFallbackProps) {
 interface CustomErrorBoundaryProps {
   children: ReactNode;
   fallback?: React.ComponentType<ErrorFallbackProps>;
-  onError?: (error: Error, errorInfo: { componentStack: string }) => void;
+  onError?: (error: Error, errorInfo: ErrorInfo) => void;
 }
 
 export function ErrorBoundary({
@@ -59,7 +59,7 @@ export function ErrorBoundary({
   fallback,
   onError,
 }: CustomErrorBoundaryProps) {
-  const handleError = (error: Error, errorInfo: { componentStack: string }) => {
+  const handleError = (error: Error, errorInfo: ErrorInfo) => {
     // Log error to console in development
     if (process.env.NODE_ENV === "development") {
       // eslint-disable-next-line no-console
