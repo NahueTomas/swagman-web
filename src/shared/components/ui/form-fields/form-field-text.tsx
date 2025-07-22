@@ -1,20 +1,30 @@
 import { Input } from "@heroui/input";
 
+import { FormFieldValue } from "@/shared/types/parameter";
+
+interface FormFieldTextProps {
+  id?: string;
+  onChange: (value: string) => void;
+  placeholder?: string;
+  value?: string | number | FormFieldValue["value"];
+  disabled?: boolean;
+}
+
 export const FormFieldText = ({
   id,
   onChange,
   placeholder,
   value,
   disabled = false,
-}: {
-  onChange: (value: string) => void;
-  id?: string;
-  placeholder?: string;
-  value?: any;
-  disabled?: boolean;
-}) => {
-  const handleChange = (e: Event) =>
-    onChange((e.target as HTMLInputElement).value);
+}: FormFieldTextProps) => {
+  const stringValue =
+    typeof value === "object" && value !== null
+      ? JSON.stringify(value)
+      : String(value || "");
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    onChange(e.target.value);
+  };
 
   return (
     <Input
@@ -23,11 +33,9 @@ export const FormFieldText = ({
       placeholder={placeholder}
       radius="full"
       type="text"
-      value={typeof value === "object" ? JSON.stringify(value) : value}
+      value={stringValue}
       variant="bordered"
-      onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-        handleChange(e as unknown as Event)
-      }
+      onChange={handleChange}
     />
   );
 };
