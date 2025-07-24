@@ -86,7 +86,7 @@ export default function IndexPage() {
             aria-label="Navigate to local specification explorer"
             color="success"
             variant="flat"
-            onPress={() => navigate("/")}
+            onPress={() => navigate("/local")}
           >
             Go to Local Specification
           </Button>
