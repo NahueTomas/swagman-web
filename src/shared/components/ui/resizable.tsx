@@ -9,7 +9,6 @@ type ResizableProps = {
   axis: "x" | "y" | "all";
   defaultWidth?: number;
   defaultHeight?: number;
-  className?: string;
 };
 
 export const Resizable = ({
@@ -21,7 +20,6 @@ export const Resizable = ({
   axis = "all",
   defaultWidth = 300,
   defaultHeight = 200,
-  className = "",
 }: ResizableProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [resizing, setResizing] = useState(false);
