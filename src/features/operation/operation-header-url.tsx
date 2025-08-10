@@ -233,9 +233,6 @@ export const OperationHeaderUrl = ({ url, className }: UrlProps) => {
           {`{server}`}
         </Chip>
       );
-
-      // Add separator between server and path
-      parts.push(<span key="server-separator"> </span>);
     }
 
     // Process path parameters
@@ -250,7 +247,7 @@ export const OperationHeaderUrl = ({ url, className }: UrlProps) => {
       // Add text before the parameter
       if (startIndex > lastIndex) {
         parts.push(
-          <span key={`text-${lastIndex}`}>
+          <span key={`text-${lastIndex}`} className="text-nowrap">
             {urlWithoutQuery.substring(lastIndex, startIndex)}
           </span>
         );

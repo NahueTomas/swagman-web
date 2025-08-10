@@ -33,5 +33,18 @@ export default {
     extend: {},
   },
   darkMode: "class",
-  plugins: [heroui()],
+  plugins: [heroui({
+    themes: {
+      dark: {
+        colors: {
+          background: "#0A0A0B",
+          divider: "#1B1B1D",
+          content1: "#111113",
+        },
+        layout: {
+          dividerOpacity: "1",
+        },
+      },
+    },
+  })],
 }

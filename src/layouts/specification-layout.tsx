@@ -1,6 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
 import { Outlet, useParams } from "react-router-dom";
-import { Divider } from "@heroui/divider";
 import { addToast } from "@heroui/toast";
 
 import { ApiExplorer } from "@/features/api-explorer";
@@ -79,14 +78,9 @@ export default function SpecificationLayout() {
 
   return (
     <div className="flex h-dvh w-full">
-      {!error && !isLoading && (
-        <div className="flex flex-row h-full">
-          <ApiExplorer />
-          <Divider orientation="vertical" />
-        </div>
-      )}
+      {!error && !isLoading && <ApiExplorer />}
 
-      <main className="flex-1 w-full items-center justify-center bg-content1/15 overflow-hidden">
+      <main className="flex-1 w-full items-center justify-center overflow-hidden bg-content1 mt-4 mb-2 border border-divider border-r-0 rounded-l-lg">
         {error ? (
           <ErrorComponent message={error} title="Error to get specification" />
         ) : isLoading ? (

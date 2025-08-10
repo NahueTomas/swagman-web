@@ -35,7 +35,7 @@ export const OperationParameter = ({
     : null;
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-[2rem_1fr_1fr] gap-4 p-4 border border-divider rounded-xl bg-content1/10 transition-colors items-center">
+    <div className="grid grid-cols-1 sm:grid-cols-[2rem_1fr_1fr] gap-3 p-3 border border-divider rounded-lg transition-colors items-center">
       <div className="flex items-center">
         <FormFieldCheckbox
           id={`param-${parameter.id}`}

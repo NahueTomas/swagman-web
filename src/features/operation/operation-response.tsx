@@ -67,7 +67,7 @@ export const OperationResponse = ({
           </h4>
         </div>
         <p className="text-xs mt-1">
-          This endpoint doesn&apos;t define any response details
+          This endpoint does not define any response details
         </p>
       </div>
     );
@@ -142,7 +142,7 @@ const ResponseContent = ({
     <>
       <Subtitle>{response?.description || "Response"}</Subtitle>
       <Code
-        height={responseExample ? "200px" : "50px"}
+        autoHeight
         language={getLanguageFromMimeType(acceptHeader)}
         value={responseExample || "No schema defined for this response"}
       />

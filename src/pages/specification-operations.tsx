@@ -23,12 +23,12 @@ export default function SpecificationOperationsPage() {
                 <h2 className="text-md">{operationFocused.summary}</h2>
               )}
               {operationFocused.description && (
-                <div className="text-sm text-foreground/50">
-                  Description: {operationFocused.description}
+                <div className="text-tiny font-semibold text-content4 mt-1">
+                  {operationFocused.description}
                 </div>
               )}
 
-              <section className="mt-2">
+              <section className="mt-6">
                 <OperationTabs operation={operationFocused} />
               </section>
             </section>

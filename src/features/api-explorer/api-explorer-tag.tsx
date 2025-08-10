@@ -17,7 +17,7 @@ export const ApiExplorerTag = ({
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   return (
-    <div className="border-b border-divider">
+    <div>
       <button
         className="w-full py-3 px-4 flex items-center gap-3 transition-colors"
         onClick={() => setIsCollapsed(!isCollapsed)}

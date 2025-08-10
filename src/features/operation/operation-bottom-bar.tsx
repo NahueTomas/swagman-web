@@ -1,8 +1,6 @@
 import { Button } from "@heroui/button";
-import { Card } from "@heroui/card";
 import { Chip } from "@heroui/chip";
 import { Tabs, Tab } from "@heroui/tabs";
-import { Divider } from "@heroui/divider";
 import { Spinner } from "@heroui/spinner";
 import { useEffect, useMemo, memo } from "react";
 
@@ -10,12 +8,7 @@ import { useRequestForms } from "@/hooks/use-request-forms";
 import { useStore } from "@/hooks/use-store";
 import { useDragResize } from "@/hooks/use-drag-resize";
 import { Code } from "@/shared/components/ui/code";
-import {
-  ChevronDown,
-  ChevronUp,
-  Maximize2,
-  Minimize2,
-} from "@/shared/components/ui/icons";
+import { ChevronUp } from "@/shared/components/ui/icons";
 import {
   RESPONSE_PANEL,
   KEYFRAMES,
@@ -83,15 +76,15 @@ const ResponsePanel = memo<ResponsePanelProps>(
     }
 
     return (
-      <div className="h-full flex flex-col">
+      <div className="h-full flex flex-col-reverse">
         <Tabs
           className="flex-1 h-full"
           classNames={{
-            tabList:
-              "gap-2 w-full relative rounded-none p-0 border-b border-divider bg-content1/10",
-            panel: "p-0 h-full overflow-hidden",
+            tabList: "gap-2 w-full relative p-0",
+            panel:
+              "p-0 h-full overflow-hidden border-t border-b border-divider",
             cursor: "w-full",
-            tab: "max-w-fit px-4 h-8",
+            tab: "w-auto",
           }}
           color="default"
           defaultSelectedKey="body"
@@ -100,19 +93,25 @@ const ResponsePanel = memo<ResponsePanelProps>(
         >
           <Tab key="body" title="Body">
             <div className="flex flex-col h-full">
-              <div className="flex items-center justify-between p-2 border-b border-divider bg-content1/5">
-                <div className="flex items-center gap-2">
-                  <Chip color="default" size="sm" variant="flat">
-                    {contentType}
-                  </Chip>
-                </div>
-              </div>
               <div className="flex-1 overflow-hidden">
                 <Code
                   height="100%"
                   language={getLanguageFromContentType(contentType)}
                   readOnly={true}
                   value={formattedBody}
+                />
+              </div>
+            </div>
+          </Tab>
+
+          <Tab key="body-raw" title="Body raw">
+            <div className="flex flex-col h-full">
+              <div className="flex-1 overflow-hidden">
+                <Code
+                  height="100%"
+                  language={"plaintext"}
+                  readOnly={true}
+                  value={response.data}
                 />
               </div>
             </div>
@@ -128,7 +127,7 @@ const ResponsePanel = memo<ResponsePanelProps>(
                   {Object.entries(response.headers).map(([key, value]) => (
                     <div
                       key={key}
-                      className="grid grid-cols-2 gap-4 p-3 hover:bg-content1/20 transition-colors"
+                      className="grid grid-cols-2 gap-4 p-3 transition-colors"
                     >
                       <div className="font-mono text-[12px] font-medium text-primary">
                         {key}
@@ -144,13 +143,13 @@ const ResponsePanel = memo<ResponsePanelProps>(
           </Tab>
 
           <Tab key="info" title="Info">
-            <div className="p-4">
+            <div className="h-full p-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1">
                   <div className="text-xs font-medium text-default-500 uppercase tracking-wide">
                     URL
                   </div>
-                  <p className="text-[12px] font-mono text-default-700 break-all">
+                  <p className="text-xs font-mono text-default-700 break-all">
                     {response.url}
                   </p>
                 </div>
@@ -158,7 +157,7 @@ const ResponsePanel = memo<ResponsePanelProps>(
                   <div className="text-xs font-medium text-default-500 uppercase tracking-wide">
                     Status
                   </div>
-                  <p className="text-[12px] text-default-700">
+                  <p className="text-xs text-default-700">
                     {response.status}{" "}
                     {response.statusText ? ` ${response.statusText}` : ""}
                   </p>
@@ -167,19 +166,19 @@ const ResponsePanel = memo<ResponsePanelProps>(
                   <div className="text-xs font-medium text-default-500 uppercase tracking-wide">
                     Date
                   </div>
-                  <p className="text-[12px] text-default-700">{responseDate}</p>
+                  <p className="text-xs text-default-700">{responseDate}</p>
                 </div>
                 <div className="space-y-1">
                   <div className="text-xs font-medium text-default-500 uppercase tracking-wide">
                     Content Type
                   </div>
-                  <p className="text-[12px] text-default-700">{contentType}</p>
+                  <p className="text-xs text-default-700">{contentType}</p>
                 </div>
                 <div className="space-y-1">
                   <div className="text-xs font-medium text-default-500 uppercase tracking-wide">
                     Success
                   </div>
-                  <p className="text-[12px] text-default-700">
+                  <p className="text-xs text-default-700">
                     {response.ok ? "Yes" : "No"}
                   </p>
                 </div>
@@ -208,7 +207,6 @@ export const OperationBottomBar = () => {
     dragRef,
     handleMouseDown,
     toggleCollapse,
-    toggleMaximize,
   } = useDragResize({
     minHeight: RESPONSE_PANEL.MIN_HEIGHT,
     defaultHeight: RESPONSE_PANEL.DEFAULT_HEIGHT,
@@ -250,12 +248,12 @@ export const OperationBottomBar = () => {
   }
 
   return (
-    <Card
+    <div
       ref={containerRef}
-      className="shadow-large border-t border-divider bg-background/95 backdrop-blur-sm relative overflow-hidden flex flex-col"
-      radius="none"
-      shadow="lg"
-      style={{ height: currentHeight }}
+      className={`relative overflow-hidden flex flex-col border-t border-divider ${isCollapsed ? "shadow-2xl" : ""}`}
+      style={{
+        height: currentHeight,
+      }}
     >
       {/* Loading Animation Bar */}
       {isLoading && (
@@ -263,7 +261,7 @@ export const OperationBottomBar = () => {
           <div
             className="h-full bg-primary"
             style={{
-              animation: "loadingWave 2s ease-in-out infinite",
+              animation: "loading-wave 2s ease-in-out infinite",
               width: "30%",
             }}
           />
@@ -276,8 +274,9 @@ export const OperationBottomBar = () => {
         aria-label="Resize response panel"
         className={`
           h-1 cursor-ns-resize
-          hover:bg-primary/50 transition-all duration-200
-          ${isDragging ? "bg-primary" : "bg-transparent"}
+          absolute top-0 left-0 right-0
+          hover:bg-primary/10 transition-all duration-0
+          ${isDragging ? "bg-primary/50" : "bg-transparent"}
           ${isCollapsed || isMaximized ? "cursor-default opacity-0" : "cursor-ns-resize"}
         `}
         role="button"
@@ -289,71 +288,48 @@ export const OperationBottomBar = () => {
       />
 
       {/* Header Bar */}
-      <div className="flex items-center justify-between px-4 py-2 border-b border-divider">
-        <div className="flex items-center gap-3">
-          <Button
-            isIconOnly
-            className="min-w-6 w-6 h-6"
-            color="default"
-            size="sm"
-            variant="light"
-            onClick={toggleCollapse}
-          >
-            {isCollapsed ? (
-              <ChevronUp className="size-3" />
-            ) : (
-              <ChevronDown className="size-3" />
-            )}
-          </Button>
+      <div className="w-full flex items-center justify-between p-2">
+        <Button
+          isIconOnly
+          className="min-w-6 w-6 h-6"
+          color="default"
+          size="sm"
+          variant="light"
+          onClick={toggleCollapse}
+        >
+          <ChevronUp
+            className={`size-3 transition-transform ${isCollapsed ? "rotate-0" : "rotate-180"}`}
+          />
+        </Button>
 
-          <span className="text-sm font-semibold text-default-700">
-            Response
-          </span>
-
-          {(responseData || isLoading) && (
-            <>
-              <Divider className="h-4" orientation="vertical" />
-              <div className="flex items-center gap-3 text-xs text-default-500">
-                {isLoading ? (
-                  <>
-                    <Spinner size="sm" />
-                    <span>Loading...</span>
-                  </>
-                ) : responseData ? (
-                  <>
-                    <span>{responseData.date}</span>
-                    <Chip
-                      className="h-5"
-                      color={getStatusColorVariant(responseData.status)}
-                      size="sm"
-                      title={`${responseData.status}: ${responseData.statusText}`}
-                      variant="flat"
-                    >
-                      {responseData.status} {responseData.statusText}
-                    </Chip>
-                  </>
-                ) : null}
-              </div>
-            </>
-          )}
-        </div>
-
-        <div className="flex items-center gap-1">
-          <Button
-            isIconOnly
-            className="min-w-6 w-6 h-6"
-            color="default"
-            size="sm"
-            variant="light"
-            onClick={toggleMaximize}
-          >
-            {isMaximized ? (
-              <Minimize2 className="size-3" />
-            ) : (
-              <Maximize2 className="size-3" />
-            )}
-          </Button>
-        </div>
+        {(responseData || isLoading) && (
+          <>
+            <div className="flex items-center gap-2 text-xs text-default-500">
+              {isLoading ? (
+                <>
+                  <Spinner size="sm" />
+                  <span>Loading...</span>
+                </>
+              ) : responseData ? (
+                <>
+                  <span>{responseData.date}</span>
+                  <Chip color="default" size="sm" variant="flat">
+                    {(responseData.headers["content-type"] as string) ||
+                      "application/json"}
+                  </Chip>
+                  <Chip
+                    color={getStatusColorVariant(responseData.status)}
+                    size="sm"
+                    title={`${responseData.status}: ${responseData.statusText}`}
+                    variant="flat"
+                  >
+                    {responseData.status} {responseData.statusText}
+                  </Chip>
+                </>
+              ) : null}
+            </div>
+          </>
+        )}
       </div>
 
       {/* Content */}
@@ -369,14 +345,16 @@ export const OperationBottomBar = () => {
             <div className="flex items-center justify-center h-full">
               <div className="flex flex-col items-center gap-4">
                 {isLoading ? (
-                  <>
-                    <Spinner size="lg" />
-                    <p className="text-sm text-default-500">
-                      Waiting for response...
-                    </p>
-                  </>
+                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 ">
+                    <div className="flex gap-2 items-center">
+                      <Spinner size="lg" />
+                      <p className="text-sm text-default-500">
+                        Waiting for response...
+                      </p>
+                    </div>
+                  </div>
                 ) : (
-                  <p className="text-sm text-default-500">
+                  <p className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-sm text-default-500">
                     Execute a request to see the response
                   </p>
                 )}
@@ -385,7 +363,7 @@ export const OperationBottomBar = () => {
           )}
         </div>
       )}
-    </Card>
+    </div>
   );
 };
 

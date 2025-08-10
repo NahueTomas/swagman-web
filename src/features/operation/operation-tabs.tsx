@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useMemo, useCallback } from "react";
 import { Chip } from "@heroui/chip";
 import { Tabs, Tab } from "@heroui/tabs";
-import { Card } from "@heroui/card";
 
 import { OperationParameter } from "./operation-parameter";
 import { OperationResponse } from "./operation-response";
@@ -294,12 +293,9 @@ export const OperationTabs = React.memo(function OperationTabs({
               )}
               {operationData.pathParams.length === 0 &&
                 operationData.queryParams.length === 0 && (
-                  <Card
-                    className="p-3 text-sm text-center bg-content1/10 border border-divider"
-                    shadow="none"
-                  >
+                  <div className="p-3 text-sm text-center border border-divider rounded-lg">
                     No parameters defined for this operation
-                  </Card>
+                  </div>
                 )}
             </div>
           </Tab>
@@ -340,12 +336,9 @@ export const OperationTabs = React.memo(function OperationTabs({
                 ))}
               </div>
             ) : (
-              <Card
-                className="p-3 text-sm text-center bg-content1/10 border border-divider"
-                shadow="none"
-              >
+              <div className="p-3 text-sm text-center border border-divider rounded-lg">
                 No headers defined for this operation
-              </Card>
+              </div>
             )}
           </Tab>
 
@@ -376,7 +369,7 @@ export const OperationTabs = React.memo(function OperationTabs({
                 </Subtitle>
 
                 {operationData.body && operationData.body.description && (
-                  <span className="text-xs text-zinc-500">
+                  <span className="text-tiny font-semibold text-content4">
                     {operationData.body.description}
                   </span>
                 )}
@@ -390,7 +383,7 @@ export const OperationTabs = React.memo(function OperationTabs({
                 >
                   <>
                     <HeadersIcon className="size-4" />
-                    Content-Type:
+                    Content-Type (Header):
                   </>
                 </CardSelectableButtons>
               </div>
@@ -400,19 +393,15 @@ export const OperationTabs = React.memo(function OperationTabs({
                   undefined &&
                   currentForm?.requestBody?.[currentForm.contentType] !==
                     null && (
-                    <>
-                      <Subtitle>Body content</Subtitle>
-
-                      <RequestBody
-                        bodyMediaType={operationData.body?.getMimeType(
-                          currentForm.contentType
-                        )}
-                        currentValues={
-                          currentForm.requestBody[currentForm.contentType]
-                        }
-                        updateBody={updateBody}
-                      />
-                    </>
+                    <RequestBody
+                      bodyMediaType={operationData.body?.getMimeType(
+                        currentForm.contentType
+                      )}
+                      currentValues={
+                        currentForm.requestBody[currentForm.contentType]
+                      }
+                      updateBody={updateBody}
+                    />
                   )}
               </div>
             </div>

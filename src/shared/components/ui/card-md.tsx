@@ -1,5 +1,3 @@
-import { Card } from "@heroui/card";
-
 import { SanitizedMarkdown } from "./sanitized-markdown";
 
 type CardMdProps = {
@@ -14,11 +12,8 @@ export const CardMd = ({
   size = "sm",
 }: CardMdProps) => {
   return (
-    <Card
-      className={`p-4 border border-divider bg-content1 bg-opacity-15 ${className}`}
-      shadow="none"
-    >
+    <div className={`p-4 border border-divider rounded-lg ${className}`}>
       <SanitizedMarkdown className={`marked-${size}`} content={markdown} />
-    </Card>
+    </div>
   );
 };

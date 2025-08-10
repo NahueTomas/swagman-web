@@ -1,5 +1,4 @@
 import { useMemo } from "react";
-import { Card } from "@heroui/card";
 import { Chip } from "@heroui/chip";
 import { Divider } from "@heroui/divider";
 
@@ -76,10 +75,7 @@ export default function SpecificationPage() {
 
           <div className="flex flex-col md:flex-row gap-2 text-sm">
             {contact && (
-              <Card
-                className="p-4 bg-background border border-divider space-y-4"
-                shadow="none"
-              >
+              <div className="p-4 border border-divider space-y-4 rounded-lg">
                 <p className="font-medium flex items-center gap-2">
                   <UsersIcon className="size-5" />
                   <span>Contact Information</span>
@@ -114,14 +110,11 @@ export default function SpecificationPage() {
                     </a>
                   </div>
                 )}
-              </Card>
+              </div>
             )}
 
             {license && (
-              <Card
-                className="p-4 bg-background border border-divider space-y-4"
-                shadow="none"
-              >
+              <div className="p-4 border border-divider space-y-4 rounded-lg">
                 <p className="font-medium mb-3 flex items-center gap-2">
                   <ScaleIcon className="size-5" />
                   <span>License</span>
@@ -143,7 +136,7 @@ export default function SpecificationPage() {
                     </a>
                   </div>
                 )}
-              </Card>
+              </div>
             )}
           </div>
         </>

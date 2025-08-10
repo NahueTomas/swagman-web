@@ -1,7 +1,6 @@
 import React, { useCallback, useMemo } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import clsx from "clsx";
-import { Card } from "@heroui/card";
 import { Divider } from "@heroui/divider";
 
 import { ApiExplorerTagList } from "./api-explorer-tag-list";
@@ -70,13 +69,11 @@ export const ApiExplorer = React.memo(({ className }: ApiExplorerProps) => {
 
   return (
     <aside className="flex h-full w-auto">
-      <Card
+      <div
         className={clsx(
-          "flex flex-col h-full p-3 space-y-3 bg-background",
+          "flex flex-col h-full p-3 space-y-3 rounded-lg",
           className
         )}
-        radius="none"
-        shadow="none"
       >
         <div className="flex items-center">
           <ApiExplorerItem
@@ -104,23 +101,12 @@ export const ApiExplorer = React.memo(({ className }: ApiExplorerProps) => {
             to={routes.operations}
           />
         </nav>
-      </Card>
+      </div>
 
       {location.pathname === routes.operations && (
         <>
-          <Divider orientation="vertical" />
-
           <Resizable axis="x" defaultWidth={300}>
-            <Card
-              className={clsx(
-                "flex flex-col h-full space-y-3 bg-background",
-                className
-              )}
-              radius="none"
-              shadow="none"
-            >
-              <ApiExplorerTagList className="overflow-y-auto h-full" />
-            </Card>
+            <ApiExplorerTagList className="overflow-y-auto h-full no-scrollbar" />
           </Resizable>
         </>
       )}

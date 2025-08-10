@@ -30,9 +30,7 @@ export const ApiExplorerTaggedItem = ({
   return (
     <li className="overflow-hidden">
       <button
-        className={`w-full pl-6 pr-3 py-2.5 transition-colors duration-250 flex items-center gap-3 group relative border-transparent overflow-hidden ${
-          active ? `bg-${colorSet}/10` : "hover:bg-content1"
-        }`}
+        className="w-full pl-6 pr-3 py-2.5 transition-colors duration-250 flex items-center gap-3 group relative border-transparent overflow-hidden hover:bg-content1"
         onClick={onClick}
       >
         {/* Left bar indicating active state */}

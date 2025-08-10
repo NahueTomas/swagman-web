@@ -21,6 +21,7 @@ export interface CodeProps {
   readOnly?: boolean;
   onChange?: (value: string) => void;
   main?: boolean;
+  autoHeight?: boolean;
 }
 
 // Memoized language mapping function
@@ -55,55 +56,10 @@ export const Code = memo<CodeProps>(
     readOnly = true,
     onChange,
     main = false,
+    autoHeight = false,
   }) => {
     // Define custom theme using beforeMount API
     const handleEditorWillMount: BeforeMount = (monaco) => {
-      // Define light theme
-      monaco.editor.defineTheme("swagman-light", {
-        base: "vs",
-        inherit: true,
-        rules: [
-          // JSON specific colors - light theme
-          { token: "string.key.json", foreground: "#0369a1" }, // Blue-700
-          { token: "string.value.json", foreground: "#15803d" }, // Green-700
-          { token: "number.json", foreground: "#c2410c" }, // Orange-700
-          { token: "keyword.json", foreground: "#7c2d12" }, // Purple-700
-
-          // General language tokens - light theme
-          { token: "comment", foreground: "#6b7280", fontStyle: "italic" }, // Gray-500
-          { token: "keyword", foreground: "#7c2d12" }, // Brown-800
-          { token: "string", foreground: "#15803d" }, // Green-700
-          { token: "number", foreground: "#c2410c" }, // Orange-700
-          { token: "type", foreground: "#0369a1" }, // Blue-700
-          { token: "function", foreground: "#be185d" }, // Pink-700
-          { token: "variable", foreground: "#374151" }, // Gray-700
-          { token: "tag", foreground: "#0369a1" }, // Blue-700
-          { token: "attribute.name", foreground: "#c2410c" }, // Orange-700
-          { token: "attribute.value", foreground: "#15803d" }, // Green-700
-        ],
-        colors: {
-          // Light theme colors matching HeroUI
-          "editor.background": "#ffffff",
-          "editor.foreground": "#11181c", // foreground color
-          "editorLineNumber.foreground": "#71717a", // zinc-500
-          "editorLineNumber.activeForeground": "#52525b", // zinc-600
-          "editor.selectionBackground": "#e4e4e7", // zinc-200
-          "editor.inactiveSelectionBackground": "#f4f4f5", // zinc-100
-          "editorCursor.foreground": "#3b82f6", // blue-500
-          "editor.lineHighlightBackground": "#f9fafb", // gray-50
-          "editorWhitespace.foreground": "#d4d4d8", // zinc-300
-          "editorIndentGuide.background": "#e4e4e7", // zinc-200
-          "editorIndentGuide.activeBackground": "#d4d4d8", // zinc-300
-          "editor.findMatchBackground": "#dcfce7", // green-100
-          "editor.findMatchHighlightBackground": "#bbf7d0", // green-200
-          "editorBracketMatch.background": "#e0e7ff", // indigo-100
-          "editorBracketMatch.border": "#3b82f6", // blue-500
-          "scrollbarSlider.background": "#d1d5db", // gray-300
-          "scrollbarSlider.hoverBackground": "#9ca3af", // gray-400
-          "scrollbarSlider.activeBackground": "#6b7280", // gray-500
-        },
-      });
-
       // Define dark theme
       monaco.editor.defineTheme("swagman-dark", {
         base: "vs-dark",
@@ -129,7 +85,7 @@ export const Code = memo<CodeProps>(
         ],
         colors: {
           // Dark theme colors matching HeroUI
-          "editor.background": "#18181b", // zinc-900 (content1 background)
+          "editor.background": "#111113", // zinc-900 (content1 background)
           "editor.foreground": "#f4f4f5", // zinc-100 (foreground)
           "editorLineNumber.foreground": "#71717a", // zinc-500
           "editorLineNumber.activeForeground": "#a1a1aa", // zinc-400
@@ -162,11 +118,13 @@ export const Code = memo<CodeProps>(
 
     // Memoize display value to avoid re-stringifying on every render
     const displayValue = useMemo(() => {
-      if (typeof value === "string") {
-        return value;
-      }
+      let result: string;
 
-      return JSON.stringify(value, null, 2);
+      if (typeof value === "string") result = value;
+      else result = JSON.stringify(value, null, 2);
+
+      // Normalize line endings: convert \r\n and \r to \n
+      return result.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
     }, [value]);
 
     // Memoize language mapping
@@ -176,15 +134,38 @@ export const Code = memo<CodeProps>(
 
     // Memoize container class
     const containerClass = useMemo(() => {
+      if (autoHeight) {
+        return "w-full border border-divider overflow-hidden rounded-lg";
+      }
+
       return height === "100%"
-        ? "w-full h-full border border-divider overflow-hidden bg-content1/10"
-        : "w-full border border-divider overflow-hidden bg-content1/10 rounded-lg";
-    }, [height]);
+        ? "w-full h-full overflow-hidden"
+        : "w-full border border-divider overflow-hidden rounded-lg";
+    }, [height, autoHeight]);
+
+    // Calculate height for autoHeight mode
+    const editorHeight = useMemo(() => {
+      if (autoHeight) {
+        const lineCount = displayValue.split("\n").length;
+        const lineHeight = 16; // Monaco's default line height
+        const padding = 18; // top and bottom padding
+
+        return Math.max(lineCount * lineHeight + padding, 40); // minimum 40px height
+      }
+
+      return "100%";
+    }, [autoHeight, displayValue]);
 
     return (
       <div
         className={containerClass}
-        style={height !== "100%" ? { height } : undefined}
+        style={
+          autoHeight
+            ? { height: `${editorHeight}px` }
+            : height !== "100%"
+              ? { height }
+              : undefined
+        }
       >
         <Editor
           beforeMount={handleEditorWillMount}
@@ -197,11 +178,11 @@ export const Code = memo<CodeProps>(
             fontSize: 12,
             lineNumbers: "on",
             automaticLayout: true,
-            wordWrap: "on",
+            wordWrap: "off",
             fontFamily:
               "'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', 'Courier New', monospace",
             scrollbar: {
-              vertical: "auto",
+              vertical: autoHeight ? "hidden" : "auto",
               horizontal: "auto",
               verticalScrollbarSize: 8,
               horizontalScrollbarSize: 8,

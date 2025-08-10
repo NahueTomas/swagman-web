@@ -564,7 +564,7 @@ ${curlHeaders}${
 
   return (
     <Code
-      height="400px"
+      autoHeight
       language={getCodeLanguage()}
       readOnly={true}
       value={generateCode()}

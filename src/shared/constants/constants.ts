@@ -2,7 +2,7 @@ export const RESPONSE_PANEL = {
   MIN_HEIGHT: 100,
   DEFAULT_HEIGHT: 300,
   MAX_HEIGHT_RATIO: 0.8,
-  COLLAPSED_HEIGHT: 48,
+  COLLAPSED_HEIGHT: 40,
   RESIZE_DEBOUNCE: 16,
 } as const;
 
@@ -42,7 +42,7 @@ export const HTTP_STATUS_RANGES = {
 
 export const KEYFRAMES = {
   LOADING_WAVE: `
-    @keyframes loadingWave {
+    @keyframes loading-wave {
       0% {
         transform: translateX(-100%);
         opacity: 0;

@@ -148,11 +148,7 @@ export const Resizable = ({
   return (
     <div
       ref={containerRef}
-      className={`relative ${className} ${
-        resizing
-          ? "border-r border-r-primary"
-          : "transition-all duration-200 ease-out"
-      }`}
+      className="relative"
       style={{
         width: axis === "x" || axis === "all" ? `${size.width}px` : "auto",
         height: axis === "y" || axis === "all" ? `${size.height}px` : "auto",
@@ -162,12 +158,7 @@ export const Resizable = ({
 
       <div
         aria-label="Resize"
-        className={`
-          absolute bottom-0 right-0 p-2 cursor-pointer
-          transition-all duration-200 ease-out
-          border-r border-r-transparent hover:border-r-primary
-          ${resizing ? "bg-primary/10" : ""}
-        `}
+        className="absolute bottom-0 right-0 p-2 cursor-pointer transition-all duration-200 ease-out"
         role="button"
         style={{
           cursor: cursorType,

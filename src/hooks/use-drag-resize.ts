@@ -101,7 +101,7 @@ export const useDragResize = ({
     if (isCollapsed) setIsCollapsed(false);
   }, [isCollapsed, isMaximized]);
 
-  const currentHeight = isCollapsed ? 48 : isMaximized ? maxHeight : height;
+  const currentHeight = isCollapsed ? 40 : isMaximized ? maxHeight : height;
 
   return {
     height,
