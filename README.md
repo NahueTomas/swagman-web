@@ -2,25 +2,31 @@
 
 A modern, lightweight OpenAPI/Swagger explorer built with React, TypeScript, and Vite. Swagman Web provides an intuitive interface for exploring, testing, and generating code for REST APIs.
 
+![Specification Info Image](./docs/images/specification-operation.png)
+
 ## ✨ Features
 
-### 🚀 Core Features
+## Specification Info
 
-- **Interactive API Explorer**: Browse and test OpenAPI/Swagger specifications
-- **Real-time Request Testing**: Send HTTP requests directly from the interface
-- **Multi-language Code Generation**: Generate code snippets in JavaScript, TypeScript, Python, PHP, and cURL
-- **Responsive Design**: Works seamlessly across desktop and mobile devices
-- **Dark Theme**: Always-on dark theme for better user experience
-- **Embed Mode**: Lightweight embeddable version for integration into existing applications
+You can see the specification details into the `Specification Info` panel
 
-### 🔧 Advanced Features
+![Specification Info Image](./docs/images/specification-info.png)
 
-- **Monaco Editor Integration**: Syntax highlighting and code editing with Monaco Editor
-- **Drag & Resize Panels**: Customizable layout with resizable panels
-- **Request Body Builder**: Interactive forms for building complex request payloads
-- **Response Viewer**: Formatted response display with syntax highlighting
-- **Server Selection**: Switch between different API server environments
-- **Parameter Management**: Easy handling of path, query, and header parameters
+---
+
+## Using an operation
+
+Here is where you can make your requests based in the operations defined into the openapi file
+
+![Specification Info Image](./docs/images/specification-operation.png)
+
+---
+
+## Change specification at any time
+
+You can select any specification but we recommend to use only 3.x.x `openapi` version
+
+![Specification Info Image](./docs/images/specification-selector.png)
 
 ## 🛠️ Tech Stack
 
@@ -29,10 +35,25 @@ A modern, lightweight OpenAPI/Swagger explorer built with React, TypeScript, and
 - **Styling**: Tailwind CSS, Framer Motion
 - **State Management**: Zustand
 - **Editor**: Monaco Editor
-- **HTTP Client**: Swagger Client
+- **HTTP Client**: SwaggerClient
 - **Build Tool**: Vite
 
 ## 🚀 Quick Start
+
+## 🔧 Usage
+
+### Loading an API Specification
+
+- **From query param**: You can add to the url `?url=your-specification.json` and swagman automatically will show you the rest client
+- **From manual panel**: Go to `http://localhost:5173/#/specification-selector` and set your specification
+- **From local**: You can also set a local specification, It should appear in `http://localhost:5173/#/` once you set in javascript the `window.LOCAL_SPEC` object
+
+### Testing API Endpoints
+
+1. **Select Operation**: Choose an endpoint from the API explorer
+2. **Configure Parameters**: Fill in required parameters, headers, and request body
+3. **Select Server**: Choose the target server environment
+4. **Send Request**: Execute the request and view the response
 
 ### Prerequisites
 
@@ -95,33 +116,6 @@ src/
     └── utils/            # Utility functions
 ```
 
-## 🔧 Usage
-
-### Loading an API Specification
-
-- **From URL**: Enter the URL of your OpenAPI specification
-
-### Testing API Endpoints
-
-1. **Select Operation**: Choose an endpoint from the API explorer
-2. **Configure Parameters**: Fill in required parameters, headers, and request body
-3. **Select Server**: Choose the target server environment
-4. **Send Request**: Execute the request and view the response
-
-### Generating Code
-
-1. **Configure Request**: Set up your API call with all parameters
-2. **Select Language**: Choose from JavaScript, TypeScript, Python, PHP, or cURL
-3. **Copy Code**: Use the generated code snippet in your application
-
-### Configuration
-
-Key configuration options can be found in:
-
-- `src/shared/constants/` - Application constants
-- `tailwind.config.js` - Tailwind CSS configuration
-- `vite.config.ts` - Build configuration
-
 ## 📦 Embed Mode
 
 Swagman Web can be embedded into existing applications as a lightweight, self-contained component. This is perfect for API documentation sites, developer portals, or any application that needs to display interactive API documentation.
@@ -177,7 +171,8 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 1. Follow the existing code style and patterns
 2. Write TypeScript types for all new code
 3. Update documentation as needed
-4. Run linting before submitting: `npm run lint`
+4. Run to check types: `npm run build`
+5. Run linting before submitting: `npm run lint`
 
 ### Feature Requests
 
