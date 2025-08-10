@@ -99,7 +99,7 @@ export const FormFieldSelect = ({
           {!required && selectedValue && (
             <button
               aria-label="Clear selection"
-              className="mr-1 p-0.5 rounded-full"
+              className="mr-1 p-0.5 rounded-lg"
               tabIndex={-1}
               type="button"
               onClick={handleClear}

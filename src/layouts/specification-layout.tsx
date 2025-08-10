@@ -1,6 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
-import { Outlet, useParams } from "react-router-dom";
-import { Divider } from "@heroui/divider";
+import { Outlet, useParams, Link } from "react-router-dom";
 import { addToast } from "@heroui/toast";
 
 import { ApiExplorer } from "@/features/api-explorer";
@@ -9,6 +8,7 @@ import { useStore } from "@/hooks/use-store";
 import { Error as ErrorComponent } from "@/shared/components/ui/error";
 import { Loading } from "@/features/specification/loading";
 import { useRequestForms } from "@/hooks/use-request-forms";
+import { ROUTES } from "@/shared/constants/constants";
 
 export default function SpecificationLayout() {
   const { setSpec } = useStore();
@@ -47,23 +47,23 @@ export default function SpecificationLayout() {
   }, []);
 
   const loadSpec = useCallback(
-    async (url: string) => {
-      if (!url) return;
-
+    async (url: string | undefined) => {
       setIsLoading(true);
       setError(null);
 
       try {
         const spec = new SpecModel();
 
-        if (url === "local") {
+        if (!url) {
           const localSpec = loadLocalSpec();
 
           if (localSpec) await spec.processSpec(localSpec);
-        } else await spec.processSpec(url);
+        } else {
+          await spec.processSpec(url);
+        }
 
         setSpec(spec);
-        setSpecification(url);
+        setSpecification(url ? url : "");
       } catch (err: any) {
         setError(err.message || "Failed to load or process the specification.");
       } finally {
@@ -74,21 +74,25 @@ export default function SpecificationLayout() {
   );
 
   useEffect(() => {
-    if (specUrl) loadSpec(specUrl);
+    loadSpec(specUrl);
   }, [specUrl, loadSpec]);
 
   return (
     <div className="flex h-dvh w-full">
-      {!error && !isLoading && (
-        <div className="flex flex-row h-full">
-          <ApiExplorer />
-          <Divider orientation="vertical" />
-        </div>
-      )}
+      {!error && !isLoading && <ApiExplorer />}
 
-      <main className="flex-1 w-full items-center justify-center bg-content1/15 overflow-hidden">
+      <main className="flex-1 w-full items-center justify-center overflow-hidden bg-content1 mt-4 mb-2 border border-divider border-r-0 rounded-l-lg">
         {error ? (
-          <ErrorComponent message={error} title="Error to get specification" />
+          <>
+            <ErrorComponent message={error} title="Error to get specification">
+              <Link
+                className="mt-10 underline text-primary"
+                to={ROUTES.SPECIFICATION_SELECTOR}
+              >
+                Go to select another specification
+              </Link>
+            </ErrorComponent>
+          </>
         ) : isLoading ? (
           <Loading />
         ) : (

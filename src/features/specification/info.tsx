@@ -1,5 +1,4 @@
 import { useMemo } from "react";
-import { Card } from "@heroui/card";
 import { Chip } from "@heroui/chip";
 import { Divider } from "@heroui/divider";
 
@@ -17,7 +16,7 @@ import {
   ThunderIcon,
 } from "@/shared/components/ui/icons";
 
-export default function SpecificationPage() {
+export default function Info() {
   const { spec } = useStore();
 
   // Memoize expensive values before the early return
@@ -31,7 +30,7 @@ export default function SpecificationPage() {
   const { title, version, contact, license, description } = spec?.info;
 
   return (
-    <div className="p-8 transition-all duration-250 h-full flex flex-col gap-8 overflow-auto">
+    <section className="p-8 transition-all duration-250 h-full flex flex-col gap-8 overflow-auto">
       <div className="transition-all duration-250">
         <div className="flex flex-wrap justify-between items-start gap-4">
           <div className="flex-1">
@@ -61,7 +60,7 @@ export default function SpecificationPage() {
         </div>
       </div>
 
-      <Divider />
+      <Divider className="bg-content2" />
 
       {description && (
         <SanitizedMarkdown
@@ -72,29 +71,26 @@ export default function SpecificationPage() {
 
       {(contact || license) && (
         <>
-          <Divider className="mt-auto" />
+          <Divider className="mt-auto bg-content2" />
 
           <div className="flex flex-col md:flex-row gap-2 text-sm">
             {contact && (
-              <Card
-                className="p-4 bg-background border border-divider space-y-4"
-                shadow="none"
-              >
-                <p className="font-medium flex items-center gap-2">
-                  <UsersIcon className="size-5" />
+              <div className="p-4 border border-content2 space-y-4 rounded-lg">
+                <p className="flex items-center gap-2">
+                  <UsersIcon className="size-4" />
                   <span>Contact Information</span>
                 </p>
                 {contact.name && (
                   <div className="flex items-center gap-2">
-                    <UserIcon className="size-5" />
-                    <span className="font-medium">{contact.name}</span>
+                    <UserIcon className="size-4" />
+                    <span>{contact.name}</span>
                   </div>
                 )}
                 {contact.email && (
                   <div className="flex items-center gap-2">
-                    <EmailIcon className="size-5" />
+                    <EmailIcon className="size-4" />
                     <a
-                      className="font-medium text-base hover:underline"
+                      className="hover:underline"
                       href={`mailto:${contact.email}`}
                     >
                       {contact.email}
@@ -103,9 +99,9 @@ export default function SpecificationPage() {
                 )}
                 {contact.url && (
                   <div className="flex items-center gap-2">
-                    <AnchorIcon className="size-5" />
+                    <AnchorIcon className="size-4" />
                     <a
-                      className="font-medium text-base hover:underline"
+                      className="hover:underline"
                       href={contact.url}
                       rel="noopener noreferrer"
                       target="_blank"
@@ -114,27 +110,24 @@ export default function SpecificationPage() {
                     </a>
                   </div>
                 )}
-              </Card>
+              </div>
             )}
 
             {license && (
-              <Card
-                className="p-4 bg-background border border-divider space-y-4"
-                shadow="none"
-              >
-                <p className="font-medium mb-3 flex items-center gap-2">
-                  <ScaleIcon className="size-5" />
+              <div className="p-4 border border-content2 space-y-4 rounded-lg">
+                <p className="mb-3 flex items-center gap-2">
+                  <ScaleIcon className="size-4" />
                   <span>License</span>
                 </p>
                 <div className="flex items-center gap-2">
-                  <DocumentTextIcon className="size-5" />
-                  <span className="font-medium">{license.name}</span>
+                  <DocumentTextIcon className="size-4" />
+                  <span>{license.name}</span>
                 </div>
                 {license.url && (
                   <div className="flex items-center gap-2">
-                    <AnchorIcon className="size-5" />
+                    <AnchorIcon className="size-4" />
                     <a
-                      className="font-medium text-base hover:underline"
+                      className="hover:underline"
                       href={license.url}
                       rel="noopener noreferrer"
                       target="_blank"
@@ -143,11 +136,11 @@ export default function SpecificationPage() {
                     </a>
                   </div>
                 )}
-              </Card>
+              </div>
             )}
           </div>
         </>
       )}
-    </div>
+    </section>
   );
 }

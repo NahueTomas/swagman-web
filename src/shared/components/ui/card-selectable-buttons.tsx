@@ -1,5 +1,3 @@
-import { Card } from "@heroui/card";
-
 import { ButtonSelectable } from "@/shared/components/ui/button-selectable";
 
 export const CardSelectableButtons = ({
@@ -15,24 +13,23 @@ export const CardSelectableButtons = ({
   onClick: (value: string) => void;
 }) => {
   return (
-    <Card
-      className="p-3 flex gap-3 flex-col border border-divider bg-content1/10"
-      shadow="none"
-    >
+    <div className="p-3 flex gap-3 flex-col border border-content2 rounded-lg">
       <span className="text-xs font-medium flex gap-2 items-center">
         {children}
       </span>
       <div className="flex flex-wrap gap-2">
         {options.map((option) => (
-          <ButtonSelectable
-            key={option.value}
-            selected={option.selected}
-            onClick={() => onClick(option.value)}
-          >
-            {option.value}
-          </ButtonSelectable>
+          <div key={option.value}>
+            <ButtonSelectable
+              active={option.selected}
+              color="primary"
+              onSelect={() => onClick(option.value)}
+            >
+              <span className="text-xs">{option.value}</span>
+            </ButtonSelectable>
+          </div>
         ))}
       </div>
-    </Card>
+    </div>
   );
 };

@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useMemo, useCallback } from "react";
 import { Chip } from "@heroui/chip";
 import { Tabs, Tab } from "@heroui/tabs";
-import { Card } from "@heroui/card";
 
 import { OperationParameter } from "./operation-parameter";
 import { OperationResponse } from "./operation-response";
@@ -215,7 +214,7 @@ export const OperationTabs = React.memo(function OperationTabs({
           aria-label="Parameters, Headers and Body"
           classNames={{
             tabList:
-              "gap-6 w-full relative rounded-none p-0 border-b border-divider",
+              "gap-6 w-full relative rounded-none p-0 border-b border-content2",
             panel: "p-0",
             cursor: "w-full",
             tab: "max-w-fit px-0 h-12",
@@ -247,20 +246,24 @@ export const OperationTabs = React.memo(function OperationTabs({
                     </div>
                   </Subtitle>
 
-                  {operationData.pathParams.map((param) => (
-                    <OperationParameter
-                      key={param.id}
-                      included={
-                        param.required
-                          ? true
-                          : !!currentForm?.parameters?.path?.[param.name]
-                              ?.included
-                      }
-                      parameter={param}
-                      value={currentForm?.parameters?.path?.[param.name]?.value}
-                      onChange={handleParameterChange}
-                    />
-                  ))}
+                  <div className="border border-content2 rounded-lg">
+                    {operationData.pathParams.map((param) => (
+                      <OperationParameter
+                        key={param.id}
+                        included={
+                          param.required
+                            ? true
+                            : !!currentForm?.parameters?.path?.[param.name]
+                                ?.included
+                        }
+                        parameter={param}
+                        value={
+                          currentForm?.parameters?.path?.[param.name]?.value
+                        }
+                        onChange={handleParameterChange}
+                      />
+                    ))}
+                  </div>
                 </div>
               )}
               {operationData.queryParams.length > 0 && (
@@ -274,32 +277,31 @@ export const OperationTabs = React.memo(function OperationTabs({
                     </div>
                   </Subtitle>
 
-                  {operationData.queryParams.map((param) => (
-                    <OperationParameter
-                      key={param.id}
-                      included={
-                        param.required
-                          ? true
-                          : !!currentForm?.parameters?.query?.[param.name]
-                              ?.included
-                      }
-                      parameter={param}
-                      value={
-                        currentForm?.parameters?.query?.[param.name]?.value
-                      }
-                      onChange={handleParameterChange}
-                    />
-                  ))}
+                  <div className="border border-content2 rounded-lg">
+                    {operationData.queryParams.map((param) => (
+                      <OperationParameter
+                        key={param.id}
+                        included={
+                          param.required
+                            ? true
+                            : !!currentForm?.parameters?.query?.[param.name]
+                                ?.included
+                        }
+                        parameter={param}
+                        value={
+                          currentForm?.parameters?.query?.[param.name]?.value
+                        }
+                        onChange={handleParameterChange}
+                      />
+                    ))}
+                  </div>
                 </div>
               )}
               {operationData.pathParams.length === 0 &&
                 operationData.queryParams.length === 0 && (
-                  <Card
-                    className="p-3 text-sm text-center bg-content1/10 border border-divider"
-                    shadow="none"
-                  >
+                  <div className="p-3 text-sm text-center border border-content2 rounded-lg">
                     No parameters defined for this operation
-                  </Card>
+                  </div>
                 )}
             </div>
           </Tab>
@@ -324,28 +326,29 @@ export const OperationTabs = React.memo(function OperationTabs({
                   </div>
                 </Subtitle>
 
-                {operationData.headerParams.map((param) => (
-                  <OperationParameter
-                    key={param.id}
-                    included={
-                      param.required
-                        ? true
-                        : !!currentForm?.parameters?.header?.[param.name]
-                            ?.included
-                    }
-                    parameter={param}
-                    value={currentForm?.parameters?.header?.[param.name]?.value}
-                    onChange={handleParameterChange}
-                  />
-                ))}
+                <div className="border border-content2 rounded-lg">
+                  {operationData.headerParams.map((param) => (
+                    <OperationParameter
+                      key={param.id}
+                      included={
+                        param.required
+                          ? true
+                          : !!currentForm?.parameters?.header?.[param.name]
+                              ?.included
+                      }
+                      parameter={param}
+                      value={
+                        currentForm?.parameters?.header?.[param.name]?.value
+                      }
+                      onChange={handleParameterChange}
+                    />
+                  ))}
+                </div>
               </div>
             ) : (
-              <Card
-                className="p-3 text-sm text-center bg-content1/10 border border-divider"
-                shadow="none"
-              >
+              <div className="p-3 text-sm text-center border border-content2 rounded-lg">
                 No headers defined for this operation
-              </Card>
+              </div>
             )}
           </Tab>
 
@@ -376,7 +379,7 @@ export const OperationTabs = React.memo(function OperationTabs({
                 </Subtitle>
 
                 {operationData.body && operationData.body.description && (
-                  <span className="text-xs text-zinc-500">
+                  <span className="text-tiny font-semibold text-content4">
                     {operationData.body.description}
                   </span>
                 )}
@@ -390,7 +393,7 @@ export const OperationTabs = React.memo(function OperationTabs({
                 >
                   <>
                     <HeadersIcon className="size-4" />
-                    Content-Type:
+                    Content-Type (Header):
                   </>
                 </CardSelectableButtons>
               </div>
@@ -400,19 +403,15 @@ export const OperationTabs = React.memo(function OperationTabs({
                   undefined &&
                   currentForm?.requestBody?.[currentForm.contentType] !==
                     null && (
-                    <>
-                      <Subtitle>Body content</Subtitle>
-
-                      <RequestBody
-                        bodyMediaType={operationData.body?.getMimeType(
-                          currentForm.contentType
-                        )}
-                        currentValues={
-                          currentForm.requestBody[currentForm.contentType]
-                        }
-                        updateBody={updateBody}
-                      />
-                    </>
+                    <RequestBody
+                      bodyMediaType={operationData.body?.getMimeType(
+                        currentForm.contentType
+                      )}
+                      currentValues={
+                        currentForm.requestBody[currentForm.contentType]
+                      }
+                      updateBody={updateBody}
+                    />
                   )}
               </div>
             </div>
@@ -425,7 +424,7 @@ export const OperationTabs = React.memo(function OperationTabs({
           aria-label="Responses and Code"
           classNames={{
             tabList:
-              "gap-6 w-full relative rounded-none p-0 border-b border-divider",
+              "gap-6 w-full relative rounded-none p-0 border-b border-content2",
             panel: "p-0",
             cursor: "w-full",
             tab: "max-w-fit px-0 h-12",

@@ -1,4 +1,7 @@
 import { Chip } from "@heroui/chip";
+import clsx from "clsx";
+
+import { ButtonSelectable } from "@/shared/components/ui/button-selectable";
 
 export const ApiExplorerTaggedItem = ({
   title,
@@ -28,34 +31,22 @@ export const ApiExplorerTaggedItem = ({
   const colorSet = methodColors[methodUpper] || methodColors.DEFAULT;
 
   return (
-    <li className="overflow-hidden">
-      <button
-        className={`w-full pl-6 pr-3 py-2.5 transition-colors duration-250 flex items-center gap-3 group relative border-transparent overflow-hidden ${
-          active ? `bg-${colorSet}/10` : "hover:bg-content1"
-        }`}
-        onClick={onClick}
-      >
-        {/* Left bar indicating active state */}
-        {active && (
-          <div
-            className={`bg-${colorSet} absolute left-0 top-0 bottom-0 w-1 animate-appearance-in`}
-          />
-        )}
+    <li>
+      <ButtonSelectable active={active} onSelect={() => onClick()}>
+        <div className="space-x-4">
+          {/* Method indicator */}
+          <Chip color={colorSet} radius="sm" size="sm" variant="flat">
+            <span className="text-[10px] flex w-8 justify-center">
+              {methodUpper}
+            </span>
+          </Chip>
 
-        {/* Method indicator - adjusted padding */}
-        <Chip color={colorSet} radius="sm" size="sm" variant="flat">
-          <span className="text-[10px] flex w-8 justify-center">
-            {methodUpper}
+          {/* Operation title */}
+          <span className={clsx("text-xs font-medium truncate flex-1")}>
+            {title}
           </span>
-        </Chip>
-
-        {/* Operation title */}
-        <span
-          className={`text-xs truncate ${active ? "text-default-900" : "text-default-600"}`}
-        >
-          {title}
-        </span>
-      </button>
+        </div>
+      </ButtonSelectable>
     </li>
   );
 };

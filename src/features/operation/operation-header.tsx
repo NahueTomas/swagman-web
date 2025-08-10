@@ -162,16 +162,16 @@ export const OperationHeader = () => {
   return (
     <header
       aria-label="API Operation Header"
-      className="sticky top-0 z-50 bg-background/60 backdrop-blur border-b border-divider/10"
+      className="sticky top-0 z-50 border-b border-content2"
       role="banner"
     >
-      <div className="w-full px-4 lg:px-8 pt-3 pb-1.5">
+      <div className="w-full px-2 pt-2 pb-1.5">
         {/* Responsive Layout */}
-        <div className="border border-divider rounded-lg bg-background overflow-hidden">
+        <div className="rounded-lg overflow-hidden">
           {/* Mobile Layout (Column) - Hidden on md+ */}
           <div className="flex flex-col md:hidden">
             {/* Mobile: Method + Tags Row */}
-            <div className="flex items-center justify-between p-3 border-b border-divider/30">
+            <div className="flex items-center justify-between p-3 border-b border-content2">
               <div className="flex items-center gap-2 relative">
                 <div
                   className={`absolute inset-0 ${colorSet.bg} blur-md select-none pointer-events-none`}
@@ -184,7 +184,7 @@ export const OperationHeader = () => {
                   shape="circle"
                 >
                   <div
-                    className={`px-3 py-1.5 rounded-md ${colorSet.text} flex items-center justify-center`}
+                    className={`px-3 py-1.5 rounded-lg ${colorSet.text} flex items-center justify-center`}
                   >
                     <span className="uppercase tracking-wider">
                       {methodUpper}
@@ -203,7 +203,7 @@ export const OperationHeader = () => {
                   {operation.tags.slice(0, 1).map((tag) => (
                     <span
                       key={tag}
-                      className="px-2 py-0.5 text-xs bg-content2/50 text-foreground/60 rounded-md border border-divider/30"
+                      className="px-2 py-0.5 text-xs text-foreground/60 rounded-lg border border-content2"
                       role="listitem"
                     >
                       {tag}
@@ -212,7 +212,7 @@ export const OperationHeader = () => {
                   {operation.tags.length > 1 && (
                     <span
                       aria-label={`${operation.tags.length - 1} more tags`}
-                      className="px-2 py-0.5 text-xs bg-content2/50 text-foreground/60 rounded-md border border-divider/30"
+                      className="px-2 py-0.5 text-xs text-foreground/60 rounded-lg border border-content2"
                       role="listitem"
                     >
                       +{operation.tags.length - 1}
@@ -223,7 +223,7 @@ export const OperationHeader = () => {
             </div>
 
             {/* Mobile: URL Row */}
-            <div className="p-3 border-b border-divider/30">
+            <div className="p-3 border-b border-content2">
               <div className="font-mono text-xs text-foreground/90 overflow-hidden">
                 <OperationHeaderUrl url={operation.path} />
               </div>
@@ -320,7 +320,7 @@ export const OperationHeader = () => {
                 shape="circle"
               >
                 <div
-                  className={`h-full min-w-20 flex items-center justify-center`}
+                  className={`h-full min-w-24 flex items-center justify-center`}
                 >
                   <span
                     className={`text-xl uppercase tracking-wider ${colorSet.text}`}
@@ -330,9 +330,6 @@ export const OperationHeader = () => {
                 </div>
               </Badge>
             </div>
-
-            {/* Desktop: Divider */}
-            <div className="w-px bg-divider" />
 
             {/* Desktop: URL Bar */}
             <div className="flex-1 min-w-0 flex items-center">
@@ -346,37 +343,33 @@ export const OperationHeader = () => {
             </div>
 
             {/* Desktop: Execute Button */}
-            <div className="flex items-center px-2">
-              <Button
+            <div className="flex items-center">
+              <button
                 aria-label={
                   responseStatus?.loading
                     ? "Executing API request..."
                     : "Execute API request"
                 }
-                color="default"
+                className="flex gap-6 items-center border-l-0 h-full rounded-lg px-4 transition-colors bg-content2 hover:bg-content3"
                 disabled={responseStatus?.loading}
-                radius="md"
-                size="md"
-                startContent={
-                  <ThunderIcon
-                    aria-hidden="true"
-                    className={`w-4 h-4 ${
-                      responseStatus?.loading ? "animate-spin" : ""
-                    }`}
-                  />
-                }
                 onClick={handleExecute}
               >
-                <span className="text-sm">
+                <ThunderIcon
+                  aria-hidden="true"
+                  className={`w-4 h-4 ${
+                    responseStatus?.loading ? "animate-spin" : ""
+                  }`}
+                />
+                <span className="text-sm font-semibold">
                   {responseStatus?.loading ? "Executing..." : "Execute"}
                 </span>
-              </Button>
+              </button>
             </div>
           </div>
         </div>
 
         {/* Desktop Secondary Row - Only shown on md+ */}
-        <div className="hidden md:flex items-center justify-between mt-3 pt-1.5 border-t border-divider/10">
+        <div className="hidden md:flex items-center justify-between mt-3 pt-1.5 border-t border-content2">
           <div className="flex items-center gap-2">
             <Tooltip content="Server Settings">
               <Button
@@ -433,7 +426,7 @@ export const OperationHeader = () => {
                 {operation.tags.slice(0, 2).map((tag) => (
                   <span
                     key={tag}
-                    className="px-2 py-0.5 text-xs bg-content2/50 text-foreground/60 rounded-md border border-divider/30"
+                    className="px-2 py-0.5 text-xs text-foreground/60 rounded-lg border border-content2"
                     role="listitem"
                   >
                     {tag}
@@ -442,7 +435,7 @@ export const OperationHeader = () => {
                 {operation.tags.length > 2 && (
                   <span
                     aria-label={`${operation.tags.length - 2} more tags`}
-                    className="px-2 py-0.5 text-xs bg-content2/50 text-foreground/60 rounded-md border border-divider/30"
+                    className="px-2 py-0.5 text-xs text-foreground/60 rounded-lg border border-content2"
                     role="listitem"
                   >
                     +{operation.tags.length - 2}

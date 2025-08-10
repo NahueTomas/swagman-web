@@ -1,37 +1,41 @@
 import { useState } from "react";
+import { Chip } from "@heroui/chip";
+import clsx from "clsx";
 
-import { useStore } from "@/hooks/use-store";
 import { Collapse } from "@/shared/components/ui/collapse";
 import { ApiExplorerTaggedItem } from "@/features/api-explorer/api-explorer-tagged-item";
 
 export const ApiExplorerTag = ({
   tag,
+  focusOperation,
+  operationFocusedId,
 }: {
   tag: {
     title: string;
     description?: string;
     operationsResume: { id: string; title: string; method: string }[];
   };
+  focusOperation: (operationId: string | null) => void;
+  operationFocusedId: string | null;
 }) => {
-  const { focusOperation, operationFocused } = useStore();
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   return (
-    <div className="border-b border-divider">
+    <div className="mb-1">
       <button
-        className="w-full py-3 px-4 flex items-center gap-3 transition-colors"
+        className="w-full py-3 px-3 flex items-center gap-3 transition-all hover:bg-default-50 rounded-lg group"
         onClick={() => setIsCollapsed(!isCollapsed)}
       >
-        <div className="w-4 h-4">
+        <div className="w-4 h-4 shrink-0">
           <svg
-            className={`w-4 h-4 transform transition-transform duration-200 ${
+            className={clsx(
+              "w-4 h-4 transform transition-transform duration-200 text-default-500 group-hover:text-default-700",
               isCollapsed ? "rotate-0" : "rotate-90"
-            }`}
+            )}
             fill="none"
             stroke="currentColor"
-            strokeWidth="1.5"
+            strokeWidth="2"
             viewBox="0 0 24 24"
-            xmlns="http://www.w3.org/2000/svg"
           >
             <path
               d="M8.25 4.5l7.5 7.5-7.5 7.5"
@@ -40,37 +44,45 @@ export const ApiExplorerTag = ({
             />
           </svg>
         </div>
-        <div className="text-left w-auto overflow-hidden">
-          <h4 className="text-sm font-medium text-left flex items-center gap-2">
-            {tag.title}
-            <div className="text-[10px] font-medium px-2 rounded-md border border-divider">
+
+        <div className="flex-1 text-left overflow-hidden">
+          <div className="flex items-center gap-3 mb-1">
+            <h4 className="text-sm font-semibold text-default-900 truncate">
+              {tag.title}
+            </h4>
+            <Chip
+              className="text-[10px] h-5 px-1"
+              color="default"
+              size="sm"
+              variant="flat"
+            >
               {tag.operationsResume.length}
-            </div>
-          </h4>
+            </Chip>
+          </div>
           {tag.description && (
-            <p className="text-xs text-default-500 font-semibold mt-0.5 truncate">
+            <p className="text-xs text-default-500 truncate">
               {tag.description}
             </p>
           )}
         </div>
       </button>
 
-      <Collapse active={!isCollapsed} duration={150} variant="zoom">
-        <ul>
+      <Collapse active={!isCollapsed} duration={200} variant="zoom">
+        <ul className="space-y-1 p-1">
           {tag.operationsResume.length ? (
             tag.operationsResume.map((o) => (
               <ApiExplorerTaggedItem
                 key={o.id}
-                active={o.id === operationFocused?.id || false}
+                active={o.id === operationFocusedId || false}
                 method={o.method}
                 title={o.title}
                 onClick={() => focusOperation(o.id)}
               />
             ))
           ) : (
-            <span className="block px-7 py-3 text-xs italic">
+            <li className="px-6 py-3 text-xs italic text-default-400">
               No operations available
-            </span>
+            </li>
           )}
         </ul>
       </Collapse>

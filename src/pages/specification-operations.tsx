@@ -1,15 +1,13 @@
 import { useStore } from "@/hooks/use-store";
-import { OperationSelectOperation } from "@/features/operation/operation-select-operation";
 import { OperationHeader } from "@/features/operation/operation-header";
 import { OperationTabs } from "@/features/operation/operation-tabs";
 import { OperationBottomBar } from "@/features/operation/operation-bottom-bar";
+import Info from "@/features/specification/info";
 
 export default function SpecificationOperationsPage() {
   const { operationFocused } = useStore();
 
-  if (!operationFocused) {
-    return <OperationSelectOperation />;
-  }
+  if (!operationFocused) return <Info />;
 
   return (
     <section className="relative h-full flex flex-col select-none">
@@ -23,12 +21,12 @@ export default function SpecificationOperationsPage() {
                 <h2 className="text-md">{operationFocused.summary}</h2>
               )}
               {operationFocused.description && (
-                <div className="text-sm text-foreground/50">
-                  Description: {operationFocused.description}
+                <div className="text-tiny font-semibold text-content4 mt-1">
+                  {operationFocused.description}
                 </div>
               )}
 
-              <section className="mt-2">
+              <section className="mt-6">
                 <OperationTabs operation={operationFocused} />
               </section>
             </section>
