@@ -116,17 +116,6 @@ export const Code = memo<CodeProps>(
       [onChange]
     );
 
-    // Memoize display value to avoid re-stringifying on every render
-    const displayValue = useMemo(() => {
-      let result: string;
-
-      if (typeof value === "string") result = value;
-      else result = JSON.stringify(value, null, 2);
-
-      // Normalize line endings: convert \r\n and \r to \n
-      return result.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
-    }, [value]);
-
     // Memoize language mapping
     const mappedLanguage = useMemo(() => {
       return getLanguageMapping(language);
@@ -135,26 +124,26 @@ export const Code = memo<CodeProps>(
     // Memoize container class
     const containerClass = useMemo(() => {
       if (autoHeight) {
-        return "w-full border border-divider overflow-hidden rounded-lg";
+        return "w-full border border-content2 overflow-hidden rounded-lg";
       }
 
       return height === "100%"
         ? "w-full h-full overflow-hidden"
-        : "w-full border border-divider overflow-hidden rounded-lg";
+        : "w-full border border-content2 overflow-hidden rounded-lg";
     }, [height, autoHeight]);
 
     // Calculate height for autoHeight mode
     const editorHeight = useMemo(() => {
       if (autoHeight) {
-        const lineCount = displayValue.split("\n").length;
+        const lineCount = value.split("\n").length;
         const lineHeight = 16; // Monaco's default line height
         const padding = 18; // top and bottom padding
 
-        return Math.max(lineCount * lineHeight + padding, 40); // minimum 40px height
+        return Math.max(lineCount * lineHeight + padding, 34); // minimum 40px height
       }
 
       return "100%";
-    }, [autoHeight, displayValue]);
+    }, [autoHeight, value]);
 
     return (
       <div
@@ -197,7 +186,7 @@ export const Code = memo<CodeProps>(
             mouseWheelScrollSensitivity: 1,
           }}
           theme={"swagman-dark"}
-          value={displayValue}
+          value={value}
           onChange={handleEditorChange}
         />
       </div>

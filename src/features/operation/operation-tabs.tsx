@@ -214,7 +214,7 @@ export const OperationTabs = React.memo(function OperationTabs({
           aria-label="Parameters, Headers and Body"
           classNames={{
             tabList:
-              "gap-6 w-full relative rounded-none p-0 border-b border-divider",
+              "gap-6 w-full relative rounded-none p-0 border-b border-content2",
             panel: "p-0",
             cursor: "w-full",
             tab: "max-w-fit px-0 h-12",
@@ -246,20 +246,24 @@ export const OperationTabs = React.memo(function OperationTabs({
                     </div>
                   </Subtitle>
 
-                  {operationData.pathParams.map((param) => (
-                    <OperationParameter
-                      key={param.id}
-                      included={
-                        param.required
-                          ? true
-                          : !!currentForm?.parameters?.path?.[param.name]
-                              ?.included
-                      }
-                      parameter={param}
-                      value={currentForm?.parameters?.path?.[param.name]?.value}
-                      onChange={handleParameterChange}
-                    />
-                  ))}
+                  <div className="border border-content2 rounded-lg">
+                    {operationData.pathParams.map((param) => (
+                      <OperationParameter
+                        key={param.id}
+                        included={
+                          param.required
+                            ? true
+                            : !!currentForm?.parameters?.path?.[param.name]
+                                ?.included
+                        }
+                        parameter={param}
+                        value={
+                          currentForm?.parameters?.path?.[param.name]?.value
+                        }
+                        onChange={handleParameterChange}
+                      />
+                    ))}
+                  </div>
                 </div>
               )}
               {operationData.queryParams.length > 0 && (
@@ -273,27 +277,29 @@ export const OperationTabs = React.memo(function OperationTabs({
                     </div>
                   </Subtitle>
 
-                  {operationData.queryParams.map((param) => (
-                    <OperationParameter
-                      key={param.id}
-                      included={
-                        param.required
-                          ? true
-                          : !!currentForm?.parameters?.query?.[param.name]
-                              ?.included
-                      }
-                      parameter={param}
-                      value={
-                        currentForm?.parameters?.query?.[param.name]?.value
-                      }
-                      onChange={handleParameterChange}
-                    />
-                  ))}
+                  <div className="border border-content2 rounded-lg">
+                    {operationData.queryParams.map((param) => (
+                      <OperationParameter
+                        key={param.id}
+                        included={
+                          param.required
+                            ? true
+                            : !!currentForm?.parameters?.query?.[param.name]
+                                ?.included
+                        }
+                        parameter={param}
+                        value={
+                          currentForm?.parameters?.query?.[param.name]?.value
+                        }
+                        onChange={handleParameterChange}
+                      />
+                    ))}
+                  </div>
                 </div>
               )}
               {operationData.pathParams.length === 0 &&
                 operationData.queryParams.length === 0 && (
-                  <div className="p-3 text-sm text-center border border-divider rounded-lg">
+                  <div className="p-3 text-sm text-center border border-content2 rounded-lg">
                     No parameters defined for this operation
                   </div>
                 )}
@@ -320,23 +326,27 @@ export const OperationTabs = React.memo(function OperationTabs({
                   </div>
                 </Subtitle>
 
-                {operationData.headerParams.map((param) => (
-                  <OperationParameter
-                    key={param.id}
-                    included={
-                      param.required
-                        ? true
-                        : !!currentForm?.parameters?.header?.[param.name]
-                            ?.included
-                    }
-                    parameter={param}
-                    value={currentForm?.parameters?.header?.[param.name]?.value}
-                    onChange={handleParameterChange}
-                  />
-                ))}
+                <div className="border border-content2 rounded-lg">
+                  {operationData.headerParams.map((param) => (
+                    <OperationParameter
+                      key={param.id}
+                      included={
+                        param.required
+                          ? true
+                          : !!currentForm?.parameters?.header?.[param.name]
+                              ?.included
+                      }
+                      parameter={param}
+                      value={
+                        currentForm?.parameters?.header?.[param.name]?.value
+                      }
+                      onChange={handleParameterChange}
+                    />
+                  ))}
+                </div>
               </div>
             ) : (
-              <div className="p-3 text-sm text-center border border-divider rounded-lg">
+              <div className="p-3 text-sm text-center border border-content2 rounded-lg">
                 No headers defined for this operation
               </div>
             )}
@@ -414,7 +424,7 @@ export const OperationTabs = React.memo(function OperationTabs({
           aria-label="Responses and Code"
           classNames={{
             tabList:
-              "gap-6 w-full relative rounded-none p-0 border-b border-divider",
+              "gap-6 w-full relative rounded-none p-0 border-b border-content2",
             panel: "p-0",
             cursor: "w-full",
             tab: "max-w-fit px-0 h-12",

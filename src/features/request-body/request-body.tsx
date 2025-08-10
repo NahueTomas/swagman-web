@@ -52,7 +52,7 @@ export const RequestBody = ({
       >;
 
       return (
-        <div className="space-y-2">
+        <div className="border border-content2 rounded-lg">
           {bodyMediaType.getFields().map((field) => {
             const fieldValue = formValues[field.name];
 

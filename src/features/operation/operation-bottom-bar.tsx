@@ -82,7 +82,7 @@ const ResponsePanel = memo<ResponsePanelProps>(
           classNames={{
             tabList: "gap-2 w-full relative p-0",
             panel:
-              "p-0 h-full overflow-hidden border-t border-b border-divider",
+              "p-0 h-full overflow-hidden border-t border-b border-content2",
             cursor: "w-full",
             tab: "w-auto",
           }}
@@ -99,19 +99,6 @@ const ResponsePanel = memo<ResponsePanelProps>(
                   language={getLanguageFromContentType(contentType)}
                   readOnly={true}
                   value={formattedBody}
-                />
-              </div>
-            </div>
-          </Tab>
-
-          <Tab key="body-raw" title="Body raw">
-            <div className="flex flex-col h-full">
-              <div className="flex-1 overflow-hidden">
-                <Code
-                  height="100%"
-                  language={"plaintext"}
-                  readOnly={true}
-                  value={response.data}
                 />
               </div>
             </div>
@@ -250,7 +237,7 @@ export const OperationBottomBar = () => {
   return (
     <div
       ref={containerRef}
-      className={`relative overflow-hidden flex flex-col border-t border-divider ${isCollapsed ? "shadow-2xl" : ""}`}
+      className={`relative overflow-hidden flex flex-col border-t border-content2 ${isCollapsed ? "shadow-2xl" : ""}`}
       style={{
         height: currentHeight,
       }}

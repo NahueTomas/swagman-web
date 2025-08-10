@@ -1,15 +1,13 @@
 import { useStore } from "@/hooks/use-store";
-import { OperationSelectOperation } from "@/features/operation/operation-select-operation";
 import { OperationHeader } from "@/features/operation/operation-header";
 import { OperationTabs } from "@/features/operation/operation-tabs";
 import { OperationBottomBar } from "@/features/operation/operation-bottom-bar";
+import Info from "@/features/specification/info";
 
 export default function SpecificationOperationsPage() {
   const { operationFocused } = useStore();
 
-  if (!operationFocused) {
-    return <OperationSelectOperation />;
-  }
+  if (!operationFocused) return <Info />;
 
   return (
     <section className="relative h-full flex flex-col select-none">

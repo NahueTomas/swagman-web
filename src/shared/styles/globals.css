@@ -54,15 +54,15 @@
 }
 
 .marked-lg code {
-  @apply bg-content3 px-1 rounded-md text-sm italic;
+  @apply bg-content3 px-1 rounded-lg text-sm italic;
 }
 
 .marked-lg pre {
-  @apply bg-content3 px-4 py-2 rounded-md text-sm;
+  @apply bg-content3 px-4 py-2 rounded-lg text-sm;
 }
 
 .marked-lg pre code {
-  @apply bg-gray-100 px-1 rounded-md text-sm;
+  @apply bg-gray-100 px-1 rounded-lg text-sm;
 }
 
 .marked-lg h1 {
@@ -98,15 +98,15 @@
 }
 
 .marked-sm code {
-  @apply bg-content3 px-1 rounded-md text-xs italic;
+  @apply bg-content3 px-1 rounded-lg text-xs italic;
 }
 
 .marked-sm pre {
-  @apply bg-content3 px-4 py-2 rounded-md text-sm;
+  @apply bg-content3 px-4 py-2 rounded-lg text-sm;
 }
 
 .marked-sm pre code {
-  @apply bg-gray-100 px-1 rounded-md text-sm;
+  @apply bg-gray-100 px-1 rounded-lg text-sm;
 }
 
 .marked-sm h1 {
@@ -143,15 +143,15 @@
 }
 
 .marked-xs code {
-  @apply bg-content3 px-1 rounded-md text-xs italic;
+  @apply bg-content3 px-1 rounded-lg text-xs italic;
 }
 
 .marked-xs pre {
-  @apply bg-content3 px-4 py-2 rounded-md text-xs;
+  @apply bg-content3 px-4 py-2 rounded-lg text-xs;
 }
 
 .marked-xs pre code {
-  @apply bg-gray-100 px-1 rounded-md text-xs;
+  @apply bg-gray-100 px-1 rounded-lg text-xs;
 }
 
 .marked-xs h1 {

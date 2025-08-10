@@ -4,8 +4,8 @@ export const selectStyles = {
     normal: `
       w-full px-3 py-2 
       text-sm text-left
-      border border-divider
-      rounded-full
+      border border-content2
+      rounded-lg
       transition-all duration-200 
       focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent
       disabled:cursor-not-allowed
@@ -14,8 +14,8 @@ export const selectStyles = {
     small: `
       w-full px-2 py-1.5 
       text-xs text-left
-      border border-divider
-      rounded-full
+      border border-content2
+      rounded-lg
       transition-all duration-200 
       focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent
       disabled:cursor-not-allowed
@@ -24,7 +24,7 @@ export const selectStyles = {
   },
   dropdown: `
     absolute z-10 w-full mt-1
-    border border-divider
+    border border-content2
     rounded-lg shadow-lg
     overflow-auto max-h-60
     focus:outline-none

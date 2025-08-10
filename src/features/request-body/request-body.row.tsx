@@ -36,7 +36,7 @@ export const RequestBodyRow = ({
   const FormFieldComponent = schema ? getFormFieldComponent(schema) : null;
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-[2rem_1fr_1fr] gap-3 p-3 border border-divider rounded-lg transition-colors items-center">
+    <div className="grid grid-cols-1 sm:grid-cols-[2rem_1fr_1fr] gap-3 p-3 border-b border-content2 last:border-b-0 transition-colors items-center">
       <div className="flex items-center">
         <FormFieldCheckbox
           id={`body-${id}`}

@@ -225,7 +225,7 @@ export const OperationServers = ({ isOpen, onClose }: ServerProps) => {
         <ModalBody>
           <div className="space-y-5">
             {/* Server Type Indicator */}
-            <div className="px-3 py-2 rounded-md text-xs flex flex-col text-wrap gap-2 border border-divider">
+            <div className="px-3 py-2 rounded-lg text-xs flex flex-col text-wrap gap-2 border border-divider">
               <span>
                 {isOperationSpecific
                   ? "Operation-Specific Servers"

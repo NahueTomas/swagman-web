@@ -60,3 +60,8 @@ export const KEYFRAMES = {
     }
   `,
 } as const;
+
+export const ROUTES = {
+  SPECIFICATION_SELECTOR: "/specification-selector",
+  APP: "/",
+};
