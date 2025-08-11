@@ -50,7 +50,7 @@ export interface OperationFormState {
  * Interface for request forms global state
  */
 export interface RequestFormsState {
-  specificationUrl: string | null;
+  specificationUrl: string;
   specifications: {
     [specificationUrl: string]: {
       forms: Record<string, OperationFormState>;
@@ -111,7 +111,7 @@ export interface RequestFormsState {
       date: string;
     } | null
   ) => void;
-  setSpecification: (specificationUrl: string | null) => void;
+  setSpecification: (specificationUrl: string) => void;
   getResponse: (
     specificationUrl: string,
     operationId: string
@@ -161,7 +161,7 @@ export const useRequestForms = create<RequestFormsState>()(
     persist(
       (set, get) => ({
         // Initial state
-        specificationUrl: null,
+        specificationUrl: "",
         specifications: {},
 
         /**
@@ -170,8 +170,6 @@ export const useRequestForms = create<RequestFormsState>()(
         setFormValues: (specificationUrl, operationId, data) =>
           set(
             produce((state: RequestFormsState) => {
-              if (!specificationUrl) return;
-
               // Initialize specification if it doesn't exist
               if (!state.specifications[specificationUrl]) {
                 state.specifications[specificationUrl] =
@@ -190,13 +188,13 @@ export const useRequestForms = create<RequestFormsState>()(
             })
           ),
 
-        setSpecification: (specificationUrl: string | null) =>
+        setSpecification: (specificationUrl: string) =>
           set(
             produce((state: RequestFormsState) => {
               state.specificationUrl = specificationUrl;
 
               // Initialize specification if it doesn't exist
-              if (specificationUrl && !state.specifications[specificationUrl]) {
+              if (!state.specifications[specificationUrl]) {
                 state.specifications[specificationUrl] =
                   initializeSpecification();
               }
@@ -209,9 +207,7 @@ export const useRequestForms = create<RequestFormsState>()(
         clearForm: (specificationUrl, operationId) =>
           set(
             produce((state: RequestFormsState) => {
-              if (!specificationUrl || !state.specifications[specificationUrl])
-                return;
-
+              if (!state.specifications[specificationUrl]) return;
               delete state.specifications[specificationUrl].forms[operationId];
             })
           ),
@@ -226,8 +222,6 @@ export const useRequestForms = create<RequestFormsState>()(
         ) =>
           set(
             produce((state: RequestFormsState) => {
-              if (!specificationUrl) return;
-
               if (!state.specifications[specificationUrl]) {
                 state.specifications[specificationUrl] =
                   initializeSpecification();
@@ -251,8 +245,6 @@ export const useRequestForms = create<RequestFormsState>()(
         ) =>
           set(
             produce((state: RequestFormsState) => {
-              if (!specificationUrl) return;
-
               if (!state.specifications[specificationUrl]) {
                 state.specifications[specificationUrl] =
                   initializeSpecification();
@@ -275,8 +267,6 @@ export const useRequestForms = create<RequestFormsState>()(
          * Get response data
          */
         getResponse: (specificationUrl, operationId) => {
-          if (!specificationUrl) return null;
-
           const state = get();
           const spec = state.specifications[specificationUrl];
 
@@ -293,8 +283,6 @@ export const useRequestForms = create<RequestFormsState>()(
         setResponseLoading: (specificationUrl, operationId) =>
           set(
             produce((state: RequestFormsState) => {
-              if (!specificationUrl) return;
-
               if (!state.specifications[specificationUrl]) {
                 state.specifications[specificationUrl] =
                   initializeSpecification();
@@ -316,8 +304,6 @@ export const useRequestForms = create<RequestFormsState>()(
         setResponseSuccess: (specificationUrl, operationId, data) =>
           set(
             produce((state: RequestFormsState) => {
-              if (!specificationUrl) return;
-
               if (!state.specifications[specificationUrl]) {
                 state.specifications[specificationUrl] =
                   initializeSpecification();

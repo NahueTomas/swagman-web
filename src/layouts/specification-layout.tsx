@@ -83,16 +83,14 @@ export default function SpecificationLayout() {
 
       <main className="flex-1 w-full items-center justify-center overflow-hidden bg-content1 mt-4 mb-2 border border-divider border-r-0 rounded-l-lg">
         {error ? (
-          <>
-            <ErrorComponent message={error} title="Error to get specification">
-              <Link
-                className="mt-10 underline text-primary"
-                to={ROUTES.SPECIFICATION_SELECTOR}
-              >
-                Go to select another specification
-              </Link>
-            </ErrorComponent>
-          </>
+          <ErrorComponent message={error} title="Error to get specification">
+            <Link
+              className="mt-10 underline text-primary"
+              to={ROUTES.SPECIFICATION_SELECTOR}
+            >
+              Go to select another specification
+            </Link>
+          </ErrorComponent>
         ) : isLoading ? (
           <Loading />
         ) : (
