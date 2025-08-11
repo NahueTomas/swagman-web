@@ -15,6 +15,7 @@ function AppMain() {
           path={ROUTES.SPECIFICATION_SELECTOR}
         />
         <Route element={<SpecificationLayout />} path={ROUTES.APP}>
+          <Route index element={<SpecificationOperationsPage />} />
           <Route index element={<SpecificationOperationsPage />} path=":url" />
         </Route>
       </Routes>
