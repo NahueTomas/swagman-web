@@ -76,8 +76,9 @@ export const RequestBodyRow = ({
         {included && FormFieldComponent && (
           <FormFieldComponent
             id={id}
-            options={(schema.enum as string[]) || []}
+            options={(schema?.enum as string[]) || []}
             placeholder={name}
+            required={required}
             value={value}
             onChange={handleValueChange}
           />

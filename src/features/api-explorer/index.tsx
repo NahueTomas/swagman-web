@@ -34,7 +34,7 @@ export const ApiExplorer = React.memo(() => {
             />
           </div>
 
-          <div className="bg-background/50 backdrop-blur-md border-t border-divider shadow-md px-4 py-4 sticky bottom-0 mt-auto">
+          <div className="bg-background/50 backdrop-blur-md shadow-md px-4 py-4 sticky bottom-0 mt-auto">
             {/* SPECIFICATION SELECTOR PAGE */}
             <button
               className="px-4 py-0.5 flex items-center gap-4 text-xs text-default-500 hover:text-default-700 transition-colors hover:underline"

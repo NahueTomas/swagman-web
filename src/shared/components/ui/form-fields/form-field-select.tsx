@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 
+import { XIcon } from "../icons";
+
 import { selectStyles } from "./utils/form-field-styles";
 
 export type SelectSize = "normal" | "small";
@@ -104,20 +106,9 @@ export const FormFieldSelect = ({
               type="button"
               onClick={handleClear}
             >
-              <svg
-                className="w-3.5 h-3.5"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
+              <div className="border border-content2 rounded-lg p-1">
+                <XIcon className="size-2" />
+              </div>
             </button>
           )}
           <svg
@@ -147,7 +138,7 @@ export const FormFieldSelect = ({
         aria-labelledby={id}
         className={`${
           selectStyles.dropdown
-        } transform transition-all duration-200 origin-top ${
+        } transform transition-all bg-content1 duration-200 origin-top ${
           open
             ? "opacity-100 scale-100"
             : "opacity-0 scale-95 pointer-events-none max-h-0"
