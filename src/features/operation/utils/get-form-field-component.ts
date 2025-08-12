@@ -4,8 +4,9 @@ import { FormFieldNumber } from "@/shared/components/ui/form-fields/form-field-n
 import { FormFieldObject } from "@/shared/components/ui/form-fields/form-field-object";
 import { FormFieldSelect } from "@/shared/components/ui/form-fields/form-field-select";
 import { FormFieldText } from "@/shared/components/ui/form-fields/form-field-text";
+import { OpenAPISchema } from "@/shared/types/openapi";
 
-export const getFormFieldComponent = (schema?: any) => {
+export const getFormFieldComponent = (schema?: OpenAPISchema) => {
   if (schema?.enum) return FormFieldSelect;
   if (schema?.format === "binary") return FormFieldFile;
 
