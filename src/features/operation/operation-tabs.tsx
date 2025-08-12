@@ -234,17 +234,10 @@ export const OperationTabs = React.memo(function OperationTabs({
               </div>
             }
           >
-            <div className="flex flex-col space-y-6">
+            <div className="flex flex-col space-y-4">
               {operationData.pathParams.length > 0 && (
                 <div className="space-y-2">
-                  <Subtitle>
-                    <div className="flex items-center gap-2">
-                      <Chip color="secondary" size="sm" variant="flat">
-                        Path
-                      </Chip>
-                      Parameters
-                    </div>
-                  </Subtitle>
+                  <Subtitle>Path Parameters</Subtitle>
 
                   <div className="border border-content2 rounded-lg">
                     {operationData.pathParams.map((param) => (
@@ -268,14 +261,7 @@ export const OperationTabs = React.memo(function OperationTabs({
               )}
               {operationData.queryParams.length > 0 && (
                 <div className="space-y-2">
-                  <Subtitle>
-                    <div className="flex items-center gap-2">
-                      <Chip color="primary" size="sm" variant="flat">
-                        Query
-                      </Chip>
-                      Parameters
-                    </div>
-                  </Subtitle>
+                  <Subtitle>Query Parameters</Subtitle>
 
                   <div className="border border-content2 rounded-lg">
                     {operationData.queryParams.map((param) => (
@@ -317,14 +303,7 @@ export const OperationTabs = React.memo(function OperationTabs({
           >
             {operationData.headerParams.length > 0 ? (
               <div className="space-y-2">
-                <Subtitle>
-                  <div className="flex items-center gap-2">
-                    <Chip color="success" size="sm" variant="flat">
-                      Header
-                    </Chip>
-                    Parameters
-                  </div>
-                </Subtitle>
+                <Subtitle>Header Parameters</Subtitle>
 
                 <div className="border border-content2 rounded-lg">
                   {operationData.headerParams.map((param) => (
@@ -366,10 +345,7 @@ export const OperationTabs = React.memo(function OperationTabs({
               <div className="space-y-2">
                 <Subtitle>
                   <div className="flex items-center gap-2">
-                    <Chip color="warning" size="sm" variant="flat">
-                      Body
-                    </Chip>
-                    Content
+                    Body Content
                     {operationData.isBodyRequired && (
                       <Chip color="danger" size="sm" variant="flat">
                         Required
