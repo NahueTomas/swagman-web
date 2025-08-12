@@ -19,8 +19,8 @@ export class ParameterModel {
   required?: boolean;
   deprecated?: boolean;
   allowEmptyValue?: boolean;
+  explode: boolean;
   style?: OpenAPIParameterStyle;
-  explode?: boolean;
   allowReserved?: boolean;
   schema?: OpenAPISchema;
   example?: unknown;
@@ -40,7 +40,6 @@ export class ParameterModel {
     this.deprecated = parameter.deprecated;
     this.allowEmptyValue = parameter.allowEmptyValue;
     this.style = parameter.style;
-    this.explode = parameter.explode;
     this.allowReserved = parameter.allowReserved;
     this.schema = parameter.schema;
     this.example = parameter.example;
@@ -49,6 +48,23 @@ export class ParameterModel {
     this.encoding = parameter.encoding;
     this.const = parameter.const;
     this.$ref = parameter.$ref;
+
+    // Explode true by default in "query" and "cookie", false in "header" and "path"
+    this.explode =
+      (typeof parameter.explode === "boolean"
+        ? parameter.explode
+        : this.in === "query" || this.in === "cookie") || false;
+
+    // Defining styles by default
+    // For "query" & "cookie" is "form"
+    // For "path" & "header" is "simple"
+    this.style = parameter.style
+      ? parameter.style
+      : ["array", "object"].includes(this.getFirstType())
+        ? this.in === "query" || this.in === "cookie"
+          ? "form"
+          : "simple"
+        : undefined;
   }
 
   public getExample(): any {
@@ -57,6 +73,12 @@ export class ParameterModel {
 
   public getType(): string | string[] {
     return this?.schema?.type || "any";
+  }
+
+  public getFirstType(): string {
+    return Array.isArray(this.getType())
+      ? (this.getType() as string[])?.[0]
+      : (this.getType() as string);
   }
 
   public isRequired(): boolean {

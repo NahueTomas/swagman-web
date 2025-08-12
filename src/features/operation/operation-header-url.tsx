@@ -1,5 +1,4 @@
 import { useEffect } from "react";
-import { Chip } from "@heroui/chip";
 
 import { useRequestForms } from "@/hooks/use-request-forms";
 import { useStore } from "@/hooks/use-store";
@@ -49,7 +48,6 @@ export const OperationHeaderUrl = ({ url, className }: UrlProps) => {
 
   // Get path and query parameters from the form state
   const pathParams = operationForm?.parameters?.path || {};
-  const queryParams = operationForm?.parameters?.query || {};
 
   // Determine which servers to use (operation-specific or global)
   const servers = operationModel?.getServers()?.length
@@ -115,44 +113,30 @@ export const OperationHeaderUrl = ({ url, className }: UrlProps) => {
     }
   }, [servers, selectedServer, isOperationSpecific, operationModel?.id]);
 
+  if (!operationModel) return null;
+
+  const operationParameters =
+    operationForm?.parameters || operationModel.getParameterDefaultValues();
+
+  const requestPreview = spec?.buildRequest(
+    operationModel,
+    null, // requestBody
+    operationParameters, // parameters
+    null // contentType
+  );
+
   /**
-   * Process the URL with query parameters
+   * Get the URL with parameters from requestPreview
    */
-  const processUrl = () => {
-    let processedUrl = url;
-    let queryParts: string[] = [];
+  const getUrlWithParameters = () => {
+    return requestPreview?.url || url;
+  };
 
-    // Process query parameters
-    Object.entries(queryParams || {}).forEach(([paramName, paramData]) => {
-      // Ensure paramData exists and has the expected structure
-      if (!paramData || typeof paramData !== "object") return;
-
-      const isIncluded = paramData.included ?? true;
-      const value = paramData.value;
-
-      if (isIncluded && value !== undefined && value !== null) {
-        if (Array.isArray(value)) {
-          // For array values, add each value as a separate parameter
-          value.forEach((val) => {
-            if (val !== undefined && val !== null) {
-              queryParts.push(
-                `${paramName}=${encodeURIComponent(String(val))}`
-              );
-            }
-          });
-        } else {
-          // For single values, add as a single parameter
-          queryParts.push(`${paramName}=${encodeURIComponent(String(value))}`);
-        }
-      }
-    });
-
-    // Add query parameters to the URL
-    if (queryParts.length > 0) {
-      processedUrl += `?${queryParts.join("&")}`;
-    }
-
-    return processedUrl;
+  /**
+   * Get the base URL template (with placeholders) for path parameter detection
+   */
+  const getUrlTemplate = () => {
+    return url; // Always use the original template URL for placeholder detection
   };
 
   /**
@@ -210,7 +194,8 @@ export const OperationHeaderUrl = ({ url, className }: UrlProps) => {
    * Render the URL with highlighted parameters
    */
   const renderHighlightedUrl = () => {
-    const processedUrl = processUrl();
+    const processedUrl = getUrlWithParameters();
+    const templateUrl = getUrlTemplate();
 
     // Regex patterns for path and query parameters
     const pathParamRegex = /\{([^{}]+)\}/g;
@@ -223,61 +208,89 @@ export const OperationHeaderUrl = ({ url, className }: UrlProps) => {
       const displayUrl = getServerDisplayUrl();
 
       parts.push(
-        <Chip
+        <span
           key="server-badge"
-          className="hover:cursor-help"
-          size="sm"
-          title={`"${displayUrl}"`}
-          variant="flat"
+          className="hover:opacity-80 cursor-help hover:border-b hover:border-dotted px-px"
+          title={`Selected server: "${displayUrl}"`}
         >
-          {`{server}`}
-        </Chip>
+          {displayUrl}
+        </span>
       );
     }
 
-    // Process path parameters
+    // Process path parameters using template URL for detection but resolved URL for display
     let lastIndex = 0;
     let match: RegExpExecArray | null;
-    const urlWithoutQuery = processedUrl.split("?")[0];
+    const templateUrlWithoutQuery = templateUrl.split("?")[0];
+    const processedUrlWithoutQuery = processedUrl.split("?")[0];
 
-    while ((match = pathParamRegex.exec(urlWithoutQuery)) !== null) {
+    // Create a mapping of resolved values by analyzing both URLs
+    const getResolvedValue = (paramName: string, placeholder: string) => {
+      // Try to get from pathParams first
+      const paramData = pathParams[paramName];
+
+      if (paramData?.value !== undefined) {
+        return paramData.value.toString();
+      }
+
+      // Fallback: try to extract from the resolved URL by comparing positions
+      const beforePlaceholder = templateUrlWithoutQuery.substring(
+        0,
+        templateUrlWithoutQuery.indexOf(placeholder)
+      );
+      const afterPlaceholder = templateUrlWithoutQuery.substring(
+        templateUrlWithoutQuery.indexOf(placeholder) + placeholder.length
+      );
+
+      if (
+        processedUrlWithoutQuery.startsWith(beforePlaceholder) &&
+        processedUrlWithoutQuery.endsWith(afterPlaceholder)
+      ) {
+        const startPos = beforePlaceholder.length;
+        const endPos =
+          processedUrlWithoutQuery.length - afterPlaceholder.length;
+
+        return processedUrlWithoutQuery.substring(startPos, endPos);
+      }
+
+      return "";
+    };
+
+    while ((match = pathParamRegex.exec(templateUrlWithoutQuery)) !== null) {
       const [fullMatch, paramName] = match;
       const startIndex = match.index;
 
-      // Add text before the parameter
+      // Add text before the parameter (using resolved URL)
       if (startIndex > lastIndex) {
-        parts.push(
-          <span key={`text-${lastIndex}`} className="text-nowrap">
-            {urlWithoutQuery.substring(lastIndex, startIndex)}
-          </span>
+        const textBefore = templateUrlWithoutQuery.substring(
+          lastIndex,
+          startIndex
         );
+
+        parts.push(<span key={`text-${lastIndex}`}>{textBefore}</span>);
       }
 
-      // Check if parameter exists in pathParams
-      const paramData = pathParams[paramName];
+      const resolvedValue = getResolvedValue(paramName, fullMatch);
 
-      // Add highlighted parameter with tooltip
+      // Add highlighted parameter showing just the value, but with enhanced tooltip for path params
       parts.push(
-        <Chip
+        <span
           key={`path-badge-${startIndex}`}
-          className="hover:cursor-help"
-          color="secondary"
-          size="sm"
-          title={`"${paramData?.value?.toString()}"` || '""'}
-          variant="flat"
+          className="hover:opacity-80 cursor-help hover:border-b hover:border-dotted px-px"
+          title={`Path parameter: ${paramName} = "${resolvedValue}"`}
         >
-          {fullMatch}
-        </Chip>
+          {resolvedValue || fullMatch}
+        </span>
       );
 
       lastIndex = startIndex + fullMatch.length;
     }
 
     // Add remaining path text
-    if (lastIndex < urlWithoutQuery.length) {
+    if (lastIndex < templateUrlWithoutQuery.length) {
       parts.push(
         <span key={`text-end-path`}>
-          {urlWithoutQuery.substring(lastIndex)}
+          {templateUrlWithoutQuery.substring(lastIndex)}
         </span>
       );
     }
@@ -304,20 +317,17 @@ export const OperationHeaderUrl = ({ url, className }: UrlProps) => {
         }
 
         // Extract parameter name and value
-        const [, , paramValue] = match;
+        const [, paramName, paramValue] = match;
 
-        // Add highlighted query parameter with tooltip
+        // Add highlighted query parameter with descriptive tooltip
         parts.push(
-          <Chip
+          <span
             key={`query-badge-${startIndex}`}
-            className="hover:cursor-help"
-            color="primary"
-            size="sm"
-            title={paramValue ? `"${decodeURIComponent(paramValue)}"` : '""'}
-            variant="flat"
+            className="hover:opacity-80 cursor-help hover:border-b hover:border-dotted px-px"
+            title={`Query parameter: ${paramName} = "${paramValue ? decodeURIComponent(paramValue) : ""}"`}
           >
             {fullMatch}
-          </Chip>
+          </span>
         );
 
         lastIndex = startIndex + fullMatch.length;
@@ -336,7 +346,11 @@ export const OperationHeaderUrl = ({ url, className }: UrlProps) => {
 
   return (
     <div className={`text-sm ${className || ""}`}>
-      <div className="flex items-center">{renderHighlightedUrl()}</div>
+      <div>
+        <div className="font-mono flex items-center flex-wrap leading-4">
+          {renderHighlightedUrl()}
+        </div>
+      </div>
     </div>
   );
 };

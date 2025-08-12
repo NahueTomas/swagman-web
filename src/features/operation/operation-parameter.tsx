@@ -77,13 +77,18 @@ export const OperationParameter = ({
               `<${parameter.schema.items.type}>`}
             {parameter.schema?.format && `($${parameter.schema?.format})`}
           </Chip>
+          {["array", "object"].includes(parameter.getFirstType()) ? (
+            <Chip size="sm" variant="flat">
+              Explode{`<${String(parameter.explode)}:${parameter.style}>`}
+            </Chip>
+          ) : null}
         </div>
 
         {parameter.description && (
           <p className="text-xs mt-4">{parameter.description}</p>
         )}
       </div>
-      <div className="">
+      <div>
         {included && FormFieldComponent && (
           <FormFieldComponent
             id={parameter.id}
