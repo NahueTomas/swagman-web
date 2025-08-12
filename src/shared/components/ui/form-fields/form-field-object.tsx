@@ -20,9 +20,7 @@ export const FormFieldObject = ({
     <Textarea
       id={id}
       placeholder={placeholder}
-      radius="sm"
       value={typeof value === "object" ? JSON.stringify(value) : value}
-      variant="bordered"
       onChange={handleChange}
     />
   );

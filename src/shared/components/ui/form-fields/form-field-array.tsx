@@ -46,11 +46,12 @@ export const FormFieldArray = ({
     <div className="space-y-4" id={id}>
       <div className="flex flex-col gap-1.5">
         {comingValue.map((v, index) => (
-          <div key={index} className="flex gap-1">
+          <div key={index} className="flex items-center gap-1">
             <div className="relative w-full">
               <Input
                 placeholder={`${placeholder}[${index}]`}
-                radius="sm"
+                radius="full"
+                size="sm"
                 type="text"
                 value={v}
                 variant="bordered"
@@ -59,23 +60,23 @@ export const FormFieldArray = ({
                 }
               />
             </div>
-            {!(required && comingValue.length === 1) ? (
-              <button
-                className="px-2 text-danger/80"
-                color="danger"
-                onClick={() => handleRemove(index)}
-              >
-                <XIcon className="size-6" />
-              </button>
-            ) : null}
+            <Button
+              color="danger"
+              isDisabled={comingValue.length === 1 && required}
+              radius="full"
+              size="sm"
+              variant="light"
+              onClick={() => handleRemove(index)}
+            >
+              <XIcon className="size-5" />
+            </Button>
           </div>
         ))}
       </div>
 
       <Button
-        className="w-full"
         color="default"
-        radius="sm"
+        radius="full"
         size="sm"
         type="button"
         variant="flat"
