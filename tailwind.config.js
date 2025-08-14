@@ -55,11 +55,9 @@ export default {
       dark: {
         colors: {
           background: "#0A0A0B",
-          divider: "#1B1B1D",
+          divider: "#FFFFFF22",
           content1: "#111113",
-        },
-        layout: {
-          dividerOpacity: "1",
+          content2: "#1C1C1E"
         },
       },
     },

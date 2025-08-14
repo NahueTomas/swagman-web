@@ -31,7 +31,7 @@
 }
 
 ::-webkit-scrollbar-track {
-  @apply bg-content1 bg-opacity-15 rounded-full;
+  @apply bg-content2 bg-opacity-15 rounded-full;
 }
 
 ::-webkit-scrollbar-thumb {

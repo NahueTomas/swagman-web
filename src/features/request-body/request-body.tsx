@@ -52,7 +52,7 @@ export const RequestBody = ({
       >;
 
       return (
-        <div className="border border-content2 rounded-lg">
+        <div className="border border-divider rounded-lg">
           {bodyMediaType.getFields().map((field) => {
             const fieldValue = formValues[field.name];
 
@@ -84,16 +84,9 @@ export const RequestBody = ({
         }
         value={textValue}
         onChange={(value) => handleChange("body", value, true)}
-        onReset={() =>
-          handleChange(
-            "body",
-            bodyMediaType.getFullExample()?.toString() || "",
-            false
-          )
-        }
       />
     );
   };
 
-  return <div className="space-y-4">{getContentTypeComponent()}</div>;
+  return getContentTypeComponent();
 };

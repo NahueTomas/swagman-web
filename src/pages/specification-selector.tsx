@@ -53,12 +53,12 @@ export default function SpecificationSelectorPage() {
           </div>
         </div>
 
-        <Divider className="bg-content2" />
+        <Divider className="bg-content1" />
 
         {/* Cards Container */}
         <div className="grid md:grid-cols-2 gap-8">
           {/* Remote URL Input */}
-          <Card className="border border-content2">
+          <Card className="border border-divider">
             <CardHeader className="pb-3">
               <div className="flex items-center gap-4">
                 <div className="p-3 bg-primary/10 rounded-lg border border-primary/20">
@@ -71,12 +71,12 @@ export default function SpecificationSelectorPage() {
               </div>
             </CardHeader>
 
-            <Divider className="bg-content2" />
+            <Divider className="bg-divider" />
 
             <CardBody className="space-y-6">
               <Input
                 classNames={{
-                  inputWrapper: "border-content2",
+                  inputWrapper: "border-divider",
                 }}
                 label="Specification URL"
                 placeholder="https://api.example.com/openapi.json"
@@ -94,7 +94,7 @@ export default function SpecificationSelectorPage() {
                 }}
               />
 
-              <div className="p-4 border border-content2 rounded-lg space-y-3">
+              <div className="p-4 border border-divider rounded-lg space-y-3">
                 <div className="flex items-center gap-2">
                   <DocumentTextIcon className="size-4" />
                   <span className="text-sm font-medium">Supported Formats</span>
@@ -129,7 +129,7 @@ export default function SpecificationSelectorPage() {
           </Card>
 
           {/* Local Specification */}
-          <Card className="border border-content2">
+          <Card className="border border-divider">
             <CardHeader className="pb-3">
               <div className="flex items-center gap-4">
                 <div className="p-3 bg-success/10 rounded-lg border border-success/20">
@@ -144,18 +144,18 @@ export default function SpecificationSelectorPage() {
               </div>
             </CardHeader>
 
-            <Divider className="bg-content2" />
+            <Divider className="bg-divider" />
 
             <CardBody className="space-y-6">
               <p className="text-sm text-default-600">
                 Access a specification that&apos;s been pre-loaded in your
                 application via{" "}
-                <code className="bg-content2 px-2 py-1 rounded text-xs font-mono">
+                <code className="bg-divider px-2 py-1 rounded text-xs font-mono">
                   window.LOCAL_SPEC
                 </code>
               </p>
 
-              <div className="p-4 border border-content2 rounded-lg space-y-3">
+              <div className="p-4 border border-divider rounded-lg space-y-3">
                 <div className="flex items-center gap-2">
                   <ServerIcon className="size-4" />
                   <span className="text-sm font-medium">
@@ -197,7 +197,7 @@ export default function SpecificationSelectorPage() {
 
         {/* Footer */}
         <div className="text-center space-y-4">
-          <Divider className="bg-content2" />
+          <Divider className="bg-content1" />
           <p className="text-sm text-default-500">
             Need help? Make sure your OpenAPI specification follows the{" "}
             <a

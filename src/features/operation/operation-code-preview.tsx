@@ -563,11 +563,6 @@ ${curlHeaders}${
   };
 
   return (
-    <Code
-      autoHeight
-      language={getCodeLanguage()}
-      readOnly={true}
-      value={generateCode()}
-    />
+    <Code language={getCodeLanguage()} readOnly={true} value={generateCode()} />
   );
 };

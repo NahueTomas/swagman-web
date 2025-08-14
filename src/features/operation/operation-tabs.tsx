@@ -214,7 +214,7 @@ export const OperationTabs = React.memo(function OperationTabs({
           aria-label="Parameters, Headers and Body"
           classNames={{
             tabList:
-              "gap-6 w-full relative rounded-none p-0 border-b border-content2",
+              "gap-6 w-full relative rounded-none p-0 border-b border-divider",
             panel: "p-0",
             cursor: "w-full",
             tab: "max-w-fit px-0 h-12",
@@ -239,7 +239,7 @@ export const OperationTabs = React.memo(function OperationTabs({
                 <div className="space-y-2">
                   <Subtitle>Path Parameters</Subtitle>
 
-                  <div className="border border-content2 rounded-lg">
+                  <div className="border border-divider rounded-lg">
                     {operationData.pathParams.map((param) => (
                       <OperationParameter
                         key={param.id}
@@ -263,7 +263,7 @@ export const OperationTabs = React.memo(function OperationTabs({
                 <div className="space-y-2">
                   <Subtitle>Query Parameters</Subtitle>
 
-                  <div className="border border-content2 rounded-lg">
+                  <div className="border border-divider rounded-lg">
                     {operationData.queryParams.map((param) => (
                       <OperationParameter
                         key={param.id}
@@ -285,7 +285,7 @@ export const OperationTabs = React.memo(function OperationTabs({
               )}
               {operationData.pathParams.length === 0 &&
                 operationData.queryParams.length === 0 && (
-                  <div className="p-3 text-sm text-center border border-content2 rounded-lg">
+                  <div className="p-3 text-sm text-center border border-divider rounded-lg">
                     No parameters defined for this operation
                   </div>
                 )}
@@ -305,7 +305,7 @@ export const OperationTabs = React.memo(function OperationTabs({
               <div className="space-y-2">
                 <Subtitle>Header Parameters</Subtitle>
 
-                <div className="border border-content2 rounded-lg">
+                <div className="border border-divider rounded-lg">
                   {operationData.headerParams.map((param) => (
                     <OperationParameter
                       key={param.id}
@@ -325,7 +325,7 @@ export const OperationTabs = React.memo(function OperationTabs({
                 </div>
               </div>
             ) : (
-              <div className="p-3 text-sm text-center border border-content2 rounded-lg">
+              <div className="p-3 text-sm text-center border border-divider rounded-lg">
                 No headers defined for this operation
               </div>
             )}
@@ -400,7 +400,7 @@ export const OperationTabs = React.memo(function OperationTabs({
           aria-label="Responses and Code"
           classNames={{
             tabList:
-              "gap-6 w-full relative rounded-none p-0 border-b border-content2",
+              "gap-6 w-full relative rounded-none p-0 border-b border-divider",
             panel: "p-0",
             cursor: "w-full",
             tab: "max-w-fit px-0 h-12",

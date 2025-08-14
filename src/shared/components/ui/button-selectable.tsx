@@ -10,12 +10,12 @@ interface ButtonSelectableProps {
 
 const variantStyles = {
   default: {
-    active: "bg-content1 border border-divider hover:bg-divider",
-    inactive: "bg-transparent border border-transparent hover:bg-divider ",
+    active: "bg-content1 order border border-divider hover:bg-divider",
+    inactive: "border border-transparent hover:bg-divider ",
   },
   primary: {
     active: "bg-primary/15 text-primary-600 shadow-sm border border-primary/20",
-    inactive: "bg-divider border border-transparent",
+    inactive: "bg-content2 border border-transparent",
   },
 };
 

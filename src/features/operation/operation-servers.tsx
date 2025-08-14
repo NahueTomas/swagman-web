@@ -266,7 +266,7 @@ export const OperationServers = ({ isOpen, onClose }: ServerProps) => {
             {/* Server Variables Section */}
             {currentServer?.getVariables() &&
               Object.keys(currentServer.getVariables() || {}).length > 0 && (
-                <div className="border-t border-zinc-200 pt-4">
+                <div className="border-t border-divider pt-4">
                   <div className="flex items-center mb-2">
                     <VariableIcon className="size-5 mr-1.5" />
                     <h4 className="text-sm font-medium">Server Variables</h4>
@@ -320,7 +320,7 @@ export const OperationServers = ({ isOpen, onClose }: ServerProps) => {
               )}
 
             {/* Preview Section */}
-            <div className="border-t border-divider pt-4">
+            <div className="border-t border border-divider pt-4">
               <div className="flex items-center mb-2">
                 <h4 className="text-sm font-medium">URL Preview</h4>
               </div>

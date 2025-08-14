@@ -60,7 +60,7 @@ export default function Info() {
         </div>
       </div>
 
-      <Divider className="bg-content2" />
+      <Divider className="bg-divider" />
 
       {description && (
         <SanitizedMarkdown
@@ -71,11 +71,11 @@ export default function Info() {
 
       {(contact || license) && (
         <>
-          <Divider className="mt-auto bg-content2" />
+          <Divider className="mt-auto bg-divider" />
 
           <div className="flex flex-col md:flex-row gap-2 text-sm">
             {contact && (
-              <div className="p-4 border border-content2 space-y-4 rounded-lg">
+              <div className="p-4 border border-divider space-y-4 rounded-lg">
                 <p className="flex items-center gap-2">
                   <UsersIcon className="size-4" />
                   <span>Contact Information</span>
@@ -114,7 +114,7 @@ export default function Info() {
             )}
 
             {license && (
-              <div className="p-4 border border-content2 space-y-4 rounded-lg">
+              <div className="p-4 border border-divider space-y-4 rounded-lg">
                 <p className="mb-3 flex items-center gap-2">
                   <ScaleIcon className="size-4" />
                   <span>License</span>
