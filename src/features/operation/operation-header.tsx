@@ -162,7 +162,7 @@ export const OperationHeader = () => {
   return (
     <header
       aria-label="API Operation Header"
-      className="sticky top-0 z-50 border-b border-content2"
+      className="sticky top-0 z-50 border-b border-divider"
       role="banner"
     >
       <div className="w-full px-2 pt-2 pb-1.5">
@@ -171,7 +171,7 @@ export const OperationHeader = () => {
           {/* Mobile Layout (Column) - Hidden on md+ */}
           <div className="flex flex-col md:hidden">
             {/* Mobile: Method + Tags Row */}
-            <div className="flex items-center justify-between p-3 border-b border-content2">
+            <div className="flex items-center justify-between p-3 border-b border-divider">
               <div className="flex items-center gap-2 relative">
                 <div
                   className={`absolute inset-0 ${colorSet.bg} blur-md select-none pointer-events-none`}
@@ -203,7 +203,7 @@ export const OperationHeader = () => {
                   {operation.tags.slice(0, 1).map((tag) => (
                     <span
                       key={tag}
-                      className="px-2 py-0.5 text-xs text-foreground/60 rounded-lg border border-content2"
+                      className="px-2 py-0.5 text-xs text-foreground/60 rounded-lg border border-divider"
                       role="listitem"
                     >
                       {tag}
@@ -212,7 +212,7 @@ export const OperationHeader = () => {
                   {operation.tags.length > 1 && (
                     <span
                       aria-label={`${operation.tags.length - 1} more tags`}
-                      className="px-2 py-0.5 text-xs text-foreground/60 rounded-lg border border-content2"
+                      className="px-2 py-0.5 text-xs text-foreground/60 rounded-lg border border-divider"
                       role="listitem"
                     >
                       +{operation.tags.length - 1}
@@ -223,7 +223,7 @@ export const OperationHeader = () => {
             </div>
 
             {/* Mobile: URL Row */}
-            <div className="p-3 border-b border-content2">
+            <div className="p-3 border-b border-divider">
               <div className="font-mono text-xs text-foreground/90 overflow-hidden">
                 <OperationHeaderUrl url={operation.path} />
               </div>
@@ -350,7 +350,7 @@ export const OperationHeader = () => {
                     ? "Executing API request..."
                     : "Execute API request"
                 }
-                className="flex gap-6 items-center border-l-0 h-full rounded-lg px-4 transition-colors bg-content2 hover:bg-content3"
+                className="flex gap-6 items-center h-full rounded-lg px-4 transition-colors bg-content2 hover:bg-content3"
                 disabled={responseStatus?.loading}
                 onClick={handleExecute}
               >
@@ -369,7 +369,7 @@ export const OperationHeader = () => {
         </div>
 
         {/* Desktop Secondary Row - Only shown on md+ */}
-        <div className="hidden md:flex items-center justify-between mt-3 pt-1.5 border-t border-content2">
+        <div className="hidden md:flex items-center justify-between mt-3 pt-1.5 border-t border-divider">
           <div className="flex items-center gap-2">
             <Tooltip content="Server Settings">
               <Button
@@ -426,7 +426,7 @@ export const OperationHeader = () => {
                 {operation.tags.slice(0, 2).map((tag) => (
                   <span
                     key={tag}
-                    className="px-2 py-0.5 text-xs text-foreground/60 rounded-lg border border-content2"
+                    className="px-2 py-0.5 text-xs text-foreground/60 rounded-lg border border-divider"
                     role="listitem"
                   >
                     {tag}
@@ -435,7 +435,7 @@ export const OperationHeader = () => {
                 {operation.tags.length > 2 && (
                   <span
                     aria-label={`${operation.tags.length - 2} more tags`}
-                    className="px-2 py-0.5 text-xs text-foreground/60 rounded-lg border border-content2"
+                    className="px-2 py-0.5 text-xs text-foreground/60 rounded-lg border border-divider"
                     role="listitem"
                   >
                     +{operation.tags.length - 2}

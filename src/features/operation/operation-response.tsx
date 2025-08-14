@@ -45,7 +45,7 @@ export const OperationResponse = ({
 
   if (!hasResponses) {
     return (
-      <div className="p-4 border border-default-200 rounded-lg text-center text-default-500">
+      <div className="p-4 border border-divider rounded-lg text-center text-default-500">
         <div className="flex flex-col items-center justify-center text-center p-12">
           {/* Heroicon: arrow-path */}
           <svg
@@ -142,7 +142,6 @@ const ResponseContent = ({
     <>
       <Subtitle>{response?.description || "Response"}</Subtitle>
       <Code
-        autoHeight
         language={getLanguageFromMimeType(acceptHeader)}
         value={responseExample || "No schema defined for this response"}
       />

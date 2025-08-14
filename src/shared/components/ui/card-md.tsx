@@ -12,7 +12,7 @@ export const CardMd = ({
   size = "sm",
 }: CardMdProps) => {
   return (
-    <div className={`p-4 border border-content2 rounded-lg ${className}`}>
+    <div className={`p-4 border border-divider rounded-lg ${className}`}>
       <SanitizedMarkdown className={`marked-${size}`} content={markdown} />
     </div>
   );

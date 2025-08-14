@@ -13,7 +13,7 @@ export const CardSelectableButtons = ({
   onClick: (value: string) => void;
 }) => {
   return (
-    <div className="p-3 flex gap-3 flex-col border border-content2 rounded-lg">
+    <div className="p-3 flex gap-3 flex-col border border-divider rounded-lg">
       <span className="text-xs font-medium flex gap-2 items-center">
         {children}
       </span>

@@ -82,7 +82,7 @@ const ResponsePanel = memo<ResponsePanelProps>(
           classNames={{
             tabList: "gap-2 w-full relative p-0",
             panel:
-              "p-0 h-full overflow-hidden border-t border-b border-content2",
+              "p-0 h-full overflow-hidden border-t border-b border-divider",
             cursor: "w-full",
             tab: "w-auto",
           }}
@@ -237,7 +237,7 @@ export const OperationBottomBar = () => {
   return (
     <div
       ref={containerRef}
-      className={`relative overflow-hidden flex flex-col border-t border-content2 ${isCollapsed ? "shadow-2xl" : ""}`}
+      className={`relative overflow-hidden flex flex-col border-t border-divider ${isCollapsed ? "" : "bg-content2 shadow-2xl"}`}
       style={{
         height: currentHeight,
       }}

@@ -106,7 +106,7 @@ export const FormFieldSelect = ({
               type="button"
               onClick={handleClear}
             >
-              <div className="border border-content2 rounded-lg p-1">
+              <div className="border border-divider rounded-lg p-px">
                 <XIcon className="size-2" />
               </div>
             </button>
@@ -138,7 +138,7 @@ export const FormFieldSelect = ({
         aria-labelledby={id}
         className={`${
           selectStyles.dropdown
-        } transform transition-all bg-content1 duration-200 origin-top ${
+        } transform transition-all duration-200 origin-top ${
           open
             ? "opacity-100 scale-100"
             : "opacity-0 scale-95 pointer-events-none max-h-0"
@@ -153,7 +153,7 @@ export const FormFieldSelect = ({
               aria-selected={displayValue === opt}
               className={`${selectStyles.item[size]} ${
                 displayValue === opt ? selectStyles.selected[size] : ""
-              } cursor-pointer w-full text-left`}
+              } cursor-pointer w-full text-left bg-content1`}
               role="option"
               type="button"
               onClick={() => handleSelect(opt)}
