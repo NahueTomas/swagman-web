@@ -55,7 +55,7 @@ export default {
       dark: {
         colors: {
           background: "#0A0A0B",
-          divider: "#FFFFFF22",
+          divider: "#FFFFFF18",
           content1: "#111113",
           content2: "#1C1C1E"
         },
