@@ -80,6 +80,7 @@ export const RequestBodyCode = ({
       </div>
       <Code
         language={getLanguageType()}
+        minHeight="200px"
         readOnly={false}
         value={value}
         onChange={onChange}
