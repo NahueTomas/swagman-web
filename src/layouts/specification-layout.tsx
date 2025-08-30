@@ -1,5 +1,11 @@
 import { useEffect, useState, useCallback } from "react";
-import { Outlet, useParams, Link } from "react-router-dom";
+import {
+  Outlet,
+  useParams,
+  Link,
+  useSearchParams,
+  useNavigate,
+} from "react-router-dom";
 import { addToast } from "@heroui/toast";
 
 import { ApiExplorer } from "@/features/api-explorer";
@@ -9,12 +15,16 @@ import { Error as ErrorComponent } from "@/shared/components/ui/error";
 import { Loading } from "@/features/specification/loading";
 import { useRequestForms } from "@/hooks/use-request-forms";
 import { ROUTES } from "@/shared/constants/constants";
+import { escapeUrl } from "@/shared/utils/helpers";
 
 export default function SpecificationLayout() {
   const { setSpec } = useStore();
   const { setSpecification } = useRequestForms();
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
 
   const params = useParams();
   const specUrl = params.url;
@@ -74,7 +84,13 @@ export default function SpecificationLayout() {
   );
 
   useEffect(() => {
-    loadSpec(specUrl);
+    const urlParam = searchParams.get("url");
+
+    if (urlParam) {
+      navigate(`/${escapeUrl(urlParam)}`, { replace: true });
+    } else {
+      loadSpec(specUrl);
+    }
   }, [specUrl, loadSpec]);
 
   return (
