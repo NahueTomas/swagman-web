@@ -1,23 +1,38 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Tooltip } from "@heroui/tooltip";
+import { Button } from "@heroui/button";
+
+import { ServerModal } from "../server/server-modal";
 
 import { ApiExplorerTagList } from "./api-explorer-tag-list";
 
-import { InfoIcon, ThunderIcon } from "@/shared/components/ui/icons";
+import {
+  InfoIcon,
+  ServerIcon,
+  ThunderIcon,
+} from "@/shared/components/ui/icons";
 import { Resizable } from "@/shared/components/ui/resizable";
 import { useStore } from "@/hooks/use-store";
 import { ButtonSelectable } from "@/shared/components/ui/button-selectable";
 import { ROUTES } from "@/shared/constants/constants";
 
 export const ApiExplorer = React.memo(() => {
-  const { operationFocused, focusOperation } = useStore();
+  const { operationFocused, focusOperation, spec } = useStore();
+  const [isServerModalOpen, setIsServerModalOpen] = useState(false);
+
   const navigate = useNavigate();
+
+  if (!spec) return null;
+
+  const selectedServer = spec.getSelectedServer();
+  const servers = spec.getServers();
 
   return (
     <aside className="flex h-full w-auto">
       <Resizable axis="x" defaultWidth={320}>
         <div className="relative flex flex-col overflow-y-auto h-full no-scrollbar">
-          <div className="px-4 py-2 sticky top-0 z-10 border-b border-divider bg-background/50 backdrop-blur-md shadow-md">
+          <div className="px-4 py-2 sticky top-0 z-10 border-b border-divider bg-background/50 backdrop-blur-md shadow-md flex gap-2 justify-center items-center">
             <ButtonSelectable
               active={operationFocused === null}
               onSelect={() => focusOperation(null)}
@@ -25,6 +40,16 @@ export const ApiExplorer = React.memo(() => {
               <InfoIcon className="size-4 shrink-0" />
               <span className="font-semibold">Specification Info</span>
             </ButtonSelectable>
+
+            <Tooltip content="Global Server Settings">
+              <button
+                aria-label="Open server settings"
+                className="p-2.5 rounded-lg text-foreground/70"
+                onClick={() => setIsServerModalOpen(true)}
+              >
+                <ServerIcon aria-hidden="true" className="w-5 h-5" />
+              </button>
+            </Tooltip>
           </div>
 
           <div className="px-4 py-2">
@@ -46,6 +71,18 @@ export const ApiExplorer = React.memo(() => {
           </div>
         </div>
       </Resizable>
+
+      {selectedServer && servers && isServerModalOpen && (
+        <ServerModal
+          description='These servers apply to all API "operations" by default.'
+          isOpen={isServerModalOpen}
+          selectedServer={selectedServer}
+          servers={servers}
+          setSelectedServer={spec.setSelectedServer}
+          subtitle="Global API Servers"
+          onClose={() => setIsServerModalOpen(false)}
+        />
+      )}
     </aside>
   );
 });

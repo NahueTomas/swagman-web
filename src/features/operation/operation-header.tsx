@@ -11,8 +11,8 @@ import {
   Copy,
   Check,
 } from "@/shared/components/ui/icons";
+import { ServerModal } from "@/features/server/server-modal";
 import { OperationHeaderUrl } from "@/features/operation/operation-header-url";
-import { OperationServers } from "@/features/operation/operation-servers";
 
 export const OperationHeader = observer(() => {
   const [isServerModalOpen, setIsServerModalOpen] = useState(false);
@@ -109,6 +109,9 @@ export const OperationHeader = observer(() => {
     }
   };
 
+  const selectedServer = operation.getSelectedServer();
+  const servers = operation.getServers();
+
   return (
     <header
       aria-label="API Operation Header"
@@ -174,22 +177,24 @@ export const OperationHeader = observer(() => {
             {/* Mobile: Actions Row */}
             <div className="flex items-center justify-between p-3">
               <div className="flex items-center gap-2">
-                <Tooltip content="Server Settings">
-                  <Button
-                    isIconOnly
-                    aria-label="Open server settings"
-                    className="h-7 w-7"
-                    radius="md"
-                    size="sm"
-                    variant="flat"
-                    onClick={() => setIsServerModalOpen(true)}
-                  >
-                    <ServerIcon
-                      aria-hidden="true"
-                      className="w-3.5 h-3.5 text-foreground/60"
-                    />
-                  </Button>
-                </Tooltip>
+                {selectedServer && (
+                  <Tooltip content="Server Settings">
+                    <Button
+                      isIconOnly
+                      aria-label="Open server settings"
+                      className="h-7 w-7"
+                      radius="md"
+                      size="sm"
+                      variant="flat"
+                      onClick={() => setIsServerModalOpen(true)}
+                    >
+                      <ServerIcon
+                        aria-hidden="true"
+                        className="w-3.5 h-3.5 text-foreground/60"
+                      />
+                    </Button>
+                  </Tooltip>
+                )}
 
                 <Tooltip content={isCopied ? "Copied!" : "Copy URL"}>
                   <Button
@@ -309,22 +314,24 @@ export const OperationHeader = observer(() => {
         {/* Desktop Secondary Row - Only shown on md+ */}
         <div className="hidden md:flex items-center justify-between mt-3 pt-1.5 border-t border-divider">
           <div className="flex items-center gap-2">
-            <Tooltip content="Server Settings">
-              <Button
-                isIconOnly
-                aria-label="Open server settings"
-                className="h-6 w-6"
-                radius="md"
-                size="sm"
-                variant="flat"
-                onClick={() => setIsServerModalOpen(true)}
-              >
-                <ServerIcon
-                  aria-hidden="true"
-                  className="w-3.5 h-3.5 text-foreground/60"
-                />
-              </Button>
-            </Tooltip>
+            {selectedServer && (
+              <Tooltip content="Server Settings">
+                <Button
+                  isIconOnly
+                  aria-label="Open server settings"
+                  className="h-6 w-6"
+                  radius="md"
+                  size="sm"
+                  variant="flat"
+                  onClick={() => setIsServerModalOpen(true)}
+                >
+                  <ServerIcon
+                    aria-hidden="true"
+                    className="w-3.5 h-3.5 text-foreground/60"
+                  />
+                </Button>
+              </Tooltip>
+            )}
 
             <Tooltip content={isCopied ? "Copied!" : "Copy URL"}>
               <Button
@@ -385,9 +392,14 @@ export const OperationHeader = observer(() => {
         </div>
       </div>
 
-      {isServerModalOpen && (
-        <OperationServers
+      {selectedServer && servers && isServerModalOpen && (
+        <ServerModal
+          description="These servers are defined only for this operation and override global servers."
           isOpen={isServerModalOpen}
+          selectedServer={selectedServer}
+          servers={servers}
+          setSelectedServer={operation.setSelectedServer}
+          subtitle="Operation-Specific Servers"
           onClose={() => setIsServerModalOpen(false)}
         />
       )}
