@@ -45,7 +45,12 @@ export class SpecModel {
   private tagList: Array<{
     title: string;
     description?: string;
-    operationsResume: { id: string; title: string; method: string }[];
+    operationsResume: {
+      id: string;
+      title: string;
+      method: string;
+      deprecated: boolean;
+    }[];
   }>;
 
   // Flags to know if they have been generated (memoization)
@@ -181,7 +186,12 @@ export class SpecModel {
       [title: string]: {
         title: string;
         description?: string;
-        operationsResume: { id: string; title: string; method: string }[];
+        operationsResume: {
+          id: string;
+          title: string;
+          method: string;
+          deprecated: boolean;
+        }[];
       };
     } = {};
 
@@ -220,6 +230,7 @@ export class SpecModel {
           id: operation.id,
           title: operation.operationId || operation.path,
           method: operation.method,
+          deprecated: operation.deprecated,
         });
       }
     }

@@ -1,8 +1,11 @@
+import { Chip } from "@heroui/chip";
+
 import { useStore } from "@/hooks/use-store";
 import { OperationHeader } from "@/features/operation/operation-header";
 import { OperationTabs } from "@/features/operation/operation-tabs";
 import { OperationBottomBar } from "@/features/operation/operation-bottom-bar";
 import Info from "@/features/specification/info";
+import { MESSAGES } from "@/shared/constants/mesagges";
 
 export default function SpecificationOperationsPage() {
   const { operationFocused } = useStore();
@@ -24,6 +27,17 @@ export default function SpecificationOperationsPage() {
                 <div className="text-tiny font-semibold text-content4 mt-1">
                   {operationFocused.description}
                 </div>
+              )}
+              {operationFocused.deprecated && (
+                <Chip
+                  className="mt-4"
+                  color="warning"
+                  size="sm"
+                  title={MESSAGES.deprecatedOperation}
+                  variant="flat"
+                >
+                  Deprecated
+                </Chip>
               )}
 
               <section className="mt-6">

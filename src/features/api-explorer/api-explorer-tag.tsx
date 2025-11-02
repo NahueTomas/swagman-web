@@ -13,7 +13,12 @@ export const ApiExplorerTag = ({
   tag: {
     title: string;
     description?: string;
-    operationsResume: { id: string; title: string; method: string }[];
+    operationsResume: {
+      id: string;
+      title: string;
+      method: string;
+      deprecated: boolean;
+    }[];
   };
   focusOperation: (operationId: string | null) => void;
   operationFocusedId: string | null;
@@ -74,6 +79,7 @@ export const ApiExplorerTag = ({
               <ApiExplorerTaggedItem
                 key={o.id}
                 active={o.id === operationFocusedId || false}
+                deprecated={o.deprecated}
                 method={o.method}
                 title={o.title}
                 onClick={() => focusOperation(o.id)}

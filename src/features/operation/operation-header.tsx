@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { Button } from "@heroui/button";
-import { Badge } from "@heroui/badge";
 import { Tooltip } from "@heroui/tooltip";
 import { addToast } from "@heroui/toast";
 import { observer } from "mobx-react-lite";
@@ -127,21 +126,13 @@ export const OperationHeader = observer(() => {
                 <div
                   className={`absolute inset-0 ${colorSet.bg} blur-md select-none pointer-events-none`}
                 />
-                <Badge
-                  color="default"
-                  content={operation.deprecated ? "!" : undefined}
-                  isInvisible={!operation.deprecated}
-                  placement="top-right"
-                  shape="circle"
+                <div
+                  className={`px-3 py-1.5 rounded-lg ${colorSet.text} flex items-center justify-center`}
                 >
-                  <div
-                    className={`px-3 py-1.5 rounded-lg ${colorSet.text} flex items-center justify-center`}
-                  >
-                    <span className="uppercase tracking-wider">
-                      {methodUpper}
-                    </span>
-                  </div>
-                </Badge>
+                  <span className="uppercase tracking-wider">
+                    {methodUpper}
+                  </span>
+                </div>
               </div>
 
               {/* Mobile Tags */}
@@ -260,28 +251,20 @@ export const OperationHeader = observer(() => {
 
           {/* Desktop Layout (Row) - Hidden on mobile, shown on md+ */}
           <div className="hidden md:flex items-stretch h-14">
-            {/* Desktop: HTTP Method Badge */}
+            {/* Desktop: HTTP Method */}
             <div className={`flex items-center relative`}>
               <div
                 className={`absolute inset-0 ${colorSet.bg} blur-xl select-none pointer-events-none`}
               />
-              <Badge
-                color="default"
-                content={operation.deprecated ? "!" : undefined}
-                isInvisible={!operation.deprecated}
-                placement="top-right"
-                shape="circle"
+              <div
+                className={`h-full min-w-24 flex items-center justify-center`}
               >
-                <div
-                  className={`h-full min-w-24 flex items-center justify-center`}
+                <span
+                  className={`text-xl uppercase tracking-wider ${colorSet.text}`}
                 >
-                  <span
-                    className={`text-xl uppercase tracking-wider ${colorSet.text}`}
-                  >
-                    {methodUpper}
-                  </span>
-                </div>
-              </Badge>
+                  {methodUpper}
+                </span>
+              </div>
             </div>
 
             {/* Desktop: URL Bar */}

@@ -6,6 +6,7 @@ import { getFormFieldComponent } from "@/features/operation/utils/get-form-field
 import { FormFieldCheckbox } from "@/shared/components/ui/form-fields/form-field-checkbox";
 import { isArray } from "@/shared/utils/helpers";
 import { Primitive } from "@/shared/types/form-field";
+import { MESSAGES } from "@/shared/constants/mesagges";
 
 export const OperationParameter = observer(
   ({ parameter }: { parameter: ParameterModel }) => {
@@ -65,6 +66,18 @@ export const OperationParameter = observer(
               parameter.getFirstType() === "object") && (
               <Chip size="sm" variant="flat">
                 Explode {`<${String(parameter.explode)}:${parameter.style}>`}
+              </Chip>
+            )}
+
+            {parameter.deprecated && (
+              <Chip
+                className="mt-4"
+                color="warning"
+                size="sm"
+                title={MESSAGES.deprecatedParameter}
+                variant="flat"
+              >
+                Deprecated
               </Chip>
             )}
           </div>
