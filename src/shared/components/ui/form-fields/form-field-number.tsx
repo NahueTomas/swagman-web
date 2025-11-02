@@ -1,6 +1,18 @@
+import React from "react";
 import { Input } from "@heroui/input";
 
-export const FormFieldNumber = ({
+import { FormFieldError } from "./form-field.error";
+
+import { FormFieldProps } from "@/shared/types/form-field";
+
+export const FormFieldNumber: React.FC<
+  FormFieldProps & {
+    disabled?: boolean;
+    min?: number;
+    max?: number;
+    step?: number;
+  }
+> = ({
   id,
   onChange,
   placeholder,
@@ -9,18 +21,16 @@ export const FormFieldNumber = ({
   min,
   max,
   step,
-}: {
-  onChange: (value: number) => void;
-  id?: string;
-  placeholder?: string;
-  value?: any;
-  disabled?: boolean;
-  min?: number;
-  max?: number;
-  step?: number;
 }) => {
-  const handleChange = (e: Event) =>
-    onChange(Number((e.target as HTMLInputElement).value));
+  if (value !== undefined && typeof value !== "number") {
+    return <FormFieldError message="This field only accepts a number" />;
+  }
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const n = e.target.value === "" ? undefined : Number(e.target.value);
+
+    if (n === undefined || !Number.isNaN(n)) onChange(n as number | undefined);
+  };
 
   return (
     <Input
@@ -32,11 +42,9 @@ export const FormFieldNumber = ({
       radius="sm"
       step={step}
       type="number"
-      value={value}
+      value={value !== undefined ? String(value) : ""}
       variant="bordered"
-      onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-        handleChange(e.nativeEvent)
-      }
+      onChange={handleChange}
     />
   );
 };

@@ -4,17 +4,22 @@ import type {
   OpenAPIServer,
 } from "../shared/types/openapi";
 
+import { action, makeObservable, observable } from "mobx";
+
 import { ParameterModel } from "./parameter.model";
 import { RequestBodyModel } from "./request-body.model";
 import { ResponsesModel } from "./responses.model";
 import { ServerModel } from "./server.model";
+import { RequestResponseModel } from "./request-response.model";
 
 export class OperationModel {
   public id: string;
   public path: string;
   public method: string;
   public tags: string[];
-  private servers: ServerModel[];
+
+  private servers: ServerModel[] | null;
+  public selectedServer: ServerModel | null;
 
   public summary: string;
   public description: string;
@@ -24,6 +29,10 @@ export class OperationModel {
   private requestBody: RequestBodyModel | null;
   private responses: ResponsesModel;
   private acceptHeader: ParameterModel;
+
+  public requestResponse: RequestResponseModel | null = null;
+  public loadingRequestResponse: boolean = false;
+
   //private externalDocs: OpenAPIExternalDocumentation | null;
   //private callbacks: { [callbackName: string]: Referenced<OpenAPICallback> };
   //private security: Array<{ [name: string]: string[] }>;
@@ -39,7 +48,9 @@ export class OperationModel {
     this.operationId = operation.operationId || null;
     this.deprecated = operation.deprecated || false;
 
-    this.servers = this.processServers(operation?.servers || []);
+    this.servers = this.processServers(operation?.servers || null);
+    this.selectedServer = this.servers?.[0] || null;
+
     this.requestBody = operation.requestBody
       ? new RequestBodyModel(operation.requestBody)
       : null;
@@ -47,6 +58,15 @@ export class OperationModel {
     this.responses = new ResponsesModel(operation.responses);
     this.parameters = this.processParameters(operation?.parameters || []);
     this.acceptHeader = this.parameters[0];
+
+    makeObservable(this, {
+      selectedServer: observable.ref,
+      requestResponse: observable.ref,
+      loadingRequestResponse: observable.ref,
+      setRequestResponse: action,
+      setLoadingRequestResponse: action,
+      setSelectedServer: action,
+    });
 
     //this.externalDocs = operation.externalDocs || null;
     //this.callbacks = operation.callbacks || {};
@@ -57,7 +77,9 @@ export class OperationModel {
     return `${method}-${path}`;
   }
 
-  private processServers(servers: OpenAPIServer[]) {
+  private processServers(servers: OpenAPIServer[] | null) {
+    if (!servers) return null;
+
     const generatedServers: Array<ServerModel> = [];
 
     for (const server of servers) {
@@ -190,11 +212,65 @@ export class OperationModel {
     return params;
   }
 
-  public getServers(): ServerModel[] {
+  public getAccept(): ParameterModel | undefined {
+    return this.parameters.find(
+      (p) => p.getIn() === "header" && p.name.toLowerCase() === "accept"
+    );
+  }
+
+  public getContentType(): ParameterModel | undefined {
+    return this.parameters.find(
+      (p) => p.getIn() === "header" && p.name.toLowerCase() === "content-type"
+    );
+  }
+
+  public getServers(): ServerModel[] | null {
     return this.servers;
+  }
+
+  public getSelectedServer(): ServerModel | null {
+    return this.selectedServer;
+  }
+
+  public setSelectedServer(url: string): void {
+    if (!this.servers) return;
+
+    const server = this.servers.find((s) => s.getUrl() === url);
+
+    if (server) this.selectedServer = server;
   }
 
   public getResponses(): ResponsesModel {
     return this.responses;
+  }
+
+  public setLoadingRequestResponse(loading: boolean) {
+    this.loadingRequestResponse = loading;
+  }
+
+  public async setRequestResponse(requestResponse: {
+    data: string;
+    body: { [key: string]: any } | string;
+    headers: { [key: string]: string | string[] };
+    obj: { [key: string]: any } | string;
+    ok: boolean;
+    status: number;
+    statusText: string;
+    text: string;
+    url: string;
+    date: string;
+  }) {
+    this.requestResponse = new RequestResponseModel(
+      requestResponse.data,
+      requestResponse.body,
+      requestResponse.headers,
+      requestResponse.obj,
+      requestResponse.ok,
+      requestResponse.status,
+      requestResponse.statusText,
+      requestResponse.text,
+      requestResponse.url,
+      requestResponse.date
+    );
   }
 }

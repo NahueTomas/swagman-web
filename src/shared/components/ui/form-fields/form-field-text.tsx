@@ -1,26 +1,16 @@
+import React from "react";
 import { Input } from "@heroui/input";
 
-import { FormFieldValue } from "@/shared/types/parameter";
+import { FormFieldError } from "./form-field.error";
 
-interface FormFieldTextProps {
-  id?: string;
-  onChange: (value: string) => void;
-  placeholder?: string;
-  value?: string | number | FormFieldValue["value"];
-  disabled?: boolean;
-}
+import { FormFieldProps } from "@/shared/types/form-field";
 
-export const FormFieldText = ({
-  id,
-  onChange,
-  placeholder,
-  value,
-  disabled = false,
-}: FormFieldTextProps) => {
-  const stringValue =
-    typeof value === "object" && value !== null
-      ? JSON.stringify(value)
-      : String(value || "");
+export const FormFieldText: React.FC<
+  FormFieldProps & { disabled?: boolean }
+> = ({ id, onChange, placeholder, value, disabled = false }) => {
+  if (value !== undefined && typeof value !== "string") {
+    return <FormFieldError message="This field only accepts a string" />;
+  }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     onChange(e.target.value);
@@ -33,7 +23,7 @@ export const FormFieldText = ({
       placeholder={placeholder}
       radius="sm"
       type="text"
-      value={stringValue}
+      value={(value as string) ?? ""}
       variant="bordered"
       onChange={handleChange}
     />

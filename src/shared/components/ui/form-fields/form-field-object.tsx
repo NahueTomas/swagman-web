@@ -1,19 +1,35 @@
-import { Textarea } from "@heroui/input";
 import React from "react";
+import { Textarea } from "@heroui/input";
 
-export const FormFieldObject = ({
+import { FormFieldError } from "./form-field.error";
+
+import { FormFieldProps } from "@/shared/types/form-field";
+
+export const FormFieldObject: React.FC<FormFieldProps> = ({
   id,
   onChange,
   placeholder,
   value,
-}: {
-  onChange: (value: string) => void;
-  id?: string;
-  placeholder?: string;
-  value?: any;
 }) => {
+  if (
+    value !== undefined &&
+    (typeof value !== "object" || value instanceof File)
+  ) {
+    return <FormFieldError message="This field only accepts an object" />;
+  }
+
+  const display = value !== undefined ? JSON.stringify(value) : "";
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    onChange(e.target.value);
+    try {
+      const parsed = e.target.value ? JSON.parse(e.target.value) : undefined;
+
+      onChange(parsed);
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (_err) {
+      // If JSON is invalid, we still propagate string so caller can show error if desired
+      onChange(e.target.value);
+    }
   };
 
   return (
@@ -21,7 +37,7 @@ export const FormFieldObject = ({
       id={id}
       placeholder={placeholder}
       radius="sm"
-      value={typeof value === "object" ? JSON.stringify(value) : value}
+      value={display}
       variant="bordered"
       onChange={handleChange}
     />

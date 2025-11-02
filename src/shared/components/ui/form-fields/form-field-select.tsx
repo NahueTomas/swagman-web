@@ -1,38 +1,34 @@
-import { useState, useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 import { XIcon } from "../icons";
 
 import { selectStyles } from "./utils/form-field-styles";
+import { FormFieldError } from "./form-field.error";
+
+import { FormFieldProps, Primitive } from "@/shared/types/form-field";
 
 export type SelectSize = "normal" | "small";
+type Option = Primitive;
 
-export const FormFieldSelect = ({
+export const FormFieldSelect: React.FC<
+  FormFieldProps & { size?: SelectSize; disabled?: boolean }
+> = ({
   id,
   onChange,
   value,
-  options,
+  options = [],
   required = false,
   size = "normal",
   disabled = false,
   placeholder = "Select an option",
-}: {
-  onChange: (value: string) => void;
-  options: string[];
-  value?: any;
-  id?: string;
-  size?: SelectSize;
-  disabled?: boolean;
-  required?: boolean;
-  placeholder?: string;
 }) => {
   const [open, setOpen] = useState(false);
-  const [selectedValue, setSelectedValue] = useState<string | undefined>(value);
-  const dropdownRef = useRef<HTMLDivElement>(null);
-
-  // Sync with external value when it changes
-  useEffect(() => {
-    setSelectedValue(value);
-  }, [value]);
+  const [selectedValue, setSelectedValue] = useState<Option | undefined>(
+    typeof value === "string" || typeof value === "number"
+      ? (value as Option)
+      : undefined
+  );
+  const dropdownRef = useRef<HTMLDivElement | null>(null);
 
   // Close the dropdown when clicking outside
   useEffect(() => {
@@ -47,26 +43,44 @@ export const FormFieldSelect = ({
 
     document.addEventListener("mousedown", handleClickOutside);
 
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  useEffect(() => {
+    setSelectedValue(
+      typeof value === "string" || typeof value === "number"
+        ? (value as Option)
+        : undefined
+    );
+  }, [value]);
+
+  // validate options: only string|number accepted
+  if (
+    Array.isArray(options) &&
+    options.some((o) => typeof o !== "string" && typeof o !== "number")
+  ) {
+    return (
+      <FormFieldError message="This field only accepts strings or numbers as options" />
+    );
+  }
+
+  const cleanOptions: Option[] = (options || []).filter(
+    (o): o is Option => typeof o === "string" || typeof o === "number"
+  );
+
   const toggle = () => {
-    if (!disabled) {
-      setOpen((o: boolean) => !o);
-    }
+    if (!disabled) setOpen((o) => !o);
   };
 
-  const handleSelect = (opt: string) => {
-    onChange(opt);
+  const handleSelect = (opt: Option) => {
+    onChange(opt); // Value-compatible
     setSelectedValue(opt);
     setOpen(false);
   };
 
   const handleClear = (e: React.MouseEvent) => {
-    e.stopPropagation(); // Avoid opening the dropdown
-    onChange("");
+    e.stopPropagation();
+    onChange(undefined);
     setSelectedValue(undefined);
   };
 
@@ -75,8 +89,7 @@ export const FormFieldSelect = ({
     small: "w-3 h-3",
   };
 
-  const displayValue = selectedValue || "";
-  const selectedOption = options.find((opt) => opt === displayValue);
+  const selectedOption = cleanOptions.find((opt) => opt === selectedValue);
 
   return (
     <div ref={dropdownRef} className="relative w-full" id={id}>
@@ -85,7 +98,9 @@ export const FormFieldSelect = ({
         aria-disabled={disabled}
         aria-expanded={open}
         aria-haspopup="listbox"
-        className={`${selectStyles.button[size]} flex items-center justify-between w-full ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
+        className={`${selectStyles.button[size]} flex items-center justify-between w-full ${
+          disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
+        }`}
         role="combobox"
         tabIndex={disabled ? -1 : 0}
         onClick={disabled ? undefined : toggle}
@@ -96,9 +111,11 @@ export const FormFieldSelect = ({
           }
         }}
       >
-        <span className="truncate">{selectedOption || placeholder}</span>
+        <span className="truncate">
+          {selectedOption !== undefined ? String(selectedOption) : placeholder}
+        </span>
         <div className="flex items-center">
-          {!required && selectedValue && (
+          {!required && selectedValue !== undefined && (
             <button
               aria-label="Clear selection"
               className="mr-1 p-0.5 rounded-lg"
@@ -113,11 +130,7 @@ export const FormFieldSelect = ({
           )}
           <svg
             aria-hidden="true"
-            className={`${
-              arrowStyles[size]
-            } transform transition-transform duration-200 ease-out ${
-              open ? "rotate-180" : ""
-            }`}
+            className={`${arrowStyles[size]} transform transition-transform duration-200 ease-out ${open ? "rotate-180" : ""}`}
             fill="none"
             stroke="currentColor"
             strokeWidth="1.5"
@@ -133,12 +146,9 @@ export const FormFieldSelect = ({
         </div>
       </div>
 
-      {/* Dropdown */}
       <div
         aria-labelledby={id}
-        className={`${
-          selectStyles.dropdown
-        } transform transition-all duration-200 origin-top ${
+        className={`${selectStyles.dropdown} transform transition-all duration-200 origin-top ${
           open
             ? "opacity-100 scale-100"
             : "opacity-0 scale-95 pointer-events-none max-h-0"
@@ -146,19 +156,17 @@ export const FormFieldSelect = ({
         id={`${id}-listbox`}
         role="listbox"
       >
-        {options.length > 0 ? (
-          options.map((opt) => (
+        {cleanOptions.length > 0 ? (
+          cleanOptions.map((opt) => (
             <button
-              key={opt}
-              aria-selected={displayValue === opt}
-              className={`${selectStyles.item[size]} ${
-                displayValue === opt ? selectStyles.selected[size] : ""
-              } cursor-pointer w-full text-left bg-content1`}
+              key={String(opt)}
+              aria-selected={selectedValue === opt}
+              className={`${selectStyles.item[size]} ${selectedValue === opt ? selectStyles.selected[size] : ""} cursor-pointer w-full text-left bg-content1`}
               role="option"
               type="button"
               onClick={() => handleSelect(opt)}
             >
-              {opt}
+              {String(opt)}
             </button>
           ))
         ) : (

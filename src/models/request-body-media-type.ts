@@ -1,5 +1,7 @@
 import type { OpenAPIMediaType } from "@/shared/types/openapi";
 
+import { action, makeObservable, observable } from "mobx";
+
 import { getBodyExample } from "@/shared/utils/openapi";
 import { RequestBodyField } from "@/models/request-body-field";
 
@@ -12,15 +14,36 @@ const FORM_MEDIA_TYPES = [
 export class RequestBodyMediaType {
   public name: string;
   public mediaType: OpenAPIMediaType;
+
+  // Only with "text"
+  public value: string | undefined = undefined;
+
+  // Only with "form"
+  public fields: RequestBodyField[] | undefined;
+
   private mediaTypeFormat: string;
-  private fields: RequestBodyField[];
 
   constructor(name: string, mediaType: OpenAPIMediaType) {
     this.name = name;
     this.mediaType = mediaType;
 
     this.mediaTypeFormat = this.processMediaTypeFormat();
-    this.fields = this.processFields();
+
+    if (this.mediaTypeFormat === "form") {
+      this.fields = this.processFields();
+    } else {
+      // si es "text", usamos un único observable
+      this.value =
+        getBodyExample(
+          this.mediaType.schema,
+          this.name.split("/")?.[1] || undefined
+        ) || "";
+
+      makeObservable(this, {
+        value: observable,
+        setValue: action,
+      });
+    }
   }
 
   private processMediaTypeFormat(): "form" | "text" {
@@ -72,7 +95,8 @@ export class RequestBodyMediaType {
     );
   }
 
-  public getFields() {
-    return this.fields;
+  // Only with "text"
+  public setValue(newValue: string) {
+    if (this.getMediaTypeFormat() === "text") this.value = newValue;
   }
 }

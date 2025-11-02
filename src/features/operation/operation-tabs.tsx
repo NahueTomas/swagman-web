@@ -1,17 +1,14 @@
-import React, { useEffect, useState, useMemo, useCallback } from "react";
-import { Chip } from "@heroui/chip";
+import React, { useEffect, useState, useMemo } from "react";
 import { Tabs, Tab } from "@heroui/tabs";
 
 import { OperationParameter } from "./operation-parameter";
 import { OperationResponse } from "./operation-response";
 import { OperationCode } from "./operation-code";
+import { OperationBody } from "./operation-body";
 
 import { Subtitle } from "@/shared/components/ui/subtitle";
-import { CardSelectableButtons } from "@/shared/components/ui/card-selectable-buttons";
-import { RequestBody } from "@/features/request-body/request-body";
 import { OperationModel } from "@/models/operation.model";
 import { useStore } from "@/hooks/use-store";
-import { useRequestForms } from "@/hooks/use-request-forms";
 import {
   BodyIcon,
   CodeIcon,
@@ -45,157 +42,12 @@ export const OperationTabs = React.memo(function OperationTabs({
     };
   }, [operation]);
 
-  // Use specific selectors for useRequestForms
-  const specificationUrl = useRequestForms((state) => state.specificationUrl);
-  const specifications = useRequestForms((state) => state.specifications);
-  const setFormValues = useRequestForms((state) => state.setFormValues);
-
-  // Memoize the current form
-  const currentForm = useMemo(() => {
-    const formFromStore =
-      specifications?.[specificationUrl || ""]?.forms?.[operation.id];
-
-    if (formFromStore) return formFromStore;
-
-    // Default form if it doesn't exist
-    return {
-      parameters: operation.getParameterDefaultValues(),
-      contentType: operationData.bodyMimeTypes?.[0] || "",
-      requestBody: operationData.body?.getFieldDefaultValues() || null,
-    };
-  }, [
-    specifications,
-    specificationUrl,
-    operation.id,
-    operation,
-    operationData,
-  ]);
-
   // Memoize the request preview
   const requestPreview = useMemo(() => {
     if (!operationFocused || !spec) return null;
 
-    return spec.buildRequest(
-      operationFocused,
-      currentForm.requestBody?.[currentForm?.contentType || ""] || null,
-      currentForm.parameters,
-      currentForm.contentType
-    );
-  }, [operationFocused, spec, currentForm]);
-
-  // Optimize handling of parameter changes
-  const handleParameterChange = useCallback(
-    (name: string, inType: string = "query", value: any, included: boolean) => {
-      // Deep copy to avoid read-only errors
-      const updatedForm = {
-        ...currentForm,
-        parameters: {
-          ...currentForm.parameters,
-          query: { ...currentForm.parameters.query },
-          path: { ...currentForm.parameters.path },
-          header: { ...currentForm.parameters.header },
-        },
-      };
-
-      if (name === "Content-Type") {
-        updatedForm.contentType = value;
-      }
-
-      // Update parameters according to the type
-      if (inType === "query") {
-        updatedForm.parameters.query[name] = { value, included };
-      } else if (inType === "path") {
-        updatedForm.parameters.path[name] = { value, included };
-      } else if (inType === "header") {
-        updatedForm.parameters.header[name] = { value, included };
-      }
-
-      setFormValues(specificationUrl || "", operation.id, updatedForm);
-    },
-    [currentForm, setFormValues, specificationUrl, operation.id]
-  );
-
-  // Optimize handling of Content-Type changes
-  const handleContentTypeChange = useCallback(
-    (contentType: string) => {
-      // Deep copy to avoid read-only errors
-      const updatedForm = {
-        ...currentForm,
-        parameters: {
-          ...currentForm.parameters,
-          query: { ...currentForm.parameters.query },
-          path: { ...currentForm.parameters.path },
-          header: { ...currentForm.parameters.header },
-        },
-      };
-
-      if (
-        contentType === currentForm.contentType &&
-        !operationData.isBodyRequired
-      ) {
-        updatedForm.contentType = "";
-        updatedForm.parameters.header["Content-Type"] = {
-          value: "",
-          included: false,
-        };
-      } else {
-        updatedForm.contentType = contentType;
-        updatedForm.parameters.header["Content-Type"] = {
-          value: contentType,
-          included: true,
-        };
-      }
-
-      setFormValues(specificationUrl || "", operation.id, updatedForm);
-    },
-    [
-      currentForm,
-      operationData.isBodyRequired,
-      setFormValues,
-      specificationUrl,
-      operation.id,
-    ]
-  );
-
-  // Optimize body update
-  const updateBody = useCallback(
-    (bodyMediaType: string, bodyValues: any) => {
-      if (!currentForm.requestBody) return;
-
-      // Deep copy to avoid read-only errors
-      const updatedForm = {
-        ...currentForm,
-        requestBody: {
-          ...currentForm.requestBody,
-          [bodyMediaType]: bodyValues,
-        },
-      };
-
-      setFormValues(specificationUrl || "", operation.id, updatedForm);
-    },
-    [currentForm, setFormValues, specificationUrl, operation.id]
-  );
-
-  // Optimized effect to initialize the form
-  useEffect(() => {
-    // Only update if the form doesn't exist in the store
-    if (!specifications?.[specificationUrl || ""]?.forms?.[operation.id]) {
-      const defaultForm = {
-        parameters: operation.getParameterDefaultValues(),
-        contentType: operationData.bodyMimeTypes?.[0] || "",
-        requestBody: operationData.body?.getFieldDefaultValues() || null,
-      };
-
-      setFormValues(specificationUrl || "", operation.id, defaultForm);
-    }
-  }, [
-    operation.id,
-    specifications,
-    specificationUrl,
-    setFormValues,
-    operationData.bodyMimeTypes,
-    operationData.body,
-  ]);
+    return spec.buildRequest(operationFocused);
+  }, [operationFocused, spec]);
 
   // Optimized effect to reset tabs
   useEffect(() => {
@@ -241,20 +93,7 @@ export const OperationTabs = React.memo(function OperationTabs({
 
                   <div className="border border-divider rounded-lg">
                     {operationData.pathParams.map((param) => (
-                      <OperationParameter
-                        key={param.id}
-                        included={
-                          param.required
-                            ? true
-                            : !!currentForm?.parameters?.path?.[param.name]
-                                ?.included
-                        }
-                        parameter={param}
-                        value={
-                          currentForm?.parameters?.path?.[param.name]?.value
-                        }
-                        onChange={handleParameterChange}
-                      />
+                      <OperationParameter key={param.id} parameter={param} />
                     ))}
                   </div>
                 </div>
@@ -265,20 +104,7 @@ export const OperationTabs = React.memo(function OperationTabs({
 
                   <div className="border border-divider rounded-lg">
                     {operationData.queryParams.map((param) => (
-                      <OperationParameter
-                        key={param.id}
-                        included={
-                          param.required
-                            ? true
-                            : !!currentForm?.parameters?.query?.[param.name]
-                                ?.included
-                        }
-                        parameter={param}
-                        value={
-                          currentForm?.parameters?.query?.[param.name]?.value
-                        }
-                        onChange={handleParameterChange}
-                      />
+                      <OperationParameter key={param.id} parameter={param} />
                     ))}
                   </div>
                 </div>
@@ -307,20 +133,7 @@ export const OperationTabs = React.memo(function OperationTabs({
 
                 <div className="border border-divider rounded-lg">
                   {operationData.headerParams.map((param) => (
-                    <OperationParameter
-                      key={param.id}
-                      included={
-                        param.required
-                          ? true
-                          : !!currentForm?.parameters?.header?.[param.name]
-                              ?.included
-                      }
-                      parameter={param}
-                      value={
-                        currentForm?.parameters?.header?.[param.name]?.value
-                      }
-                      onChange={handleParameterChange}
-                    />
+                    <OperationParameter key={param.id} parameter={param} />
                   ))}
                 </div>
               </div>
@@ -341,56 +154,10 @@ export const OperationTabs = React.memo(function OperationTabs({
               </div>
             }
           >
-            <div className="flex flex-col space-y-4">
-              <div className="space-y-2">
-                <Subtitle>
-                  <div className="flex items-center gap-2">
-                    Body Content
-                    {operationData.isBodyRequired && (
-                      <Chip color="danger" size="sm" variant="flat">
-                        Required
-                      </Chip>
-                    )}
-                  </div>
-                </Subtitle>
-
-                {operationData.body && operationData.body.description && (
-                  <span className="text-tiny font-semibold text-content4">
-                    {operationData.body.description}
-                  </span>
-                )}
-
-                <CardSelectableButtons
-                  options={operationData.bodyMimeTypes.map((type) => ({
-                    value: type,
-                    selected: currentForm.contentType === type,
-                  }))}
-                  onClick={handleContentTypeChange}
-                >
-                  <>
-                    <HeadersIcon className="size-4" />
-                    Content-Type (Header):
-                  </>
-                </CardSelectableButtons>
-              </div>
-
-              <div className="space-y-2">
-                {currentForm?.requestBody?.[currentForm.contentType] !==
-                  undefined &&
-                  currentForm?.requestBody?.[currentForm.contentType] !==
-                    null && (
-                    <RequestBody
-                      bodyMediaType={operationData.body?.getMimeType(
-                        currentForm.contentType
-                      )}
-                      currentValues={
-                        currentForm.requestBody[currentForm.contentType]
-                      }
-                      updateBody={updateBody}
-                    />
-                  )}
-              </div>
-            </div>
+            <OperationBody
+              body={operation.getRequestBody()}
+              contentTypeParameter={operation.getContentType()}
+            />
           </Tab>
         </Tabs>
       </div>
@@ -421,10 +188,7 @@ export const OperationTabs = React.memo(function OperationTabs({
             }
           >
             <OperationResponse
-              acceptHeader={
-                (currentForm?.parameters?.header?.["Accept"]
-                  ?.value as string) || ""
-              }
+              acceptHeader={(operation.getAccept()?.value as string) || ""}
               operation={operation}
             />
           </Tab>

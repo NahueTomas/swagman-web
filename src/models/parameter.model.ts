@@ -7,6 +7,9 @@ import type {
   OpenAPIParameterStyle,
   OpenAPISchema,
 } from "../shared/types/openapi";
+import type { Value } from "@/shared/types/parameter-value";
+
+import { makeObservable, observable, action } from "mobx";
 
 import { getParameterDefaultValue } from "@/shared/utils/openapi";
 
@@ -30,7 +33,17 @@ export class ParameterModel {
   const?: unknown;
   $ref?: string;
 
-  constructor(operationId: string, parameter: OpenAPIParameter) {
+  // Reactive
+  value: Value | Value[];
+  included: boolean;
+
+  constructor(
+    operationId: string,
+    parameter: OpenAPIParameter & {
+      defaultValue?: Value | Value[] | undefined;
+      defaultIncluded?: boolean | undefined;
+    }
+  ) {
     this.id = `${operationId}-${parameter.name}`;
 
     this.name = parameter.name;
@@ -65,10 +78,31 @@ export class ParameterModel {
           ? "form"
           : "simple"
         : undefined;
+
+    const exampleValue = this.getExample();
+
+    this.value =
+      parameter.defaultValue ||
+      (exampleValue !== null && exampleValue !== undefined)
+        ? this.getExample()
+        : undefined;
+    this.included =
+      parameter.defaultIncluded !== undefined
+        ? parameter.defaultIncluded
+        : this.deprecated
+          ? false
+          : true;
+
+    makeObservable(this, {
+      value: observable.ref,
+      included: observable,
+      setValue: action,
+      setIncluded: action,
+    });
   }
 
   public getExample(): any {
-    return getParameterDefaultValue(this);
+    return getParameterDefaultValue(this, this.required);
   }
 
   public getType(): string | string[] {
@@ -87,5 +121,13 @@ export class ParameterModel {
 
   public getIn(): string {
     return this.in || "query";
+  }
+
+  public setValue(value: Value | Value[]) {
+    this.value = value;
+  }
+
+  public setIncluded(included: boolean) {
+    this.included = included;
   }
 }
