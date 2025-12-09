@@ -21,10 +21,10 @@ export default function SpecificationOperationsPage() {
           <div className="flex h-full">
             <section className="flex flex-col w-full">
               {operationFocused.summary && (
-                <h2 className="text-md">{operationFocused.summary}</h2>
+                <h2 className="text-lg">{operationFocused.summary}</h2>
               )}
               {operationFocused.description && (
-                <div className="text-tiny font-semibold text-content4 mt-1">
+                <div className="text-sm font-semibold text-content4 mt-2.5 max-w-5xl">
                   {operationFocused.description}
                 </div>
               )}
@@ -32,6 +32,7 @@ export default function SpecificationOperationsPage() {
                 <Chip
                   className="mt-4"
                   color="warning"
+                  radius="sm"
                   size="sm"
                   title={MESSAGES.deprecatedOperation}
                   variant="flat"

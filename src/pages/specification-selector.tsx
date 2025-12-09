@@ -92,13 +92,13 @@ export default function SpecificationSelectorPage() {
                   <span className="text-sm font-medium">Supported Formats</span>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  <Chip color="primary" size="sm" variant="flat">
+                  <Chip color="primary" radius="sm" size="sm" variant="flat">
                     JSON
                   </Chip>
-                  <Chip color="primary" size="sm" variant="flat">
+                  <Chip color="primary" radius="sm" size="sm" variant="flat">
                     YAML
                   </Chip>
-                  <Chip color="secondary" size="sm" variant="flat">
+                  <Chip color="secondary" radius="sm" size="sm" variant="flat">
                     OpenAPI 3.x
                   </Chip>
                 </div>

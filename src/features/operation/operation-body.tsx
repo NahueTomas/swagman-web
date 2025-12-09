@@ -24,7 +24,7 @@ export const OperationBody = ({
           <div className="flex items-center gap-2">
             Body Content
             {body.required && (
-              <Chip color="danger" size="sm" variant="flat">
+              <Chip color="danger" radius="sm" size="sm" variant="flat">
                 Required
               </Chip>
             )}

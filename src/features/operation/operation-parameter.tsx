@@ -41,19 +41,19 @@ export const OperationParameter = observer(
               {parameter.name}
             </span>
             {parameter.required && (
-              <Chip color="danger" size="sm" variant="flat">
+              <Chip color="danger" radius="sm" size="sm" variant="flat">
                 Required
               </Chip>
             )}
             {parameter.deprecated && (
-              <Chip color="warning" size="sm" variant="flat">
+              <Chip color="warning" radius="sm" size="sm" variant="flat">
                 Deprecated
               </Chip>
             )}
           </div>
 
           <div className="flex flex-wrap gap-2 mt-1.5">
-            <Chip size="sm" variant="flat">
+            <Chip radius="sm" size="sm" variant="flat">
               {parameter.getType() || "any"}
               {parameter.schema?.items &&
                 typeof parameter.schema.items === "object" &&
@@ -64,7 +64,7 @@ export const OperationParameter = observer(
 
             {(isArray(parameter.getFirstType()) ||
               parameter.getFirstType() === "object") && (
-              <Chip size="sm" variant="flat">
+              <Chip radius="sm" size="sm" variant="flat">
                 Explode {`<${String(parameter.explode)}:${parameter.style}>`}
               </Chip>
             )}
@@ -73,6 +73,7 @@ export const OperationParameter = observer(
               <Chip
                 className="mt-4"
                 color="warning"
+                radius="sm"
                 size="sm"
                 title={MESSAGES.deprecatedParameter}
                 variant="flat"

@@ -19,10 +19,12 @@ export const FormFieldCheckbox = ({
 
   return (
     <Checkbox
+      color="primary"
       defaultSelected={value}
       id={id}
       isDisabled={required}
-      size="lg"
+      radius="sm"
+      size="md"
       onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
         handleChange(e as unknown as Event)
       }

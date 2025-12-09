@@ -254,7 +254,7 @@ export const OperationBottomBar = observer(() => {
               ) : response ? (
                 <>
                   <span>{response.getDate()}</span>
-                  <Chip color="default" size="sm" variant="flat">
+                  <Chip color="default" radius="sm" size="sm" variant="flat">
                     {(response.getHeaders()?.["content-type"] as string) ||
                       "application/json"}
                   </Chip>

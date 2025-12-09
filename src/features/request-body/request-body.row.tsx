@@ -35,13 +35,13 @@ export const RequestBodyRow = observer(
           <div className="flex items-center gap-2">
             <span className="font-medium text-sm">{requestBodyField.name}</span>
             {requestBodyField.required && (
-              <Chip color="danger" size="sm" variant="flat">
+              <Chip color="danger" radius="sm" size="sm" variant="flat">
                 Required
               </Chip>
             )}
           </div>
           <div className="flex flex-wrap gap-2 mt-1.5">
-            <Chip size="sm" variant="flat">
+            <Chip radius="sm" size="sm" variant="flat">
               {schemaType}
               {requestBodyField.schema?.items &&
                 typeof requestBodyField.schema.items === "object" &&
