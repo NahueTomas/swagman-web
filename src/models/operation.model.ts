@@ -2,6 +2,7 @@ import type {
   OpenAPIOperation,
   OpenAPIParameter,
   OpenAPIServer,
+  OpenAPISecurityRequirement,
 } from "../shared/types/openapi";
 
 import { action, makeObservable, observable } from "mobx";
@@ -11,6 +12,7 @@ import { RequestBodyModel } from "./request-body.model";
 import { ResponsesModel } from "./responses.model";
 import { ServerModel } from "./server.model";
 import { RequestResponseModel } from "./request-response.model";
+import { SecurityModel } from "./security.model";
 
 export class OperationModel {
   public id: string;
@@ -29,13 +31,13 @@ export class OperationModel {
   private requestBody: RequestBodyModel | null;
   private responses: ResponsesModel;
   private acceptHeader: ParameterModel;
+  public security: Array<OpenAPISecurityRequirement>;
 
   public requestResponse: RequestResponseModel | null = null;
   public loadingRequestResponse: boolean = false;
 
   //private externalDocs: OpenAPIExternalDocumentation | null;
   //private callbacks: { [callbackName: string]: Referenced<OpenAPICallback> };
-  //private security: Array<{ [name: string]: string[] }>;
 
   constructor(path: string, method: string, operation: OpenAPIOperation) {
     this.id = this.generateId(path, method);
@@ -58,19 +60,17 @@ export class OperationModel {
     this.responses = new ResponsesModel(operation.responses);
     this.parameters = this.processParameters(operation?.parameters || []);
     this.acceptHeader = this.parameters[0];
+    this.security = operation.security || [];
 
     makeObservable(this, {
       selectedServer: observable.ref,
       requestResponse: observable.ref,
       loadingRequestResponse: observable.ref,
+      security: observable.ref,
       setRequestResponse: action,
       setLoadingRequestResponse: action,
       setSelectedServer: action,
     });
-
-    //this.externalDocs = operation.externalDocs || null;
-    //this.callbacks = operation.callbacks || {};
-    //this.security = operation.security || [];
   }
 
   private generateId(path: string, method: string): string {
@@ -238,6 +238,25 @@ export class OperationModel {
     const server = this.servers.find((s) => s.getUrl() === url);
 
     if (server) this.selectedServer = server;
+  }
+
+  public isSecuritySatisfied(globalSecurity: SecurityModel[]): boolean {
+    // If no security schemes defined at all, no security needed
+    if (!this.security.length) return false;
+
+    // Check if ANY security requirement is satisfied (OR logic)
+    return this.security.some((requirement) => {
+      const schemeNames = Object.keys(requirement);
+
+      // All schemes in this requirement must be logged in global security (AND logic)
+      return schemeNames.every((schemeName) => {
+        const securityModel = globalSecurity.find(
+          (s) => s.getName() === schemeName
+        );
+
+        return securityModel?.logged || false;
+      });
+    });
   }
 
   public getResponses(): ResponsesModel {

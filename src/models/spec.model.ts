@@ -18,6 +18,7 @@ import {
 import { ParameterModel } from "./parameter.model";
 import { RequestBodyMediaType } from "./request-body-media-type";
 import { getDefaultServer } from "./helpers/get-default-server";
+import { SecurityCredentials, SecurityModel } from "./security.model";
 
 import { OperationModel } from "@/models/operation.model";
 import { SwaggerConverter } from "@/lib/swagger-converter";
@@ -39,6 +40,7 @@ export class SpecModel {
 
   public servers: Array<ServerModel>;
   public selectedServer: ServerModel;
+  public globalSecurity: SecurityModel[];
 
   // Cache for expensive operations
   private operations: Array<OperationModel>;
@@ -69,6 +71,7 @@ export class SpecModel {
 
     this.servers = [];
     this.selectedServer = getDefaultServer();
+    this.globalSecurity = [];
     this.operations = [];
     this.tagList = [];
     this._operationsGenerated = false;
@@ -77,6 +80,8 @@ export class SpecModel {
     makeObservable(this, {
       selectedServer: observable.ref,
       setSelectedServer: action,
+      globalSecurity: observable.ref,
+      setCredentialsToGlobalSecurity: action,
     });
   }
 
@@ -105,6 +110,7 @@ export class SpecModel {
     this.tags = spec.tags || [];
 
     this.servers = this.generateServers(spec.servers || []);
+    this.globalSecurity = this.generateGlobalSecurity();
     this.selectedServer = this.servers[0];
 
     // Reset cache flags when processing new spec
@@ -129,6 +135,32 @@ export class SpecModel {
     return generatedServers;
   }
 
+  private generateGlobalSecurity(): SecurityModel[] {
+    const securityModels: SecurityModel[] = [];
+    const securitySchemes = this.components.securitySchemes || {};
+
+    // If there are global security requirements, create models for those
+    if (this.security?.length) {
+      for (const requirement of this.security) {
+        for (const schemeName of Object.keys(requirement)) {
+          const scheme = securitySchemes[schemeName];
+
+          if (scheme) {
+            securityModels.push(new SecurityModel(schemeName, scheme));
+          }
+        }
+      }
+    } else {
+      // If no global security, create models for ALL available security schemes
+      // This allows users to configure auth even for operation-level security
+      for (const [schemeName, scheme] of Object.entries(securitySchemes)) {
+        securityModels.push(new SecurityModel(schemeName, scheme));
+      }
+    }
+
+    return securityModels;
+  }
+
   public getSelectedServer(): ServerModel {
     if (!this.processed) throw new Error("Spec not processed");
 
@@ -141,6 +173,39 @@ export class SpecModel {
     const server = this.servers.find((s) => s.getUrl() === url);
 
     if (server) this.selectedServer = server;
+  }
+
+  public getGlobalSecurity() {
+    return this.globalSecurity;
+  }
+
+  public setCredentialsToGlobalSecurity(
+    name: string,
+    credentials: SecurityCredentials
+  ): void {
+    this.globalSecurity.find((gs) => {
+      if (gs.getName() === name) gs.setCredentials(credentials);
+    });
+  }
+
+  public isSecuritySatisfied(): boolean {
+    if (!this.processed) throw new Error("Spec not processed");
+    if (!this.globalSecurity.length) return false;
+    if (!this.security?.length) return false;
+
+    // Check if ANY security requirement is satisfied (OR logic)
+    return this.security.some((requirement) => {
+      const schemeNames = Object.keys(requirement);
+
+      // All schemes in this requirement must be logged (AND logic)
+      return schemeNames.every((schemeName) => {
+        const securityModel = this.globalSecurity.find(
+          (s) => s.getName() === schemeName
+        );
+
+        return securityModel?.logged || false;
+      });
+    });
   }
 
   public getServers(): ServerModel[] {
@@ -318,6 +383,28 @@ export class SpecModel {
     };
   }
 
+  private buildAuthorizations(): Record<string, any> {
+    if (!this.processed) throw new Error("Spec not processed");
+
+    const auths: Record<string, any> = {};
+
+    this.globalSecurity.forEach((security) => {
+      const creds = security.credentials;
+
+      if (!creds) return;
+
+      const name = security.getName();
+
+      switch (creds.type) {
+        case "apiKey":
+          auths[name] = { value: creds.value };
+          break;
+      }
+    });
+
+    return auths;
+  }
+
   public buildRequest(operation: OperationModel) {
     const requestBody = operation.getRequestBody();
     const contentType = operation.getContentType();
@@ -329,6 +416,8 @@ export class SpecModel {
       parameters
     );
 
+    const authorizations = this.buildAuthorizations();
+
     const request = SwaggerClient.buildRequest({
       spec: this.client.spec,
       operationId: `${operation.method.toLowerCase()}-${operation.path}`,
@@ -337,6 +426,7 @@ export class SpecModel {
       requestContentType: contentType?.value,
       responseContentType: operation?.getAccept()?.value,
       mediaType: contentType?.value,
+      securities: authorizations,
       responseInterceptor: (res: any) => {
         res.date = new Date().toLocaleString();
         res.statusText = getStatusCodeName(res.status);
@@ -361,6 +451,8 @@ export class SpecModel {
         parameters
       );
 
+      const authorizations = this.buildAuthorizations();
+
       const request = await SwaggerClient.execute({
         spec: this.client.spec,
         operationId: `${operation.method.toLowerCase()}-${operation.path}`,
@@ -369,6 +461,7 @@ export class SpecModel {
         requestContentType: contentType?.value,
         responseContentType: operation?.getAccept()?.value,
         mediaType: contentType?.value,
+        securities: authorizations,
         responseInterceptor: (res: any) => {
           res.date = new Date().toLocaleString();
           res.statusText = getStatusCodeName(res.status);

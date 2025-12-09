@@ -215,13 +215,13 @@ export interface OpenAPISecurityRequirement {
 }
 
 export interface OpenAPISecurityScheme {
-  type: "apiKey" | "http" | "oauth2" | "openIdConnect";
+  type: "apiKey" | "http" | "mutualTLS" | "oauth2" | "openIdConnect";
   description?: string;
   name?: string;
   in?: "query" | "header" | "cookie";
   scheme?: string;
-  bearerFormat: string;
-  flows: {
+  bearerFormat?: string;
+  flows?: {
     implicit?: {
       refreshUrl?: string;
       scopes: Record<string, string>;

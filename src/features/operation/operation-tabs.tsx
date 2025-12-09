@@ -1,5 +1,7 @@
-import React, { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Tabs, Tab } from "@heroui/tabs";
+import { Chip } from "@heroui/chip";
+import { observer } from "mobx-react-lite";
 
 import { OperationParameter } from "./operation-parameter";
 import { OperationResponse } from "./operation-response";
@@ -16,8 +18,10 @@ import {
   HeadersIcon,
   ParametersIcon,
 } from "@/shared/components/ui/icons";
+import { FormFieldText } from "@/shared/components/ui/form-fields/form-field-text";
+import { FormFieldCheckbox } from "@/shared/components/ui/form-fields/form-field-checkbox";
 
-export const OperationTabs = React.memo(function OperationTabs({
+export const OperationTabs = observer(function OperationTabs({
   operation,
 }: {
   operation: OperationModel;
@@ -28,19 +32,45 @@ export const OperationTabs = React.memo(function OperationTabs({
   const operationFocused = useStore((state) => state.operationFocused);
   const spec = useStore((state) => state.spec);
 
-  // Memoize expensive operation data
-  const operationData = useMemo(() => {
-    const body = operation.getRequestBody();
+  // Get operation data - observer will track all observable accesses
+  const body = operation.getRequestBody();
+  const globalSecurity = spec?.getGlobalSecurity() || [];
 
-    return {
-      body,
-      isBodyRequired: body?.required || false,
-      bodyMimeTypes: body?.getMimeTypes() || [],
-      queryParams: operation.getQueryParameters(),
-      pathParams: operation.getPathParameters(),
-      headerParams: operation.getHeaderParameters(),
-    };
-  }, [operation]);
+  // Get authorized API keys for this operation
+  const apiKeySecurities = globalSecurity.filter((sec) => {
+    const securities = operation.security.length
+      ? operation.security
+      : spec?.security;
+
+    const isUsedByOperation = securities?.some((req) =>
+      Object.keys(req).includes(sec.getName())
+    );
+
+    return (
+      sec.getType() === "apiKey" &&
+      sec.logged &&
+      (securities?.length ? isUsedByOperation : true)
+    );
+  });
+
+  // Separate API keys by location (query, header)
+  const apiKeyQueryParams = apiKeySecurities.filter(
+    (sec) => sec.getIn() === "query"
+  );
+  const apiKeyHeaderParams = apiKeySecurities.filter(
+    (sec) => sec.getIn() === "header"
+  );
+
+  const operationData = {
+    body,
+    isBodyRequired: body?.required || false,
+    bodyMimeTypes: body?.getMimeTypes() || [],
+    queryParams: operation.getQueryParameters(),
+    pathParams: operation.getPathParameters(),
+    headerParams: operation.getHeaderParameters(),
+    apiKeyQueryParams,
+    apiKeyHeaderParams,
+  };
 
   // Memoize the request preview
   const requestPreview = useMemo(() => {
@@ -98,11 +128,57 @@ export const OperationTabs = React.memo(function OperationTabs({
                   </div>
                 </div>
               )}
-              {operationData.queryParams.length > 0 && (
+              {(operationData.queryParams.length > 0 ||
+                operationData.apiKeyQueryParams.length > 0) && (
                 <div className="space-y-2">
                   <Subtitle>Query Parameters</Subtitle>
 
                   <div className="border border-divider rounded-lg">
+                    {operationData.apiKeyQueryParams.map((sec) => (
+                      <div
+                        key={sec.getName()}
+                        className="grid grid-cols-1 sm:grid-cols-[2rem_1fr_1fr] gap-3 p-3 border-b border-divider last:border-b-0 transition-colors items-center bg-success/5"
+                      >
+                        {/* Checkbox column - always checked for security */}
+                        <div className="flex items-center">
+                          <FormFieldCheckbox
+                            required
+                            value={true}
+                            onChange={() => null}
+                          />
+                        </div>
+
+                        {/* Parameter info */}
+                        <div className="flex flex-col">
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium text-sm">
+                              {sec.getName()}
+                            </span>
+                            <Chip
+                              color="success"
+                              radius="sm"
+                              size="sm"
+                              variant="flat"
+                            >
+                              {"security<apiKey>"}
+                            </Chip>
+                          </div>
+
+                          {sec.getDescription() && (
+                            <p className="text-xs mt-4">
+                              {sec.getDescription()}
+                            </p>
+                          )}
+                        </div>
+
+                        {/* Value display */}
+                        <FormFieldText
+                          disabled
+                          value="•••••••"
+                          onChange={() => null}
+                        />
+                      </div>
+                    ))}
                     {operationData.queryParams.map((param) => (
                       <OperationParameter key={param.id} parameter={param} />
                     ))}
@@ -110,7 +186,8 @@ export const OperationTabs = React.memo(function OperationTabs({
                 </div>
               )}
               {operationData.pathParams.length === 0 &&
-                operationData.queryParams.length === 0 && (
+                operationData.queryParams.length === 0 &&
+                operationData.apiKeyQueryParams.length === 0 && (
                   <div className="p-3 text-sm text-center border border-divider rounded-lg">
                     No parameters defined for this operation
                   </div>
@@ -127,21 +204,78 @@ export const OperationTabs = React.memo(function OperationTabs({
               </div>
             }
           >
-            {operationData.headerParams.length > 0 ? (
-              <div className="space-y-2">
-                <Subtitle>Header Parameters</Subtitle>
+            <div className="flex flex-col space-y-4">
+              {(operationData.headerParams.length > 0 ||
+                operationData.apiKeyHeaderParams.length > 0) && (
+                <div className="space-y-2">
+                  <Subtitle>Header Parameters</Subtitle>
 
-                <div className="border border-divider rounded-lg">
-                  {operationData.headerParams.map((param) => (
-                    <OperationParameter key={param.id} parameter={param} />
-                  ))}
+                  <div className="border border-divider rounded-lg">
+                    {operationData.apiKeyHeaderParams.map((sec) => (
+                      <div
+                        key={sec.getName()}
+                        className="grid grid-cols-1 sm:grid-cols-[2rem_1fr_1fr] gap-3 p-3 border-b border-divider last:border-b-0 transition-colors items-center bg-success/5"
+                      >
+                        {/* Checkbox column - always checked for security */}
+                        <div className="flex items-center">
+                          <input
+                            checked
+                            readOnly
+                            className="w-4 h-4 rounded border-success bg-success/20 text-success cursor-not-allowed"
+                            type="checkbox"
+                          />
+                        </div>
+
+                        {/* Parameter info */}
+                        <div className="flex flex-col">
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium text-sm">
+                              {sec.getName()}
+                            </span>
+                            <Chip
+                              color="success"
+                              radius="sm"
+                              size="sm"
+                              variant="flat"
+                            >
+                              Security
+                            </Chip>
+                          </div>
+
+                          <div className="flex flex-wrap gap-2 mt-1.5">
+                            <Chip radius="sm" size="sm" variant="flat">
+                              apiKey
+                            </Chip>
+                          </div>
+
+                          {sec.getDescription() && (
+                            <p className="text-xs mt-4">
+                              {sec.getDescription()}
+                            </p>
+                          )}
+                        </div>
+
+                        {/* Value display */}
+                        <div className="flex items-center justify-end">
+                          <span className="text-sm text-default-400 font-mono">
+                            •••••••
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                    {operationData.headerParams.map((param) => (
+                      <OperationParameter key={param.id} parameter={param} />
+                    ))}
+                  </div>
                 </div>
-              </div>
-            ) : (
-              <div className="p-3 text-sm text-center border border-divider rounded-lg">
-                No headers defined for this operation
-              </div>
-            )}
+              )}
+              {operationData.headerParams.length === 0 &&
+                operationData.apiKeyHeaderParams.length === 0 && (
+                  <div className="p-3 text-sm text-center border border-divider rounded-lg">
+                    No headers defined for this operation
+                  </div>
+                )}
+            </div>
           </Tab>
 
           <Tab
@@ -216,3 +350,5 @@ export const OperationTabs = React.memo(function OperationTabs({
     </div>
   );
 });
+
+OperationTabs.displayName = "OperationTabs";

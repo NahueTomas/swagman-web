@@ -1,14 +1,17 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Tooltip } from "@heroui/tooltip";
-import { Button } from "@heroui/button";
+import { observer } from "mobx-react-lite";
 
 import { ServerModal } from "../server/server-modal";
+import { AuthorizationModal } from "../authorization/authorization-modal";
 
 import { ApiExplorerTagList } from "./api-explorer-tag-list";
 
 import {
   InfoIcon,
+  LockIcon,
+  UnlockIcon,
   ServerIcon,
   ThunderIcon,
 } from "@/shared/components/ui/icons";
@@ -17,9 +20,10 @@ import { useStore } from "@/hooks/use-store";
 import { ButtonSelectable } from "@/shared/components/ui/button-selectable";
 import { ROUTES } from "@/shared/constants/constants";
 
-export const ApiExplorer = React.memo(() => {
+export const ApiExplorer = observer(() => {
   const { operationFocused, focusOperation, spec } = useStore();
   const [isServerModalOpen, setIsServerModalOpen] = useState(false);
+  const [isAuthModalOpen, setIsAuthModelOpen] = useState(false);
 
   const navigate = useNavigate();
 
@@ -27,6 +31,7 @@ export const ApiExplorer = React.memo(() => {
 
   const selectedServer = spec.getSelectedServer();
   const servers = spec.getServers();
+  const isSecuritySatisfied = spec.isSecuritySatisfied();
 
   return (
     <aside className="flex h-full w-auto">
@@ -41,15 +46,50 @@ export const ApiExplorer = React.memo(() => {
               <span className="font-semibold">Specification Info</span>
             </ButtonSelectable>
 
-            <Tooltip content="Global Server Settings">
-              <button
-                aria-label="Open server settings"
-                className="p-2.5 rounded-lg text-foreground/70"
-                onClick={() => setIsServerModalOpen(true)}
-              >
-                <ServerIcon aria-hidden="true" className="w-5 h-5" />
-              </button>
-            </Tooltip>
+            <div className="flex gap-0.5">
+              <Tooltip content="Global Server Settings">
+                <button
+                  aria-label="Open server settings"
+                  className="p-2.5 rounded-lg text-foreground/70"
+                  onClick={() => setIsServerModalOpen(true)}
+                >
+                  <ServerIcon aria-hidden="true" className="w-5 h-5" />
+                </button>
+              </Tooltip>
+
+              <Tooltip content="Authorize">
+                <button
+                  aria-label="Open authorization settings"
+                  className={`p-2.5 rounded-lg relative ${
+                    isSecuritySatisfied
+                      ? "text-success/70"
+                      : "text-foreground/70"
+                  }`}
+                  onClick={() => setIsAuthModelOpen(true)}
+                >
+                  <div className="flex flex-wrap relative">
+                    {isSecuritySatisfied ? (
+                      <UnlockIcon aria-hidden="true" className="w-5 h-5" />
+                    ) : (
+                      <LockIcon aria-hidden="true" className="w-5 h-5" />
+                    )}
+                    <div className="flex w-full justify-around absolute left-0 right-0 -bottom-1.5">
+                      {spec.getGlobalSecurity().map((security) => (
+                        <div
+                          key={security.getName()}
+                          className={`w-1 h-0.5 rounded-full ${
+                            security.logged
+                              ? "bg-success/70"
+                              : "bg-foreground/70"
+                          }`}
+                          title={security.getName()}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                </button>
+              </Tooltip>
+            </div>
           </div>
 
           <div className="px-4 py-2">
@@ -78,13 +118,18 @@ export const ApiExplorer = React.memo(() => {
           isOpen={isServerModalOpen}
           selectedServer={selectedServer}
           servers={servers}
-          setSelectedServer={spec.setSelectedServer}
+          setSelectedServer={(url) => spec.setSelectedServer(url)}
           subtitle="Global API Servers"
           onClose={() => setIsServerModalOpen(false)}
+        />
+      )}
+
+      {isAuthModalOpen && (
+        <AuthorizationModal
+          isOpen={isAuthModalOpen}
+          onClose={() => setIsAuthModelOpen(false)}
         />
       )}
     </aside>
   );
 });
-
-ApiExplorer.displayName = "ApiExplorer";

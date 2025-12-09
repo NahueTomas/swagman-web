@@ -10,12 +10,16 @@ import {
   ThunderIcon,
   Copy,
   Check,
+  LockIcon,
+  UnlockIcon,
 } from "@/shared/components/ui/icons";
 import { ServerModal } from "@/features/server/server-modal";
+import { AuthorizationModal } from "@/features/authorization/authorization-modal";
 import { OperationHeaderUrl } from "@/features/operation/operation-header-url";
 
 export const OperationHeader = observer(() => {
   const [isServerModalOpen, setIsServerModalOpen] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
 
   const { operationFocused: operation, spec } = useStore((state) => state);
@@ -111,6 +115,9 @@ export const OperationHeader = observer(() => {
 
   const selectedServer = operation.getSelectedServer();
   const servers = operation.getServers();
+  const globalSecurity = spec?.getGlobalSecurity() || [];
+  const isOperationSecuritySatisfied =
+    operation.isSecuritySatisfied(globalSecurity);
 
   return (
     <header
@@ -223,6 +230,36 @@ export const OperationHeader = observer(() => {
                     )}
                   </Button>
                 </Tooltip>
+
+                {operation.security.length && (
+                  <Tooltip content="Operation Authorize">
+                    <Button
+                      isIconOnly
+                      aria-label="Open authorization settings"
+                      className={`h-7 w-7 relative ${
+                        isOperationSecuritySatisfied ? "text-success/70" : ""
+                      }`}
+                      radius="md"
+                      size="sm"
+                      variant="flat"
+                      onClick={() => setIsAuthModalOpen(true)}
+                    >
+                      <div className="flex flex-col items-center gap-0.5">
+                        {isOperationSecuritySatisfied ? (
+                          <UnlockIcon
+                            aria-hidden="true"
+                            className="w-3.5 h-3.5"
+                          />
+                        ) : (
+                          <LockIcon
+                            aria-hidden="true"
+                            className="w-3.5 h-3.5"
+                          />
+                        )}
+                      </div>
+                    </Button>
+                  </Tooltip>
+                )}
               </div>
 
               <Button
@@ -358,6 +395,30 @@ export const OperationHeader = observer(() => {
                 )}
               </Button>
             </Tooltip>
+
+            {operation.security.length && (
+              <Tooltip content="Operation Authorize">
+                <Button
+                  isIconOnly
+                  aria-label="Open authorization settings"
+                  className={`h-6 w-6 relative ${
+                    isOperationSecuritySatisfied ? "text-success/70" : ""
+                  }`}
+                  radius="md"
+                  size="sm"
+                  variant="flat"
+                  onClick={() => setIsAuthModalOpen(true)}
+                >
+                  <div className="flex flex-col items-center gap-0.5">
+                    {isOperationSecuritySatisfied ? (
+                      <UnlockIcon aria-hidden="true" className="w-3.5 h-3.5" />
+                    ) : (
+                      <LockIcon aria-hidden="true" className="w-3.5 h-3.5" />
+                    )}
+                  </div>
+                </Button>
+              </Tooltip>
+            )}
           </div>
 
           {/* Desktop Tags */}
@@ -401,6 +462,14 @@ export const OperationHeader = observer(() => {
           setSelectedServer={operation.setSelectedServer}
           subtitle="Operation-Specific Servers"
           onClose={() => setIsServerModalOpen(false)}
+        />
+      )}
+
+      {isAuthModalOpen && (
+        <AuthorizationModal
+          isOpen={isAuthModalOpen}
+          operation={operation}
+          onClose={() => setIsAuthModalOpen(false)}
         />
       )}
     </header>
