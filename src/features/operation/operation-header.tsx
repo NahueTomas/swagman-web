@@ -1,50 +1,37 @@
-import { useState, useRef, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@heroui/button";
-import { Badge } from "@heroui/badge";
 import { Tooltip } from "@heroui/tooltip";
 import { addToast } from "@heroui/toast";
+import { observer } from "mobx-react-lite";
 
 import { useStore } from "@/hooks/use-store";
-import { useRequestForms } from "@/hooks/use-request-forms";
 import {
   ServerIcon,
   ThunderIcon,
   Copy,
   Check,
+  LockIcon,
+  UnlockIcon,
 } from "@/shared/components/ui/icons";
+import { ServerModal } from "@/features/server/server-modal";
+import { AuthorizationModal } from "@/features/authorization/authorization-modal";
 import { OperationHeaderUrl } from "@/features/operation/operation-header-url";
-import { OperationServers } from "@/features/operation/operation-servers";
 
-export const OperationHeader = () => {
+export const OperationHeader = observer(() => {
   const [isServerModalOpen, setIsServerModalOpen] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
-  const abortControllerRef = useRef<AbortController | null>(null);
 
   const { operationFocused: operation, spec } = useStore((state) => state);
-  const { specificationUrl, specifications, getResponse } = useRequestForms(
-    (state) => state
-  );
 
   // Cleanup function for aborting requests
   useEffect(() => {
     return () => {
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort();
-      }
+      operation?.setLoadingRequestResponse(false);
     };
   }, []);
 
   if (!operation) return null;
-
-  const currentValues = specifications?.[specificationUrl || ""]?.forms?.[
-    operation?.id
-  ] || {
-    parameters: operation.getParameterDefaultValues(),
-    requestBody: operation.getRequestBody()?.getFieldDefaultValues(),
-    contentType: operation.getRequestBody()?.getMimeTypes()?.[0] || null,
-  };
-
-  const responseStatus = getResponse(specificationUrl || "", operation.id);
 
   const methodUpper = operation.method.toUpperCase();
   const methodColors: Record<string, { bg: string; text: string }> = {
@@ -80,12 +67,7 @@ export const OperationHeader = () => {
       if (!spec) return;
 
       // Use spec.buildRequest to get the properly formatted URL
-      const request = spec.buildRequest(
-        operation,
-        null, // requestBody
-        currentValues?.parameters || null, // parameters
-        null // contentType
-      );
+      const request = spec.buildRequest(operation);
 
       const fullUrl = request.url;
 
@@ -112,52 +94,30 @@ export const OperationHeader = () => {
     try {
       if (!spec) return;
 
-      // Abort any previous request
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort();
-      }
+      operation.setLoadingRequestResponse(true);
+      const request = await spec.makeRequest(operation);
 
-      // Create new AbortController for this request
-      abortControllerRef.current = new AbortController();
-
-      useRequestForms
-        .getState()
-        .setResponseLoading(specificationUrl || "", operation.id);
-
-      const response = await spec.makeRequest(
-        operation,
-        currentValues?.requestBody?.[currentValues?.contentType] || null,
-        currentValues?.parameters,
-        currentValues?.contentType || null
-      );
-
-      // Only update if request wasn't aborted
-      if (!abortControllerRef.current.signal.aborted) {
-        useRequestForms
-          .getState()
-          .setResponseSuccess(specificationUrl || "", operation.id, response);
-      }
+      operation.setRequestResponse(request);
+      operation.setLoadingRequestResponse(false);
     } catch (error: unknown) {
-      // Only handle error if request wasn't aborted
-      if (
-        abortControllerRef.current &&
-        !abortControllerRef.current.signal.aborted
-      ) {
-        useRequestForms
-          .getState()
-          .setResponseSuccess(specificationUrl || "", operation.id, null);
+      operation.setLoadingRequestResponse(false);
 
-        addToast({
-          title: "Request Failed",
-          description:
-            error instanceof Error
-              ? error.message
-              : "An unexpected error occurred",
-          color: "danger",
-        });
-      }
+      addToast({
+        title: "Request Failed",
+        description:
+          error instanceof Error
+            ? error.message
+            : "An unexpected error occurred",
+        color: "danger",
+      });
     }
   };
+
+  const selectedServer = operation.getSelectedServer();
+  const servers = operation.getServers();
+  const globalSecurity = spec?.getGlobalSecurity() || [];
+  const isOperationSecuritySatisfied =
+    operation.isSecuritySatisfied(globalSecurity);
 
   return (
     <header
@@ -176,21 +136,13 @@ export const OperationHeader = () => {
                 <div
                   className={`absolute inset-0 ${colorSet.bg} blur-md select-none pointer-events-none`}
                 />
-                <Badge
-                  color="default"
-                  content={operation.deprecated ? "!" : undefined}
-                  isInvisible={!operation.deprecated}
-                  placement="top-right"
-                  shape="circle"
+                <div
+                  className={`px-3 py-1.5 rounded-lg ${colorSet.text} flex items-center justify-center`}
                 >
-                  <div
-                    className={`px-3 py-1.5 rounded-lg ${colorSet.text} flex items-center justify-center`}
-                  >
-                    <span className="uppercase tracking-wider">
-                      {methodUpper}
-                    </span>
-                  </div>
-                </Badge>
+                  <span className="uppercase tracking-wider">
+                    {methodUpper}
+                  </span>
+                </div>
               </div>
 
               {/* Mobile Tags */}
@@ -232,22 +184,24 @@ export const OperationHeader = () => {
             {/* Mobile: Actions Row */}
             <div className="flex items-center justify-between p-3">
               <div className="flex items-center gap-2">
-                <Tooltip content="Server Settings">
-                  <Button
-                    isIconOnly
-                    aria-label="Open server settings"
-                    className="h-7 w-7"
-                    radius="md"
-                    size="sm"
-                    variant="flat"
-                    onClick={() => setIsServerModalOpen(true)}
-                  >
-                    <ServerIcon
-                      aria-hidden="true"
-                      className="w-3.5 h-3.5 text-foreground/60"
-                    />
-                  </Button>
-                </Tooltip>
+                {selectedServer && (
+                  <Tooltip content="Server Settings">
+                    <Button
+                      isIconOnly
+                      aria-label="Open server settings"
+                      className="h-7 w-7"
+                      radius="md"
+                      size="sm"
+                      variant="flat"
+                      onClick={() => setIsServerModalOpen(true)}
+                    >
+                      <ServerIcon
+                        aria-hidden="true"
+                        className="w-3.5 h-3.5 text-foreground/60"
+                      />
+                    </Button>
+                  </Tooltip>
+                )}
 
                 <Tooltip content={isCopied ? "Copied!" : "Copy URL"}>
                   <Button
@@ -276,30 +230,62 @@ export const OperationHeader = () => {
                     )}
                   </Button>
                 </Tooltip>
+
+                {operation.security.length && (
+                  <Tooltip content="Operation Authorize">
+                    <Button
+                      isIconOnly
+                      aria-label="Open authorization settings"
+                      className={`h-7 w-7 relative ${
+                        isOperationSecuritySatisfied ? "text-success/70" : ""
+                      }`}
+                      radius="md"
+                      size="sm"
+                      variant="flat"
+                      onClick={() => setIsAuthModalOpen(true)}
+                    >
+                      <div className="flex flex-col items-center gap-0.5">
+                        {isOperationSecuritySatisfied ? (
+                          <UnlockIcon
+                            aria-hidden="true"
+                            className="w-3.5 h-3.5"
+                          />
+                        ) : (
+                          <LockIcon
+                            aria-hidden="true"
+                            className="w-3.5 h-3.5"
+                          />
+                        )}
+                      </div>
+                    </Button>
+                  </Tooltip>
+                )}
               </div>
 
               <Button
                 aria-label={
-                  responseStatus?.loading
+                  operation.loadingRequestResponse
                     ? "Executing API request..."
                     : "Execute API request"
                 }
                 color="default"
-                disabled={responseStatus?.loading}
+                disabled={operation.loadingRequestResponse}
                 radius="md"
                 size="sm"
                 startContent={
                   <ThunderIcon
                     aria-hidden="true"
                     className={`w-4 h-4 ${
-                      responseStatus?.loading ? "animate-spin" : ""
+                      operation.loadingRequestResponse ? "animate-spin" : ""
                     }`}
                   />
                 }
                 onClick={handleExecute}
               >
                 <span className="text-sm">
-                  {responseStatus?.loading ? "Executing..." : "Execute"}
+                  {operation.loadingRequestResponse
+                    ? "Executing..."
+                    : "Execute"}
                 </span>
               </Button>
             </div>
@@ -307,28 +293,20 @@ export const OperationHeader = () => {
 
           {/* Desktop Layout (Row) - Hidden on mobile, shown on md+ */}
           <div className="hidden md:flex items-stretch h-14">
-            {/* Desktop: HTTP Method Badge */}
+            {/* Desktop: HTTP Method */}
             <div className={`flex items-center relative`}>
               <div
                 className={`absolute inset-0 ${colorSet.bg} blur-xl select-none pointer-events-none`}
               />
-              <Badge
-                color="default"
-                content={operation.deprecated ? "!" : undefined}
-                isInvisible={!operation.deprecated}
-                placement="top-right"
-                shape="circle"
+              <div
+                className={`h-full min-w-24 flex items-center justify-center`}
               >
-                <div
-                  className={`h-full min-w-24 flex items-center justify-center`}
+                <span
+                  className={`text-xl uppercase tracking-wider ${colorSet.text}`}
                 >
-                  <span
-                    className={`text-xl uppercase tracking-wider ${colorSet.text}`}
-                  >
-                    {methodUpper}
-                  </span>
-                </div>
-              </Badge>
+                  {methodUpper}
+                </span>
+              </div>
             </div>
 
             {/* Desktop: URL Bar */}
@@ -346,22 +324,24 @@ export const OperationHeader = () => {
             <div className="flex items-center">
               <button
                 aria-label={
-                  responseStatus?.loading
+                  operation.loadingRequestResponse
                     ? "Executing API request..."
                     : "Execute API request"
                 }
                 className="flex gap-6 items-center h-full rounded-lg px-4 transition-colors bg-content2 hover:bg-content3"
-                disabled={responseStatus?.loading}
+                disabled={operation.loadingRequestResponse}
                 onClick={handleExecute}
               >
                 <ThunderIcon
                   aria-hidden="true"
                   className={`w-4 h-4 ${
-                    responseStatus?.loading ? "animate-spin" : ""
+                    operation.loadingRequestResponse ? "animate-spin" : ""
                   }`}
                 />
                 <span className="text-sm font-semibold">
-                  {responseStatus?.loading ? "Executing..." : "Execute"}
+                  {operation.loadingRequestResponse
+                    ? "Executing..."
+                    : "Execute"}
                 </span>
               </button>
             </div>
@@ -371,22 +351,24 @@ export const OperationHeader = () => {
         {/* Desktop Secondary Row - Only shown on md+ */}
         <div className="hidden md:flex items-center justify-between mt-3 pt-1.5 border-t border-divider">
           <div className="flex items-center gap-2">
-            <Tooltip content="Server Settings">
-              <Button
-                isIconOnly
-                aria-label="Open server settings"
-                className="h-6 w-6"
-                radius="md"
-                size="sm"
-                variant="flat"
-                onClick={() => setIsServerModalOpen(true)}
-              >
-                <ServerIcon
-                  aria-hidden="true"
-                  className="w-3.5 h-3.5 text-foreground/60"
-                />
-              </Button>
-            </Tooltip>
+            {selectedServer && (
+              <Tooltip content="Server Settings">
+                <Button
+                  isIconOnly
+                  aria-label="Open server settings"
+                  className="h-6 w-6"
+                  radius="md"
+                  size="sm"
+                  variant="flat"
+                  onClick={() => setIsServerModalOpen(true)}
+                >
+                  <ServerIcon
+                    aria-hidden="true"
+                    className="w-3.5 h-3.5 text-foreground/60"
+                  />
+                </Button>
+              </Tooltip>
+            )}
 
             <Tooltip content={isCopied ? "Copied!" : "Copy URL"}>
               <Button
@@ -413,6 +395,30 @@ export const OperationHeader = () => {
                 )}
               </Button>
             </Tooltip>
+
+            {operation.security.length && (
+              <Tooltip content="Operation Authorize">
+                <Button
+                  isIconOnly
+                  aria-label="Open authorization settings"
+                  className={`h-6 w-6 relative ${
+                    isOperationSecuritySatisfied ? "text-success/70" : ""
+                  }`}
+                  radius="md"
+                  size="sm"
+                  variant="flat"
+                  onClick={() => setIsAuthModalOpen(true)}
+                >
+                  <div className="flex flex-col items-center gap-0.5">
+                    {isOperationSecuritySatisfied ? (
+                      <UnlockIcon aria-hidden="true" className="w-3.5 h-3.5" />
+                    ) : (
+                      <LockIcon aria-hidden="true" className="w-3.5 h-3.5" />
+                    )}
+                  </div>
+                </Button>
+              </Tooltip>
+            )}
           </div>
 
           {/* Desktop Tags */}
@@ -447,12 +453,25 @@ export const OperationHeader = () => {
         </div>
       </div>
 
-      {isServerModalOpen && (
-        <OperationServers
+      {selectedServer && servers && isServerModalOpen && (
+        <ServerModal
+          description="These servers are defined only for this operation and override global servers."
           isOpen={isServerModalOpen}
+          selectedServer={selectedServer}
+          servers={servers}
+          setSelectedServer={operation.setSelectedServer}
+          subtitle="Operation-Specific Servers"
           onClose={() => setIsServerModalOpen(false)}
+        />
+      )}
+
+      {isAuthModalOpen && (
+        <AuthorizationModal
+          isOpen={isAuthModalOpen}
+          operation={operation}
+          onClose={() => setIsAuthModalOpen(false)}
         />
       )}
     </header>
   );
-};
+});

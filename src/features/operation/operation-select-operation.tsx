@@ -11,7 +11,7 @@ export const OperationSelectOperation = () => {
           Choose an API operation from the sidebar to view its details and test
           it out.
         </p>
-        <Chip color="primary" variant="flat">
+        <Chip color="primary" radius="sm" variant="flat">
           <ThunderIcon className="size-12" />
         </Chip>
       </div>

@@ -36,7 +36,7 @@ export default function Info() {
           <div className="flex-1">
             <div className="flex items-start gap-3 flex-wrap">
               <h1 className="font-bold text-4xl">{title}</h1>
-              <Chip color="secondary" variant="flat">
+              <Chip color="secondary" radius="sm" variant="flat">
                 v{version}
               </Chip>
             </div>
@@ -44,6 +44,7 @@ export default function Info() {
 
           <Chip
             color="primary"
+            radius="sm"
             startContent={<ThunderIcon className="size-4" />}
             variant="flat"
           >
@@ -52,6 +53,7 @@ export default function Info() {
 
           <Chip
             color="primary"
+            radius="sm"
             startContent={<OperationsIcon className="size-4" />}
             variant="flat"
           >

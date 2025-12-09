@@ -1,8 +1,6 @@
-import { useEffect } from "react";
+import { observer } from "mobx-react-lite";
 
-import { useRequestForms } from "@/hooks/use-request-forms";
 import { useStore } from "@/hooks/use-store";
-import { OpenAPIServerVariable } from "@/shared/types/openapi";
 
 /**
  * Props for the OperationUrl component
@@ -16,121 +14,18 @@ interface UrlProps {
  * OperationUrl Component
  * Displays a formatted URL with server, path and query parameters
  */
-export const OperationHeaderUrl = ({ url, className }: UrlProps) => {
+export const OperationHeaderUrl = observer(({ url, className }: UrlProps) => {
   // Get global spec and operation data from the store
   const { spec, operationFocused: operationModel } = useStore((state) => state);
 
-  // Get request forms state and actions from the store
-  const {
-    specifications,
-    specificationUrl,
-    setSelectedServer,
-    setOperationServer,
-  } = useRequestForms((state) => state);
+  if (!operationModel || !spec) return null;
 
-  // Get operation form data
-  const operationForm = operationModel?.id
-    ? specifications?.[specificationUrl || ""]?.forms?.[operationModel.id]
-    : undefined;
-
-  // Get operation-specific server if available, or fallback to global
-  const isOperationSpecific = !!operationModel?.getServers()?.length;
-  const globalSelectedServer =
-    specifications?.[specificationUrl || ""]?.selectedServer;
-  const globalSelectedServerVariables =
-    specifications?.[specificationUrl || ""]?.selectedServerVariables;
-  const selectedServer = isOperationSpecific
-    ? operationForm?.selectedServer
-    : globalSelectedServer;
-  const selectedServerVariables = isOperationSpecific
-    ? operationForm?.selectedServerVariables
-    : globalSelectedServerVariables;
-
-  // Get path and query parameters from the form state
-  const pathParams = operationForm?.parameters?.path || {};
-
-  // Determine which servers to use (operation-specific or global)
-  const servers = operationModel?.getServers()?.length
+  const requestPreview = spec?.buildRequest(operationModel);
+  const selectedServer =
+    operationModel.getSelectedServer() || spec.getSelectedServer();
+  const servers = !!operationModel.getServers()
     ? operationModel.getServers()
-    : spec?.servers || [];
-
-  /**
-   * Auto-select the first available server if none is selected
-   */
-  useEffect(() => {
-    if (servers.length > 0 && !selectedServer) {
-      const firstServer = servers[0];
-      const variables = firstServer.getVariables();
-
-      if (isOperationSpecific && operationModel?.id) {
-        // For operation-specific servers, use string values
-        const serverVariables: { [key: string]: string } = {};
-
-        if (variables) {
-          Object.entries(variables).forEach(([key, variable]) => {
-            if (
-              variable &&
-              typeof variable === "object" &&
-              "default" in variable
-            ) {
-              serverVariables[key] = String(variable.default);
-            }
-          });
-        }
-
-        setOperationServer(
-          specificationUrl || "",
-          operationModel.id,
-          firstServer.getUrl(),
-          serverVariables
-        );
-      } else {
-        // For global servers, use OpenAPIServerVariable type
-        const serverVariables: { [key: string]: OpenAPIServerVariable } = {};
-
-        if (variables) {
-          Object.entries(variables).forEach(([key, variable]) => {
-            if (
-              variable &&
-              typeof variable === "object" &&
-              "default" in variable
-            ) {
-              serverVariables[key] = {
-                default: String(variable.default),
-                description: variable.description || "",
-                enum: variable.enum || [],
-              };
-            }
-          });
-        }
-
-        setSelectedServer(
-          specificationUrl || "",
-          firstServer.getUrl(),
-          serverVariables
-        );
-      }
-    }
-  }, [servers, selectedServer, isOperationSpecific, operationModel?.id]);
-
-  if (!operationModel) return null;
-
-  const operationParameters =
-    operationForm?.parameters || operationModel.getParameterDefaultValues();
-
-  const requestPreview = spec?.buildRequest(
-    operationModel,
-    null, // requestBody
-    operationParameters, // parameters
-    null // contentType
-  );
-
-  /**
-   * Get the URL with parameters from requestPreview
-   */
-  const getUrlWithParameters = () => {
-    return requestPreview?.url || url;
-  };
+    : spec.getServers();
 
   /**
    * Get the base URL template (with placeholders) for path parameter detection
@@ -143,58 +38,19 @@ export const OperationHeaderUrl = ({ url, className }: UrlProps) => {
    * Get the server URL with variables applied
    */
   const getServerDisplayUrl = () => {
-    if (!selectedServer) return "";
-
     // Find the current server model
-    const currentServerModel = servers.find(
-      (s) => s.getUrl() === selectedServer
-    );
+    const currentServerModel = selectedServer;
 
     if (!currentServerModel) return selectedServer;
 
-    let displayUrl = selectedServer;
-
-    // Apply server variables to URL
-    if (currentServerModel.getVariables()) {
-      try {
-        if (
-          selectedServerVariables &&
-          Object.keys(selectedServerVariables).length > 0
-        ) {
-          // Convert variables to string values
-          const stringVariables: { [key: string]: string } = {};
-
-          Object.entries(selectedServerVariables).forEach(([key, value]) => {
-            if (typeof value === "string") {
-              stringVariables[key] = value;
-            } else if (
-              value &&
-              typeof value === "object" &&
-              "default" in value
-            ) {
-              stringVariables[key] = value.default;
-            }
-          });
-
-          // Use custom variables
-          displayUrl = currentServerModel.getUrlWithVariables(stringVariables);
-        } else {
-          // Use default variables
-          displayUrl = currentServerModel.getUrlWithDefaultVariables();
-        }
-      } catch (e) {
-        throw e;
-      }
-    }
-
-    return displayUrl;
+    return selectedServer.getUrlWithVariables();
   };
 
   /**
    * Render the URL with highlighted parameters
    */
   const renderHighlightedUrl = () => {
-    const processedUrl = getUrlWithParameters();
+    const processedUrl = requestPreview.url;
     const templateUrl = getUrlTemplate();
 
     // Regex patterns for path and query parameters
@@ -204,7 +60,7 @@ export const OperationHeaderUrl = ({ url, className }: UrlProps) => {
     let parts: React.ReactNode[] = [];
 
     // Render server part if available
-    if (servers.length > 0 && selectedServer) {
+    if (servers?.length && selectedServer) {
       const displayUrl = getServerDisplayUrl();
 
       parts.push(
@@ -227,7 +83,9 @@ export const OperationHeaderUrl = ({ url, className }: UrlProps) => {
     // Create a mapping of resolved values by analyzing both URLs
     const getResolvedValue = (paramName: string, placeholder: string) => {
       // Try to get from pathParams first
-      const paramData = pathParams[paramName];
+      const paramData = operationModel
+        .getPathParameters()
+        ?.find((p) => p.name === paramName);
 
       if (paramData?.value !== undefined) {
         return paramData.value.toString();
@@ -353,4 +211,4 @@ export const OperationHeaderUrl = ({ url, className }: UrlProps) => {
       </div>
     </div>
   );
-};
+});

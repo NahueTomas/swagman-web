@@ -54,12 +54,13 @@ export class RequestBodyModel {
           [key: string]: { value: any; included: boolean };
         } = {};
 
-        bodyMediaType?.getFields().forEach((field) => {
-          bodyMediaTypeParams[field.name] = {
-            value: field.getExample(),
-            included: true,
-          };
-        });
+        bodyMediaType?.fields &&
+          bodyMediaType?.fields.forEach((field) => {
+            bodyMediaTypeParams[field.name] = {
+              value: field.getExample(),
+              included: true,
+            };
+          });
         acc[mimeType] = bodyMediaTypeParams;
 
         return acc;

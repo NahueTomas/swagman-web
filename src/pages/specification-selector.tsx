@@ -1,10 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Card, CardBody, CardFooter, CardHeader } from "@heroui/card";
 import { Divider } from "@heroui/divider";
 import { Input } from "@heroui/input";
 import { Button } from "@heroui/button";
 import { Chip } from "@heroui/chip";
-import { useSearchParams, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 import { escapeUrl } from "@/shared/utils/helpers";
 import {
@@ -13,19 +13,11 @@ import {
   ServerIcon,
   ThunderIcon,
 } from "@/shared/components/ui/icons";
+import { ROUTES } from "@/shared/constants/constants";
 
 export default function SpecificationSelectorPage() {
   const [specificationLink, setSpecificationLink] = useState<string>("");
-  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const urlParam = searchParams.get("url");
-
-    if (urlParam) {
-      navigate(`/${escapeUrl(urlParam)}`, { replace: true });
-    }
-  }, [searchParams, navigate]);
 
   // Handle manual URL submission
   const handleManualSubmit = () => {
@@ -100,13 +92,13 @@ export default function SpecificationSelectorPage() {
                   <span className="text-sm font-medium">Supported Formats</span>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  <Chip color="primary" size="sm" variant="flat">
+                  <Chip color="primary" radius="sm" size="sm" variant="flat">
                     JSON
                   </Chip>
-                  <Chip color="primary" size="sm" variant="flat">
+                  <Chip color="primary" radius="sm" size="sm" variant="flat">
                     YAML
                   </Chip>
-                  <Chip color="secondary" size="sm" variant="flat">
+                  <Chip color="secondary" radius="sm" size="sm" variant="flat">
                     OpenAPI 3.x
                   </Chip>
                 </div>
@@ -187,7 +179,7 @@ export default function SpecificationSelectorPage() {
                 size="lg"
                 startContent={<ServerIcon className="size-4" />}
                 variant="flat"
-                onPress={() => navigate("/")}
+                onPress={() => navigate(ROUTES.APP)}
               >
                 Use Local Specification
               </Button>

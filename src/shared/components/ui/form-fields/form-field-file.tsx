@@ -1,32 +1,22 @@
+import React, { useRef, useState } from "react";
 import { Button } from "@heroui/button";
-import { useEffect, useId, useRef, useState } from "react";
 
-interface FormFieldFileProps {
-  onChange: (file: File | string | null) => void;
-  id?: string;
-  name?: string;
-  required?: boolean;
-  className?: string;
-}
+import { FormFieldProps } from "@/shared/types/form-field";
 
-export const FormFieldFile = ({
-  id,
-  name,
-  onChange,
-  required = false,
-  className = "",
-}: FormFieldFileProps) => {
-  const generatedId = useId();
+export const FormFieldFile: React.FC<
+  FormFieldProps & { name?: string; className?: string }
+> = ({ id, name, onChange, value, required = false, className = "" }) => {
+  const generatedId = id ?? `file-${Math.random().toString(36).slice(2, 9)}`;
   const inputId = id || generatedId;
-  const [fileName, setFileName] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [fileName, setFileName] = useState<string | null>(() => {
+    if (value instanceof File) return value.name;
 
-  useEffect(() => {
-    onChange(inputId);
-  }, []);
+    return null;
+  });
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0] || null;
+    const file = event.target.files?.[0] || undefined;
 
     setFileName(file?.name || null);
     onChange(file);

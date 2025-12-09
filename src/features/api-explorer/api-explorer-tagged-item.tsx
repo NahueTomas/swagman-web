@@ -7,11 +7,13 @@ export const ApiExplorerTaggedItem = ({
   title,
   method,
   active,
+  deprecated,
   onClick,
 }: {
   title: string;
   method: string;
   active: boolean;
+  deprecated: boolean;
   onClick: () => void;
 }) => {
   const methodUpper = method.toUpperCase();
@@ -42,7 +44,12 @@ export const ApiExplorerTaggedItem = ({
           </Chip>
 
           {/* Operation title */}
-          <span className={clsx("text-xs font-medium truncate flex-1")}>
+          <span
+            className={clsx(
+              "text-xs font-medium truncate flex-1",
+              deprecated ? "line-through" : ""
+            )}
+          >
             {title}
           </span>
         </div>

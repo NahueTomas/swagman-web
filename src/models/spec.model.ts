@@ -1,5 +1,6 @@
 // @ts-ignore
 import SwaggerClient from "swagger-client";
+import { action, makeObservable, observable } from "mobx";
 
 import {
   OpenAPIComponents,
@@ -14,11 +15,16 @@ import {
   OpenAPITag,
 } from "../shared/types/openapi";
 
+import { ParameterModel } from "./parameter.model";
+import { RequestBodyMediaType } from "./request-body-media-type";
+import { getDefaultServer } from "./helpers/get-default-server";
+import { SecurityCredentials, SecurityModel } from "./security.model";
+
 import { OperationModel } from "@/models/operation.model";
 import { SwaggerConverter } from "@/lib/swagger-converter";
-import { ParameterType } from "@/hooks/use-request-forms";
 import { ServerModel } from "@/models/server.model";
 import { getStatusCodeName } from "@/shared/utils/helpers";
+import { Value } from "@/shared/types/parameter-value";
 
 export class SpecModel {
   public processed: boolean;
@@ -33,13 +39,20 @@ export class SpecModel {
   public client: SwaggerClient;
 
   public servers: Array<ServerModel>;
+  public selectedServer: ServerModel;
+  public globalSecurity: SecurityModel[];
 
   // Cache for expensive operations
   private operations: Array<OperationModel>;
   private tagList: Array<{
     title: string;
     description?: string;
-    operationsResume: { id: string; title: string; method: string }[];
+    operationsResume: {
+      id: string;
+      title: string;
+      method: string;
+      deprecated: boolean;
+    }[];
   }>;
 
   // Flags to know if they have been generated (memoization)
@@ -57,10 +70,19 @@ export class SpecModel {
     this.externalDocs = null;
 
     this.servers = [];
+    this.selectedServer = getDefaultServer();
+    this.globalSecurity = [];
     this.operations = [];
     this.tagList = [];
     this._operationsGenerated = false;
     this._tagListGenerated = false;
+
+    makeObservable(this, {
+      selectedServer: observable.ref,
+      setSelectedServer: action,
+      globalSecurity: observable.ref,
+      setCredentialsToGlobalSecurity: action,
+    });
   }
 
   public async processSpec(config: string | object) {
@@ -88,6 +110,8 @@ export class SpecModel {
     this.tags = spec.tags || [];
 
     this.servers = this.generateServers(spec.servers || []);
+    this.globalSecurity = this.generateGlobalSecurity();
+    this.selectedServer = this.servers[0];
 
     // Reset cache flags when processing new spec
     this._operationsGenerated = false;
@@ -96,6 +120,10 @@ export class SpecModel {
 
   private generateServers(servers: OpenAPIServer[]) {
     if (!this.processed) throw new Error("Spec not processed");
+
+    // Default server
+    if (!servers.length) return [getDefaultServer()];
+
     const generatedServers: Array<ServerModel> = [];
 
     for (const server of servers) {
@@ -105,6 +133,83 @@ export class SpecModel {
     }
 
     return generatedServers;
+  }
+
+  private generateGlobalSecurity(): SecurityModel[] {
+    const securityModels: SecurityModel[] = [];
+    const securitySchemes = this.components.securitySchemes || {};
+
+    // If there are global security requirements, create models for those
+    if (this.security?.length) {
+      for (const requirement of this.security) {
+        for (const schemeName of Object.keys(requirement)) {
+          const scheme = securitySchemes[schemeName];
+
+          if (scheme) {
+            securityModels.push(new SecurityModel(schemeName, scheme));
+          }
+        }
+      }
+    } else {
+      // If no global security, create models for ALL available security schemes
+      // This allows users to configure auth even for operation-level security
+      for (const [schemeName, scheme] of Object.entries(securitySchemes)) {
+        securityModels.push(new SecurityModel(schemeName, scheme));
+      }
+    }
+
+    return securityModels;
+  }
+
+  public getSelectedServer(): ServerModel {
+    if (!this.processed) throw new Error("Spec not processed");
+
+    return this.selectedServer;
+  }
+
+  public setSelectedServer(url: string): void {
+    if (!this.processed) throw new Error("Spec not processed");
+
+    const server = this.servers.find((s) => s.getUrl() === url);
+
+    if (server) this.selectedServer = server;
+  }
+
+  public getGlobalSecurity() {
+    return this.globalSecurity;
+  }
+
+  public setCredentialsToGlobalSecurity(
+    name: string,
+    credentials: SecurityCredentials
+  ): void {
+    this.globalSecurity.find((gs) => {
+      if (gs.getName() === name) gs.setCredentials(credentials);
+    });
+  }
+
+  public isSecuritySatisfied(): boolean {
+    if (!this.processed) throw new Error("Spec not processed");
+    if (!this.globalSecurity.length) return false;
+    if (!this.security?.length) return false;
+
+    // Check if ANY security requirement is satisfied (OR logic)
+    return this.security.some((requirement) => {
+      const schemeNames = Object.keys(requirement);
+
+      // All schemes in this requirement must be logged (AND logic)
+      return schemeNames.every((schemeName) => {
+        const securityModel = this.globalSecurity.find(
+          (s) => s.getName() === schemeName
+        );
+
+        return securityModel?.logged || false;
+      });
+    });
+  }
+
+  public getServers(): ServerModel[] {
+    return this.servers;
   }
 
   private generateOperations() {
@@ -146,7 +251,12 @@ export class SpecModel {
       [title: string]: {
         title: string;
         description?: string;
-        operationsResume: { id: string; title: string; method: string }[];
+        operationsResume: {
+          id: string;
+          title: string;
+          method: string;
+          deprecated: boolean;
+        }[];
       };
     } = {};
 
@@ -185,6 +295,7 @@ export class SpecModel {
           id: operation.id,
           title: operation.operationId || operation.path,
           method: operation.method,
+          deprecated: operation.deprecated,
         });
       }
     }
@@ -217,119 +328,147 @@ export class SpecModel {
   }
 
   private buildRequestDependencies(
-    requestBody: string | { [key: string]: any } | null,
-    parameters: ParameterType
+    requestBodyMediaType: RequestBodyMediaType | undefined,
+    parameters: ParameterModel[]
   ) {
     if (!this.processed) throw new Error("Spec not processed");
-    let parametersFormatted = {};
-    let responseContentType = "*/*";
+
+    const parametersFormatted: { [key: string]: Value | Value[] } = {};
 
     // Nesting parameters
-    for (const key in parameters) {
-      for (const param in parameters[key as keyof ParameterType]) {
-        if (key === "header" && param === "Accept")
-          responseContentType = parameters[key][param].value as string;
-        if (key === "header" && param === "Content-Type") continue;
-        else if (parameters[key as keyof ParameterType][param].included) {
-          (parametersFormatted as Record<string, any>)[`${key}.${param}`] =
-            parameters[key as keyof ParameterType][param].value;
-        }
+    parameters.forEach((param) => {
+      if (param.getIn() === "header" && param.name.toLowerCase() === "accept")
+        return;
+      if (
+        param.getIn() === "header" &&
+        param.name.toLocaleLowerCase() === "content-type"
+      )
+        return;
+
+      if (param.included) {
+        parametersFormatted[`${param.getIn()}.${param.name}`] = param.value;
       }
+    });
+
+    let requestBodyFormatted:
+      | string
+      | { [key: string]: Value | Value[] }
+      | undefined;
+
+    if (
+      requestBodyMediaType &&
+      !Array.isArray(requestBodyMediaType.fields) &&
+      (requestBodyMediaType as any).value
+    ) {
+      // Caso text/plain, application/json simple, etc
+      requestBodyFormatted = (requestBodyMediaType as any).value;
+    } else if (requestBodyMediaType?.fields?.length) {
+      // Caso form-data o json con propiedades
+      const obj: { [key: string]: Value | Value[] } = {};
+
+      requestBodyMediaType.fields.forEach((f) => {
+        if (f.included) obj[f.name] = f.value;
+      });
+      requestBodyFormatted = obj;
     }
 
-    let requestBodyFormatted: string | object = {};
-
-    if (typeof requestBody === "string") requestBodyFormatted = requestBody;
-    else
-      for (const key in requestBody) {
-        const typedKey = key as keyof typeof requestBody;
-
-        if (requestBody[typedKey]?.included) {
-          (requestBodyFormatted as Record<string, any>)[typedKey] =
-            requestBody[typedKey].value;
-        }
-      }
-
     return {
-      parameters: parametersFormatted,
-      requestBody:
+      params: parametersFormatted,
+      body:
         typeof requestBodyFormatted === "object" &&
+        requestBodyFormatted &&
         Object.keys(requestBodyFormatted)?.length === 0
           ? null
           : requestBodyFormatted,
-      responseContentType,
     };
   }
 
-  public buildRequest(
-    operation: OperationModel,
-    requestBody: string | { [key: string]: any } | null,
-    parameters: ParameterType,
-    contentType: string | null
-  ) {
-    const {
-      parameters: parametersF,
-      requestBody: requestBodyF,
-      responseContentType,
-    } = this.buildRequestDependencies(requestBody, parameters);
+  private buildAuthorizations(): Record<string, any> {
+    if (!this.processed) throw new Error("Spec not processed");
 
-    const objRequest: {
-      [key: string]: string | object | null;
-    } = {
+    const auths: Record<string, any> = {};
+
+    this.globalSecurity.forEach((security) => {
+      const creds = security.credentials;
+
+      if (!creds) return;
+
+      const name = security.getName();
+
+      switch (creds.type) {
+        case "apiKey":
+          auths[name] = { value: creds.value };
+          break;
+      }
+    });
+
+    return auths;
+  }
+
+  public buildRequest(operation: OperationModel) {
+    const requestBody = operation.getRequestBody();
+    const contentType = operation.getContentType();
+    const parameters = operation.getParameters();
+    const server = operation.getSelectedServer() || this.getSelectedServer();
+
+    const { params, body } = this.buildRequestDependencies(
+      requestBody?.getMimeType(contentType?.value as string),
+      parameters
+    );
+
+    const authorizations = this.buildAuthorizations();
+
+    const request = SwaggerClient.buildRequest({
       spec: this.client.spec,
       operationId: `${operation.method.toLowerCase()}-${operation.path}`,
-      parameters: parametersF,
-      responseContentType,
-    };
+      parameters: params,
+      requestBody: body,
+      requestContentType: contentType?.value,
+      responseContentType: operation?.getAccept()?.value,
+      mediaType: contentType?.value,
+      securities: authorizations,
+      responseInterceptor: (res: any) => {
+        res.date = new Date().toLocaleString();
+        res.statusText = getStatusCodeName(res.status);
 
-    if (contentType && requestBodyF) {
-      objRequest.requestContentType = contentType;
-      objRequest.requestBody = requestBodyF;
-    }
-
-    const request = SwaggerClient.buildRequest(objRequest);
+        return res;
+      },
+      baseURL: server.getUrlWithVariables(),
+    });
 
     return request;
   }
 
-  public async makeRequest(
-    operation: OperationModel,
-    requestBody: string | { [key: string]: any } | null,
-    parameters: ParameterType,
-    contentType: string | null
-  ): Promise<{
-    body: { [key: string]: any } | string;
-    data: string;
-    headers: { [key: string]: string | string[] };
-    obj: { [key: string]: any } | string;
-    ok: boolean;
-    status: number;
-    statusText: string;
-    text: string;
-    url: string;
-    date: string;
-    statusCodeName: string;
-  }> {
+  public async makeRequest(operation: OperationModel) {
     try {
-      const {
-        parameters: parametersF,
-        requestBody: requestBodyF,
-        responseContentType,
-      } = this.buildRequestDependencies(requestBody, parameters);
+      const requestBody = operation.getRequestBody();
+      const contentType = operation.getContentType();
+      const parameters = operation.getParameters();
+      const server = operation.getSelectedServer() || this.getSelectedServer();
+
+      const { params, body } = this.buildRequestDependencies(
+        requestBody?.getMimeType(contentType?.value as string),
+        parameters
+      );
+
+      const authorizations = this.buildAuthorizations();
 
       const request = await SwaggerClient.execute({
         spec: this.client.spec,
         operationId: `${operation.method.toLowerCase()}-${operation.path}`,
-        parameters: parametersF,
-        requestBody: requestBodyF,
-        responseContentType,
-        mediaType: contentType,
+        parameters: params,
+        requestBody: body,
+        requestContentType: contentType?.value,
+        responseContentType: operation?.getAccept()?.value,
+        mediaType: contentType?.value,
+        securities: authorizations,
         responseInterceptor: (res: any) => {
           res.date = new Date().toLocaleString();
           res.statusText = getStatusCodeName(res.status);
 
           return res;
         },
+        baseURL: server.getUrlWithVariables(),
       });
 
       return request;

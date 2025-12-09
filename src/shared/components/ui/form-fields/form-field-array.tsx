@@ -1,26 +1,23 @@
+import React from "react";
 import { Button } from "@heroui/button";
 import { Input } from "@heroui/input";
 
 import { XIcon } from "@/shared/components/ui/icons";
+import { FormFieldProps } from "@/shared/types/form-field";
 import { isArray } from "@/shared/utils/helpers";
 
 const PRIMITIVE_TYPES = ["string", "number", "boolean"];
 
-export const FormFieldArray = ({
+export const FormFieldArray: React.FC<FormFieldProps> = ({
   onChange,
   id,
   placeholder,
   value,
   required = false,
-}: {
-  onChange: (value: string[]) => void;
-  id?: string;
-  placeholder?: string;
-  value?: any;
-  required?: boolean;
 }) => {
+  // incoming value may be Value which for arrays will be object (array is an object)
   const comingValue = isArray(value)
-    ? value.map((v) =>
+    ? (value as any[]).map((v) =>
         PRIMITIVE_TYPES.includes(typeof v) ? String(v) : JSON.stringify(v)
       )
     : [];
@@ -29,7 +26,7 @@ export const FormFieldArray = ({
     const newValues = [...comingValue];
 
     newValues[index] = newValue;
-    onChange(newValues);
+    onChange(newValues); // string[] will be passed as Value (object)
   };
 
   const handleAdd = () => {
@@ -49,7 +46,7 @@ export const FormFieldArray = ({
           <div key={index} className="flex gap-1">
             <div className="relative w-full">
               <Input
-                placeholder={`${placeholder}[${index}]`}
+                placeholder={`${placeholder ?? "item"}[${index}]`}
                 radius="sm"
                 type="text"
                 value={v}
@@ -62,7 +59,7 @@ export const FormFieldArray = ({
             {!(required && comingValue.length === 1) ? (
               <button
                 className="px-2 text-danger/80"
-                color="danger"
+                type="button"
                 onClick={() => handleRemove(index)}
               >
                 <XIcon className="size-6" />
