@@ -218,11 +218,10 @@ export const OperationTabs = observer(function OperationTabs({
                       >
                         {/* Checkbox column - always checked for security */}
                         <div className="flex items-center">
-                          <input
-                            checked
-                            readOnly
-                            className="w-4 h-4 rounded border-success bg-success/20 text-success cursor-not-allowed"
-                            type="checkbox"
+                          <FormFieldCheckbox
+                            required
+                            value={true}
+                            onChange={() => null}
                           />
                         </div>
 
@@ -238,13 +237,7 @@ export const OperationTabs = observer(function OperationTabs({
                               size="sm"
                               variant="flat"
                             >
-                              Security
-                            </Chip>
-                          </div>
-
-                          <div className="flex flex-wrap gap-2 mt-1.5">
-                            <Chip radius="sm" size="sm" variant="flat">
-                              apiKey
+                              {"security<apiKey>"}
                             </Chip>
                           </div>
 
@@ -256,11 +249,11 @@ export const OperationTabs = observer(function OperationTabs({
                         </div>
 
                         {/* Value display */}
-                        <div className="flex items-center justify-end">
-                          <span className="text-sm text-default-400 font-mono">
-                            •••••••
-                          </span>
-                        </div>
+                        <FormFieldText
+                          disabled
+                          value="•••••••"
+                          onChange={() => null}
+                        />
                       </div>
                     ))}
                     {operationData.headerParams.map((param) => (
