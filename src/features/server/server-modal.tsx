@@ -68,7 +68,7 @@ export const ServerModal = observer(
           <ModalBody>
             <div className="space-y-10">
               {/* Server Type Indicator */}
-              <div className="px-3 py-2 rounded-lg text-md flex flex-col text-wrap gap-2 border border-divider">
+              <div className="px-3 py-2 rounded-lg text-base flex flex-col text-wrap gap-2 border border-divider">
                 <span className="text-lg">{subtitle}</span>
                 <span>{description}</span>
               </div>

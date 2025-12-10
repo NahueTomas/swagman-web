@@ -7,11 +7,11 @@ import { observer } from "mobx-react-lite";
 import { useStore } from "@/hooks/use-store";
 import {
   ServerIcon,
-  ThunderIcon,
   Copy,
   Check,
   LockIcon,
   UnlockIcon,
+  ThunderIcon,
 } from "@/shared/components/ui/icons";
 import { ServerModal } from "@/features/server/server-modal";
 import { AuthorizationModal } from "@/features/authorization/authorization-modal";
@@ -231,7 +231,7 @@ export const OperationHeader = observer(() => {
                   </Button>
                 </Tooltip>
 
-                {operation.security.length && (
+                {operation.security.length ? (
                   <Tooltip content="Operation Authorize">
                     <Button
                       isIconOnly
@@ -259,7 +259,7 @@ export const OperationHeader = observer(() => {
                       </div>
                     </Button>
                   </Tooltip>
-                )}
+                ) : null}
               </div>
 
               <Button
@@ -268,25 +268,14 @@ export const OperationHeader = observer(() => {
                     ? "Executing API request..."
                     : "Execute API request"
                 }
-                color="default"
+                color="primary"
                 disabled={operation.loadingRequestResponse}
-                radius="md"
+                endContent={<ThunderIcon className="size-4" />}
                 size="sm"
-                startContent={
-                  <ThunderIcon
-                    aria-hidden="true"
-                    className={`w-4 h-4 ${
-                      operation.loadingRequestResponse ? "animate-spin" : ""
-                    }`}
-                  />
-                }
+                variant="flat"
                 onClick={handleExecute}
               >
-                <span className="text-sm">
-                  {operation.loadingRequestResponse
-                    ? "Executing..."
-                    : "Execute"}
-                </span>
+                {operation.loadingRequestResponse ? "Executing..." : "Execute"}
               </Button>
             </div>
           </div>
@@ -322,28 +311,21 @@ export const OperationHeader = observer(() => {
 
             {/* Desktop: Execute Button */}
             <div className="flex items-center">
-              <button
+              <Button
                 aria-label={
                   operation.loadingRequestResponse
                     ? "Executing API request..."
                     : "Execute API request"
                 }
-                className="flex gap-6 items-center h-full rounded-lg px-4 transition-colors bg-content2 hover:bg-content3"
+                color="primary"
                 disabled={operation.loadingRequestResponse}
+                endContent={<ThunderIcon className="size-4" />}
+                size="lg"
+                variant="flat"
                 onClick={handleExecute}
               >
-                <ThunderIcon
-                  aria-hidden="true"
-                  className={`w-4 h-4 ${
-                    operation.loadingRequestResponse ? "animate-spin" : ""
-                  }`}
-                />
-                <span className="text-sm font-semibold">
-                  {operation.loadingRequestResponse
-                    ? "Executing..."
-                    : "Execute"}
-                </span>
-              </button>
+                {operation.loadingRequestResponse ? "Executing..." : "Execute"}
+              </Button>
             </div>
           </div>
         </div>
@@ -396,7 +378,7 @@ export const OperationHeader = observer(() => {
               </Button>
             </Tooltip>
 
-            {operation.security.length && (
+            {operation.security.length ? (
               <Tooltip content="Operation Authorize">
                 <Button
                   isIconOnly
@@ -418,7 +400,7 @@ export const OperationHeader = observer(() => {
                   </div>
                 </Button>
               </Tooltip>
-            )}
+            ) : null}
           </div>
 
           {/* Desktop Tags */}
