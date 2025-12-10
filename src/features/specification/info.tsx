@@ -65,10 +65,12 @@ export default function Info() {
       <Divider className="bg-divider" />
 
       {description && (
-        <SanitizedMarkdown
-          className="text-md space-y-4 marked-lg"
-          content={description}
-        />
+        <div className="max-w-4xl">
+          <SanitizedMarkdown
+            className="text-base space-y-4 marked-lg"
+            content={description}
+          />
+        </div>
       )}
 
       {(contact || license) && (

@@ -36,7 +36,7 @@ export const RequestBodyRow = observer(
             <span className="font-medium text-sm">{requestBodyField.name}</span>
             {requestBodyField.required && (
               <Chip color="danger" radius="sm" size="sm" variant="flat">
-                Required
+                required
               </Chip>
             )}
           </div>

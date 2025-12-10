@@ -203,7 +203,7 @@ export const OperationHeaderUrl = observer(({ url, className }: UrlProps) => {
   };
 
   return (
-    <div className={`text-sm ${className || ""}`}>
+    <div className={`text-xs 2xl:text-sm ${className || ""}`}>
       <div>
         <div className="font-mono flex items-center flex-wrap leading-4">
           {renderHighlightedUrl()}

@@ -25,7 +25,7 @@ export const OperationBody = ({
             Body Content
             {body.required && (
               <Chip color="danger" radius="sm" size="sm" variant="flat">
-                Required
+                required
               </Chip>
             )}
           </div>
