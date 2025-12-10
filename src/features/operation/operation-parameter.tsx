@@ -16,7 +16,9 @@ export const OperationParameter = observer(
 
     const options: Primitive[] = isArray(parameter.schema?.enum)
       ? (parameter.schema?.enum as Primitive[])
-      : [];
+      : parameter.getType() === "boolean"
+        ? ["true", "false"]
+        : [];
 
     return (
       <div className="grid grid-cols-1 sm:grid-cols-[2rem_1fr_1fr] gap-3 p-3 border-b border-divider last:border-b-0 transition-colors items-center">
@@ -42,7 +44,7 @@ export const OperationParameter = observer(
             </span>
             {parameter.required && (
               <Chip color="danger" radius="sm" size="sm" variant="flat">
-                Required
+                required
               </Chip>
             )}
             {parameter.deprecated && (

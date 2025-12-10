@@ -23,6 +23,8 @@ export const getFormFieldComponent = (
       return FormFieldObject;
     case "array":
       return FormFieldArray;
+    case "boolean":
+      return FormFieldSelect;
     default:
       return FormFieldText;
   }
