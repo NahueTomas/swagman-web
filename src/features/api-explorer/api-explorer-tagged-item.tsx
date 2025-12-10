@@ -35,7 +35,7 @@ export const ApiExplorerTaggedItem = ({
   return (
     <li>
       <ButtonSelectable active={active} onSelect={() => onClick()}>
-        <div className="space-x-4">
+        <div className="flex space-x-4">
           {/* Method indicator */}
           <Chip color={colorSet} radius="sm" size="sm" variant="flat">
             <span className="text-[10px] flex w-8 justify-center">
