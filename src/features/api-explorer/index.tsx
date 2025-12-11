@@ -42,7 +42,6 @@ export const ApiExplorer = observer(() => {
               active={operationFocused === null}
               onSelect={() => focusOperation(null)}
             >
-              <InfoIcon className="size-4 shrink-0" />
               <span className="font-semibold">Specification Info</span>
             </ButtonSelectable>
 

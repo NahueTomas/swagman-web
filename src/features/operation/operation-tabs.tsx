@@ -1,12 +1,12 @@
 import { useEffect, useState, useMemo } from "react";
 import { Tabs, Tab } from "@heroui/tabs";
-import { Chip } from "@heroui/chip";
 import { observer } from "mobx-react-lite";
 
 import { OperationParameter } from "./operation-parameter";
 import { OperationResponse } from "./operation-response";
 import { OperationCode } from "./operation-code";
 import { OperationBody } from "./operation-body";
+import { OperationSecurityParameter } from "./operation-security-parameter";
 
 import { Subtitle } from "@/shared/components/ui/subtitle";
 import { OperationModel } from "@/models/operation.model";
@@ -18,8 +18,6 @@ import {
   HeadersIcon,
   ParametersIcon,
 } from "@/shared/components/ui/icons";
-import { FormFieldText } from "@/shared/components/ui/form-fields/form-field-text";
-import { FormFieldCheckbox } from "@/shared/components/ui/form-fields/form-field-checkbox";
 
 export const OperationTabs = observer(function OperationTabs({
   operation,
@@ -135,49 +133,10 @@ export const OperationTabs = observer(function OperationTabs({
 
                   <div className="border border-divider rounded-lg">
                     {operationData.apiKeyQueryParams.map((sec) => (
-                      <div
+                      <OperationSecurityParameter
                         key={sec.getName()}
-                        className="grid grid-cols-1 sm:grid-cols-[2rem_1fr_1fr] gap-3 p-3 border-b border-divider last:border-b-0 transition-colors items-center bg-success/5"
-                      >
-                        {/* Checkbox column - always checked for security */}
-                        <div className="flex items-center">
-                          <FormFieldCheckbox
-                            required
-                            value={true}
-                            onChange={() => null}
-                          />
-                        </div>
-
-                        {/* Parameter info */}
-                        <div className="flex flex-col">
-                          <div className="flex items-center gap-2">
-                            <span className="font-medium text-sm">
-                              {sec.getName()}
-                            </span>
-                            <Chip
-                              color="success"
-                              radius="sm"
-                              size="sm"
-                              variant="flat"
-                            >
-                              {"security<apiKey>"}
-                            </Chip>
-                          </div>
-
-                          {sec.getDescription() && (
-                            <p className="text-xs mt-4">
-                              {sec.getDescription()}
-                            </p>
-                          )}
-                        </div>
-
-                        {/* Value display */}
-                        <FormFieldText
-                          disabled
-                          value="•••••••"
-                          onChange={() => null}
-                        />
-                      </div>
+                        security={sec}
+                      />
                     ))}
                     {operationData.queryParams.map((param) => (
                       <OperationParameter key={param.id} parameter={param} />
@@ -212,49 +171,10 @@ export const OperationTabs = observer(function OperationTabs({
 
                   <div className="border border-divider rounded-lg">
                     {operationData.apiKeyHeaderParams.map((sec) => (
-                      <div
+                      <OperationSecurityParameter
                         key={sec.getName()}
-                        className="grid grid-cols-1 sm:grid-cols-[2rem_1fr_1fr] gap-3 p-3 border-b border-divider last:border-b-0 transition-colors items-center bg-success/5"
-                      >
-                        {/* Checkbox column - always checked for security */}
-                        <div className="flex items-center">
-                          <FormFieldCheckbox
-                            required
-                            value={true}
-                            onChange={() => null}
-                          />
-                        </div>
-
-                        {/* Parameter info */}
-                        <div className="flex flex-col">
-                          <div className="flex items-center gap-2">
-                            <span className="font-medium text-sm">
-                              {sec.getName()}
-                            </span>
-                            <Chip
-                              color="success"
-                              radius="sm"
-                              size="sm"
-                              variant="flat"
-                            >
-                              {"security<apiKey>"}
-                            </Chip>
-                          </div>
-
-                          {sec.getDescription() && (
-                            <p className="text-xs mt-4">
-                              {sec.getDescription()}
-                            </p>
-                          )}
-                        </div>
-
-                        {/* Value display */}
-                        <FormFieldText
-                          disabled
-                          value="•••••••"
-                          onChange={() => null}
-                        />
-                      </div>
+                        security={sec}
+                      />
                     ))}
                     {operationData.headerParams.map((param) => (
                       <OperationParameter key={param.id} parameter={param} />
