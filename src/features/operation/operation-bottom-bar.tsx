@@ -2,6 +2,7 @@ import { Button } from "@heroui/button";
 import { Chip } from "@heroui/chip";
 import { Tabs, Tab } from "@heroui/tabs";
 import { Spinner } from "@heroui/spinner";
+import { observer } from "mobx-react-lite";
 
 import { useStore } from "@/hooks/use-store";
 import { useDragResize } from "@/hooks/use-drag-resize";
@@ -13,7 +14,6 @@ import {
 } from "@/shared/constants/constants";
 import { memoize } from "@/shared/utils/memoize";
 import { RequestResponseModel } from "@/models/request-response.model";
-import { observer } from "mobx-react-lite";
 
 interface ResponsePanelProps {
   response: RequestResponseModel;
@@ -260,6 +260,7 @@ export const OperationBottomBar = observer(() => {
                   </Chip>
                   <Chip
                     color={getStatusColorVariant(response.getStatus())}
+                    radius="sm"
                     size="sm"
                     title={`${response.getStatus()}: ${response.getStatusText()}`}
                     variant="flat"
