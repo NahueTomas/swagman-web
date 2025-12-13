@@ -29,7 +29,8 @@ export const FormFieldNumber: React.FC<
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const n = e.target.value === "" ? undefined : Number(e.target.value);
 
-    if (n === undefined || !Number.isNaN(n)) onChange(n as number | undefined);
+    if (n !== undefined && !Number.isNaN(n)) onChange(n);
+    else onChange(0);
   };
 
   return (

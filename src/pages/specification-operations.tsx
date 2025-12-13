@@ -13,7 +13,7 @@ export default function SpecificationOperationsPage() {
   if (!operationFocused) return <Info />;
 
   return (
-    <section className="relative h-full flex flex-col select-none">
+    <section className="relative h-full flex flex-col">
       <OperationHeader />
 
       <div className="flex-1 overflow-y-auto min-h-0">

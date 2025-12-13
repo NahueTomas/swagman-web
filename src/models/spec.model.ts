@@ -184,7 +184,7 @@ export class SpecModel {
     credentials: SecurityCredentials
   ): void {
     this.globalSecurity.find((gs) => {
-      if (gs.getName() === name) gs.setCredentials(credentials);
+      if (gs.getKey() === name) gs.setCredentials(credentials);
     });
   }
 
@@ -200,7 +200,7 @@ export class SpecModel {
       // All schemes in this requirement must be logged (AND logic)
       return schemeNames.every((schemeName) => {
         const securityModel = this.globalSecurity.find(
-          (s) => s.getName() === schemeName
+          (s) => s.getKey() === schemeName
         );
 
         return securityModel?.logged || false;
@@ -393,7 +393,7 @@ export class SpecModel {
 
       if (!creds) return;
 
-      const name = security.getName();
+      const name = security.getKey();
 
       switch (creds.type) {
         case "apiKey":
@@ -420,13 +420,15 @@ export class SpecModel {
 
     const request = SwaggerClient.buildRequest({
       spec: this.client.spec,
-      operationId: `${operation.method.toLowerCase()}-${operation.path}`,
+      operationId:
+        operation.operationId ||
+        `${operation.method.toLowerCase()}-${operation.path}`,
       parameters: params,
       requestBody: body,
       requestContentType: contentType?.value,
       responseContentType: operation?.getAccept()?.value,
       mediaType: contentType?.value,
-      securities: authorizations,
+      securities: { authorized: authorizations },
       responseInterceptor: (res: any) => {
         res.date = new Date().toLocaleString();
         res.statusText = getStatusCodeName(res.status);
@@ -455,13 +457,15 @@ export class SpecModel {
 
       const request = await SwaggerClient.execute({
         spec: this.client.spec,
-        operationId: `${operation.method.toLowerCase()}-${operation.path}`,
+        operationId:
+          operation.operationId ||
+          `${operation.method.toLowerCase()}-${operation.path}`,
         parameters: params,
         requestBody: body,
         requestContentType: contentType?.value,
         responseContentType: operation?.getAccept()?.value,
         mediaType: contentType?.value,
-        securities: authorizations,
+        securities: { authorized: authorizations },
         responseInterceptor: (res: any) => {
           res.date = new Date().toLocaleString();
           res.statusText = getStatusCodeName(res.status);
