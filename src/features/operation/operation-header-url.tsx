@@ -125,9 +125,9 @@ export const OperationHeaderUrl = observer(({ url, className }: UrlProps) => {
       onFocus={() => setExpanded(true)}
     >
       <div
-        className={`w-full min-h-full flex items-center duration-100 ${
+        className={`w-full min-h-full rounded-md flex items-center ${
           expanded
-            ? "px-4 py-2.5 rounded-md outline outline-primary/70 bg-content1 absolute top-0 z-10"
+            ? "px-4 py-2.5 outline outline-primary/70 bg-content1 absolute top-0 z-10"
             : "outline outline-transparent pointer-events-none"
         } ${className || ""}`}
       >
