@@ -188,6 +188,8 @@ export const OperationBottomBar = observer(() => {
   const response = operationFocused.requestResponse;
   const isLoading = operationFocused.loadingRequestResponse;
 
+  if (isLoading && isCollapsed) toggleCollapse();
+
   return (
     <div
       ref={containerRef}
