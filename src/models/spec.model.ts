@@ -420,13 +420,15 @@ export class SpecModel {
 
     const request = SwaggerClient.buildRequest({
       spec: this.client.spec,
-      operationId: `${operation.method.toLowerCase()}-${operation.path}`,
+      operationId:
+        operation.operationId ||
+        `${operation.method.toLowerCase()}-${operation.path}`,
       parameters: params,
       requestBody: body,
       requestContentType: contentType?.value,
       responseContentType: operation?.getAccept()?.value,
       mediaType: contentType?.value,
-      securities: authorizations,
+      securities: { authorized: authorizations },
       responseInterceptor: (res: any) => {
         res.date = new Date().toLocaleString();
         res.statusText = getStatusCodeName(res.status);
@@ -455,13 +457,15 @@ export class SpecModel {
 
       const request = await SwaggerClient.execute({
         spec: this.client.spec,
-        operationId: `${operation.method.toLowerCase()}-${operation.path}`,
+        operationId:
+          operation.operationId ||
+          `${operation.method.toLowerCase()}-${operation.path}`,
         parameters: params,
         requestBody: body,
         requestContentType: contentType?.value,
         responseContentType: operation?.getAccept()?.value,
         mediaType: contentType?.value,
-        securities: authorizations,
+        securities: { authorized: authorizations },
         responseInterceptor: (res: any) => {
           res.date = new Date().toLocaleString();
           res.statusText = getStatusCodeName(res.status);
