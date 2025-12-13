@@ -88,7 +88,7 @@ export const OperationTabs = observer(function OperationTabs({
   if (!operationFocused) return null;
 
   return (
-    <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+    <div className="grid grid-cols-1 2xl:grid-cols-2 gap-8">
       <div className="flex flex-col gap-4">
         <Tabs
           aria-label="Parameters, Headers and Body"
