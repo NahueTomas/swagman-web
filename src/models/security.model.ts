@@ -6,7 +6,7 @@ export class SecurityModel {
   public logged: boolean = false;
 
   constructor(
-    private name: string,
+    private key: string,
     private securitySchema: OpenAPISecurityScheme,
     public credentials: SecurityCredentials = undefined
   ) {
@@ -22,8 +22,8 @@ export class SecurityModel {
     this.logged = credentials !== undefined;
   }
 
-  public getName() {
-    return this.name;
+  public getKey() {
+    return this.key;
   }
 
   public getIn() {
@@ -32,6 +32,10 @@ export class SecurityModel {
 
   public getDescription() {
     return this.securitySchema.description;
+  }
+
+  public getSecuritySchema(): OpenAPISecurityScheme {
+    return this.securitySchema;
   }
 
   public getScheme() {

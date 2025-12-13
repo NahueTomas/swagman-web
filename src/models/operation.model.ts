@@ -251,7 +251,7 @@ export class OperationModel {
       // All schemes in this requirement must be logged in global security (AND logic)
       return schemeNames.every((schemeName) => {
         const securityModel = globalSecurity.find(
-          (s) => s.getName() === schemeName
+          (s) => s.getKey() === schemeName
         );
 
         return securityModel?.logged || false;

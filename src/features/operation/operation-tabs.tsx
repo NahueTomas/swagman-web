@@ -41,7 +41,7 @@ export const OperationTabs = observer(function OperationTabs({
       : spec?.security;
 
     const isUsedByOperation = securities?.some((req) =>
-      Object.keys(req).includes(sec.getName())
+      Object.keys(req).includes(sec.getKey())
     );
 
     return (
@@ -134,7 +134,7 @@ export const OperationTabs = observer(function OperationTabs({
                   <div className="border border-divider rounded-lg">
                     {operationData.apiKeyQueryParams.map((sec) => (
                       <OperationSecurityParameter
-                        key={sec.getName()}
+                        key={sec.getKey()}
                         security={sec}
                       />
                     ))}
@@ -172,7 +172,7 @@ export const OperationTabs = observer(function OperationTabs({
                   <div className="border border-divider rounded-lg">
                     {operationData.apiKeyHeaderParams.map((sec) => (
                       <OperationSecurityParameter
-                        key={sec.getName()}
+                        key={sec.getKey()}
                         security={sec}
                       />
                     ))}

@@ -13,7 +13,7 @@ export const OperationSecurityParameter = ({
 }) => {
   return (
     <div
-      key={security.getName()}
+      key={security.getSecuritySchema().name || ""}
       className="grid grid-cols-1 sm:grid-cols-[2rem_1fr_1fr] gap-3 p-3 border-b border-divider last:border-b-0 transition-colors items-center bg-success/5"
     >
       {/* Empty column */}
@@ -26,9 +26,11 @@ export const OperationSecurityParameter = ({
       {/* Parameter info */}
       <div className="flex flex-col">
         <div className="flex items-center gap-2">
-          <span className="font-medium text-sm">{security.getName()}</span>
+          <span className="font-medium text-sm">
+            {security.getSecuritySchema().name || ""}
+          </span>
           <Chip color="success" radius="sm" size="sm" variant="flat">
-            {"apiKey"}
+            {`apiKey<${security.getKey()}>`}
           </Chip>
         </div>
 

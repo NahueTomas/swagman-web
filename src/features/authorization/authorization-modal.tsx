@@ -33,7 +33,7 @@ export const AuthorizationModal = observer(
 
       security.forEach((s) => authNames.push(...Object.keys(s)));
 
-      if (authNames.includes(gs.getName())) return true;
+      if (authNames.includes(gs.getKey())) return true;
     });
 
     // If there is not any security defined in the spec but there is definitions it must show everyone, no matter what
@@ -48,7 +48,7 @@ export const AuthorizationModal = observer(
           <ModalBody>
             <div className="space-y-6">
               {securitiesToShow.map((s) => (
-                <SecuritySchemeInput key={s.getName()} security={s} />
+                <SecuritySchemeInput key={s.getKey()} security={s} />
               ))}
             </div>
           </ModalBody>
@@ -68,7 +68,7 @@ const SecuritySchemeInput = observer(
     const handleAuthorize = () => {
       if (value.trim()) {
         // Always update global security - operation-level just references global
-        spec?.setCredentialsToGlobalSecurity(security.getName(), {
+        spec?.setCredentialsToGlobalSecurity(security.getKey(), {
           type: "apiKey",
           value: value,
         });
@@ -78,7 +78,7 @@ const SecuritySchemeInput = observer(
     const handleLogout = () => {
       setValue("");
       // Always update global security - operation-level just references global
-      spec?.setCredentialsToGlobalSecurity(security.getName(), undefined);
+      spec?.setCredentialsToGlobalSecurity(security.getKey(), undefined);
     };
 
     const type = security.getType();
@@ -91,7 +91,7 @@ const SecuritySchemeInput = observer(
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <LockIcon className="size-4" />
-              <h3 className="text-lg font-semibold">{security.getName()}</h3>
+              <h3 className="text-lg font-semibold">{security.getKey()}</h3>
             </div>
             <div className="flex items-center gap-2">
               {isLogged && (
@@ -110,6 +110,8 @@ const SecuritySchemeInput = observer(
               {security.getDescription()}
             </p>
           )}
+
+          <p>{security.getSecuritySchema().name}</p>
 
           <Input
             label="Value"
@@ -153,7 +155,7 @@ const SecuritySchemeInput = observer(
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <LockIcon className="size-4" />
-            <h3 className="text-lg font-semibold">{security.getName()}</h3>
+            <h3 className="text-lg font-semibold">{security.getKey()}</h3>
           </div>
           <span className="text-xs text-default-500 bg-default-100 px-2 py-1 rounded">
             {type} {scheme && `(${scheme})`}

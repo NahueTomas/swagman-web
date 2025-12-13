@@ -75,13 +75,13 @@ export const ApiExplorer = observer(() => {
                     <div className="flex w-full justify-around absolute left-0 right-0 -bottom-1.5">
                       {spec.getGlobalSecurity().map((security) => (
                         <div
-                          key={security.getName()}
+                          key={security.getKey()}
                           className={`w-1 h-0.5 rounded-full ${
                             security.logged
                               ? "bg-success/70"
                               : "bg-foreground/70"
                           }`}
-                          title={security.getName()}
+                          title={security.getKey()}
                         />
                       ))}
                     </div>
