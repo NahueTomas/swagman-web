@@ -44,7 +44,12 @@ export const OperationBody = observer(
               value: type,
               selected: contentTypeParameter?.value === type,
             }))}
-            onClick={(value) => contentTypeParameter.setValue(value)}
+            onClick={(value) => {
+              if (value !== contentTypeParameter.value)
+                contentTypeParameter.setValue(value);
+              else if (!body.required && value === contentTypeParameter.value)
+                contentTypeParameter.setValue(undefined);
+            }}
           >
             <>
               <HeadersIcon className="size-4" />
