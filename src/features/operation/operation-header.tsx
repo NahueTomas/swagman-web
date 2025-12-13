@@ -7,8 +7,6 @@ import { observer } from "mobx-react-lite";
 import { useStore } from "@/hooks/use-store";
 import {
   ServerIcon,
-  Copy,
-  Check,
   LockIcon,
   UnlockIcon,
   ThunderIcon,
@@ -20,7 +18,6 @@ import { OperationHeaderUrl } from "@/features/operation/operation-header-url";
 export const OperationHeader = observer(() => {
   const [isServerModalOpen, setIsServerModalOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [isCopied, setIsCopied] = useState(false);
 
   const { operationFocused: operation, spec } = useStore((state) => state);
 
@@ -62,34 +59,6 @@ export const OperationHeader = observer(() => {
   };
   const colorSet = methodColors[methodUpper] || methodColors.DEFAULT;
 
-  const handleCopyUrl = async () => {
-    try {
-      if (!spec) return;
-
-      // Use spec.buildRequest to get the properly formatted URL
-      const request = spec.buildRequest(operation);
-
-      const fullUrl = request.url;
-
-      await navigator.clipboard.writeText(fullUrl);
-      setIsCopied(true);
-      addToast({
-        title: "URL Copied!",
-        description: "Endpoint URL copied to clipboard",
-        color: "success",
-      });
-
-      setTimeout(() => setIsCopied(false), 2000);
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (error) {
-      addToast({
-        title: "Copy Failed",
-        description: "Failed to copy URL",
-        color: "danger",
-      });
-    }
-  };
-
   const handleExecute = async () => {
     try {
       if (!spec) return;
@@ -127,14 +96,14 @@ export const OperationHeader = observer(() => {
     >
       <div className="w-full px-2 pt-2 pb-1.5">
         {/* Responsive Layout */}
-        <div className="rounded-lg overflow-hidden">
+        <div className="rounded-lg">
           {/* Mobile Layout (Column) - Hidden on md+ */}
           <div className="flex flex-col md:hidden">
             {/* Mobile: Method + Tags Row */}
             <div className="flex items-center justify-between p-3 border-b border-divider">
               <div className="flex items-center gap-2 relative">
                 <div
-                  className={`absolute inset-0 ${colorSet.bg} blur-md select-none pointer-events-none`}
+                  className={`absolute inset-0 ${colorSet.bg} blur-md pointer-events-none`}
                 />
                 <div
                   className={`px-3 py-1.5 rounded-lg ${colorSet.text} flex items-center justify-center`}
@@ -175,10 +144,8 @@ export const OperationHeader = observer(() => {
             </div>
 
             {/* Mobile: URL Row */}
-            <div className="p-3 border-b border-divider">
-              <div className="font-mono text-xs text-foreground/90 overflow-hidden">
-                <OperationHeaderUrl url={operation.path} />
-              </div>
+            <div className="border-b border-divider">
+              <OperationHeaderUrl url={operation.path} />
             </div>
 
             {/* Mobile: Actions Row */}
@@ -202,34 +169,6 @@ export const OperationHeader = observer(() => {
                     </Button>
                   </Tooltip>
                 )}
-
-                <Tooltip content={isCopied ? "Copied!" : "Copy URL"}>
-                  <Button
-                    isIconOnly
-                    aria-label={
-                      isCopied
-                        ? "URL copied to clipboard"
-                        : "Copy operation URL"
-                    }
-                    className="h-7 w-7"
-                    radius="md"
-                    size="sm"
-                    variant="flat"
-                    onClick={handleCopyUrl}
-                  >
-                    {isCopied ? (
-                      <Check
-                        aria-hidden="true"
-                        className="w-3.5 h-3.5 text-success"
-                      />
-                    ) : (
-                      <Copy
-                        aria-hidden="true"
-                        className="w-3.5 h-3.5 text-foreground/60"
-                      />
-                    )}
-                  </Button>
-                </Tooltip>
 
                 {operation.security.length ? (
                   <Tooltip content="Operation Authorize">
@@ -281,12 +220,10 @@ export const OperationHeader = observer(() => {
           </div>
 
           {/* Desktop Layout (Row) - Hidden on mobile, shown on md+ */}
-          <div className="hidden md:flex items-stretch h-14">
+          <div className="hidden md:flex items-stretch gap-x-2">
             {/* Desktop: HTTP Method */}
             <div className={`flex items-center relative`}>
-              <div
-                className={`absolute inset-0 ${colorSet.bg} blur-xl select-none pointer-events-none`}
-              />
+              <div className={`absolute inset-0 ${colorSet.bg} blur-xl`} />
               <div
                 className={`h-full min-w-24 flex items-center justify-center`}
               >
@@ -300,13 +237,7 @@ export const OperationHeader = observer(() => {
 
             {/* Desktop: URL Bar */}
             <div className="flex-1 min-w-0 flex items-center">
-              <div className="relative group w-full h-full flex items-center">
-                <div className="w-full h-full flex items-center">
-                  <div className="flex-1 px-4 font-mono text-sm overflow-hidden">
-                    <OperationHeaderUrl url={operation.path} />
-                  </div>
-                </div>
-              </div>
+              <OperationHeaderUrl url={operation.path} />
             </div>
 
             {/* Desktop: Execute Button */}
@@ -351,32 +282,6 @@ export const OperationHeader = observer(() => {
                 </Button>
               </Tooltip>
             )}
-
-            <Tooltip content={isCopied ? "Copied!" : "Copy URL"}>
-              <Button
-                isIconOnly
-                aria-label={
-                  isCopied ? "URL copied to clipboard" : "Copy operation URL"
-                }
-                className="h-6 w-6"
-                radius="md"
-                size="sm"
-                variant="flat"
-                onClick={handleCopyUrl}
-              >
-                {isCopied ? (
-                  <Check
-                    aria-hidden="true"
-                    className="w-3.5 h-3.5 text-success"
-                  />
-                ) : (
-                  <Copy
-                    aria-hidden="true"
-                    className="w-3.5 h-3.5 text-foreground/60"
-                  />
-                )}
-              </Button>
-            </Tooltip>
 
             {operation.security.length ? (
               <Tooltip content="Operation Authorize">
