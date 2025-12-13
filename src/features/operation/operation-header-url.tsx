@@ -118,7 +118,7 @@ export const OperationHeaderUrl = observer(({ url, className }: UrlProps) => {
 
   return (
     <div
-      className="relative w-full h-12 flex items-center"
+      className="relative w-full h-11 flex items-center"
       // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
       tabIndex={0}
       onBlur={() => setExpanded(false)}
@@ -127,13 +127,13 @@ export const OperationHeaderUrl = observer(({ url, className }: UrlProps) => {
       <div
         className={`w-full min-h-full rounded-md flex items-center ${
           expanded
-            ? "px-4 py-2.5 outline outline-primary/70 bg-content1 absolute top-0 z-10"
-            : "outline outline-transparent pointer-events-none"
+            ? "px-4 py-2.5 outline-2 outline outline-primary/70 bg-content1 absolute top-0 z-10"
+            : "pointer-events-none"
         } ${className || ""}`}
       >
         <span
           className={`w-full text-xs 2xl:text-sm ${
-            expanded ? "break-words leading-relaxed" : "truncate"
+            expanded ? "break-words" : "truncate"
           }`}
         >
           {renderHighlightedUrl()}
