@@ -89,9 +89,9 @@ export class ParameterModel {
     this.included =
       parameter.defaultIncluded !== undefined
         ? parameter.defaultIncluded
-        : this.deprecated
-          ? false
-          : true;
+        : this.required
+          ? true
+          : false;
 
     makeObservable(this, {
       value: observable.ref,

@@ -35,10 +35,10 @@ export const ApiExplorerTaggedItem = ({
   return (
     <li>
       <ButtonSelectable active={active} onSelect={() => onClick()}>
-        <div className="flex space-x-4 items-center">
+        <div className="flex gap-4 items-center flex-nowrap overflow-hidden">
           {/* Method indicator */}
           <Chip color={colorSet} radius="sm" size="sm" variant="flat">
-            <span className="text-[10px] flex w-8 justify-center">
+            <span className="text-[10px] flex w-8 justify-center items-center">
               {methodUpper}
             </span>
           </Chip>
@@ -46,7 +46,7 @@ export const ApiExplorerTaggedItem = ({
           {/* Operation title */}
           <span
             className={clsx(
-              "text-xs font-medium truncate flex-1",
+              "text-xs font-medium truncate",
               deprecated ? "line-through" : ""
             )}
           >

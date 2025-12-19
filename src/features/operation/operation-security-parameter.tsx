@@ -5,16 +5,19 @@ import { SecurityModel } from "@/models/security.model";
 import { FormFieldText } from "@/shared/components/ui/form-fields/form-field-text";
 import { InfoIcon } from "@/shared/components/ui/icons";
 import { MESSAGES } from "@/shared/constants/mesagges";
+import { SanitizedMarkdown } from "@/shared/components/ui/sanitized-markdown";
 
 export const OperationSecurityParameter = ({
   security,
 }: {
   security: SecurityModel;
 }) => {
+  const description = security.getDescription();
+
   return (
     <div
       key={security.getSecuritySchema().name || ""}
-      className="grid grid-cols-1 sm:grid-cols-[2rem_1fr_1fr] gap-3 p-3 border-b border-divider last:border-b-0 transition-colors items-center bg-success/5"
+      className="grid grid-cols-1 sm:grid-cols-[2rem_1fr_1fr] xl:grid-cols-[2rem_1fr_1fr_0.9fr] xl:gap-5 gap-3 p-3 border-b border-divider last:border-b-0 transition-colors items-center bg-success/5"
     >
       {/* Empty column */}
       <Tooltip content={MESSAGES.operationSecurityParameter}>
@@ -34,13 +37,25 @@ export const OperationSecurityParameter = ({
           </Chip>
         </div>
 
-        {security.getDescription() ? (
-          <p className="text-xs mt-4">{security.getDescription()}</p>
+        {description ? (
+          <SanitizedMarkdown
+            className="xl:hidden text-xs marked-xs mt-4"
+            content={description}
+          />
         ) : null}
       </div>
 
       {/* Value display */}
       <FormFieldText disabled value="•••••••" onChange={() => null} />
+
+      <div className="hidden h-full xl:flex xl:items-center">
+        {description && (
+          <SanitizedMarkdown
+            className="text-xs marked-xs"
+            content={description}
+          />
+        )}
+      </div>
     </div>
   );
 };

@@ -118,7 +118,7 @@ export const OperationHeaderUrl = observer(({ url, className }: UrlProps) => {
 
   return (
     <div
-      className="relative w-full h-11 flex items-center"
+      className="relative w-full h-12 flex items-center"
       // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
       tabIndex={0}
       onBlur={() => setExpanded(false)}
@@ -132,7 +132,7 @@ export const OperationHeaderUrl = observer(({ url, className }: UrlProps) => {
         } ${className || ""}`}
       >
         <span
-          className={`w-full text-xs 2xl:text-sm ${
+          className={`w-full text-sm xl:text-base ${
             expanded ? "break-words" : "truncate"
           }`}
         >

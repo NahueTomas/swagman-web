@@ -220,15 +220,15 @@ export const OperationHeader = observer(() => {
           </div>
 
           {/* Desktop Layout (Row) - Hidden on mobile, shown on md+ */}
-          <div className="hidden md:flex items-stretch gap-x-2">
+          <div className="hidden md:flex items-stretch gap-x-2 2xl:gap-x-4">
             {/* Desktop: HTTP Method */}
             <div className={`flex items-center relative`}>
               <div className={`absolute inset-0 ${colorSet.bg} blur-xl`} />
               <div
-                className={`h-full min-w-24 flex items-center justify-center`}
+                className={`h-full min-w-28 2xl:min-w-28 flex items-center justify-center`}
               >
                 <span
-                  className={`text-xl uppercase tracking-wider ${colorSet.text}`}
+                  className={`text-xl 2xl:text-2xl uppercase tracking-wider ${colorSet.text}`}
                 >
                   {methodUpper}
                 </span>
@@ -236,7 +236,7 @@ export const OperationHeader = observer(() => {
             </div>
 
             {/* Desktop: URL Bar */}
-            <div className="flex-1 min-w-0 flex items-center">
+            <div className="flex-1 min-w-0 xl:h-14 flex items-center">
               <OperationHeaderUrl url={operation.path} />
             </div>
 
