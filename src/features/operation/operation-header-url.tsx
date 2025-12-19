@@ -132,7 +132,7 @@ export const OperationHeaderUrl = observer(({ url, className }: UrlProps) => {
         } ${className || ""}`}
       >
         <span
-          className={`w-full text-xs 2xl:text-sm ${
+          className={`w-full text-sm 2xl:text-base ${
             expanded ? "break-words" : "truncate"
           }`}
         >

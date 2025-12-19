@@ -7,6 +7,7 @@ import { FormFieldCheckbox } from "@/shared/components/ui/form-fields/form-field
 import { isArray } from "@/shared/utils/helpers";
 import { Primitive } from "@/shared/types/form-field";
 import { MESSAGES } from "@/shared/constants/mesagges";
+import { SanitizedMarkdown } from "@/shared/components/ui/sanitized-markdown";
 
 export const OperationParameter = observer(
   ({ parameter }: { parameter: ParameterModel }) => {
@@ -21,7 +22,7 @@ export const OperationParameter = observer(
         : [];
 
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-[2rem_1fr_1fr] gap-3 p-3 border-b border-divider last:border-b-0 transition-colors items-center">
+      <div className="grid grid-cols-1 sm:grid-cols-[2rem_1fr_1fr] xl:grid-cols-[2rem_1fr_1fr_0.9fr] xl:gap-5 gap-3 p-3 border-b border-divider last:border-b-0 transition-colors items-center">
         {/* Included checkbox */}
         <div className="flex items-center">
           <FormFieldCheckbox
@@ -86,7 +87,10 @@ export const OperationParameter = observer(
           </div>
 
           {parameter.description && (
-            <p className="text-xs mt-4">{parameter.description}</p>
+            <SanitizedMarkdown
+              className="xl:hidden text-xs marked-xs mt-4"
+              content={parameter.description}
+            />
           )}
         </div>
 
@@ -100,6 +104,15 @@ export const OperationParameter = observer(
               required={parameter.required}
               value={parameter.value}
               onChange={(val) => parameter.setValue(val)}
+            />
+          )}
+        </div>
+
+        <div className="hidden h-full xl:flex xl:items-center">
+          {parameter.description && (
+            <SanitizedMarkdown
+              className="text-xs marked-xs"
+              content={parameter.description}
             />
           )}
         </div>
