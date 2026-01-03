@@ -1,26 +1,36 @@
-import { Button } from "@heroui/button";
-import { Chip } from "@heroui/chip";
-import { Tabs, Tab } from "@heroui/tabs";
-import { Spinner } from "@heroui/spinner";
+import React, { useState } from "react";
 import { observer } from "mobx-react-lite";
 
 import { useStore } from "@/hooks/use-store";
 import { useDragResize } from "@/hooks/use-drag-resize";
-import { Code } from "@/shared/components/ui/code";
-import { ChevronUp } from "@/shared/components/ui/icons";
+import { Code } from "@/shared/components/code";
+import { ChevronUp } from "@/shared/components/icons";
 import {
   RESPONSE_PANEL,
   HTTP_STATUS_RANGES,
 } from "@/shared/constants/constants";
 import { memoize } from "@/shared/utils/memoize";
 import { RequestResponseModel } from "@/models/request-response.model";
+import { Chip } from "@/shared/components/chip";
+import { cn } from "@/shared/utils/cn";
+import { Tab, Tabs } from "@/shared/components/tabs";
+import { Variant } from "@/shared/types/variant";
+
+// Custom Minimal Spinner
+const Spinner = ({ className }: { className?: string }) => (
+  <div
+    className={cn(
+      "animate-spin rounded-full h-4 w-4 border-2 border-primary-500/20 border-t-primary-500",
+      className
+    )}
+  />
+);
 
 interface ResponsePanelProps {
   response: RequestResponseModel;
   isLoading?: boolean;
 }
 
-// Memoized language detection function
 const getLanguageFromContentType = memoize(
   (
     contentType: string
@@ -38,140 +48,109 @@ const getLanguageFromContentType = memoize(
 );
 
 const ResponsePanel = ({ response, isLoading }: ResponsePanelProps) => {
+  const [activeTab, setActiveTab] = useState("body");
   const contentType =
     (response.getHeaders()?.["content-type"] as string) || "application/json";
-
-  // Memoize formatted body to avoid re-stringifying on every render
   const data = response.getData();
 
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-full">
-        <div className="flex flex-col items-center gap-4">
-          <Spinner size="lg" />
-          <p className="text-sm text-default-500">Loading response...</p>
+        <div className="flex flex-col items-center gap-3">
+          <Spinner className="h-8 w-8" />
+          <p className="text-[10px] uppercase tracking-[0.2em] text-foreground-400 font-bold">
+            Loading...
+          </p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="h-full flex flex-col-reverse">
+    <div className="h-full flex">
       <Tabs
-        className="flex-1 h-full"
+        className="flex flex-col-reverse"
         classNames={{
-          tabList: "gap-2 w-full relative p-0",
-          panel: "p-0 h-full overflow-hidden border-t border-b border-divider",
-          cursor: "w-full",
-          tab: "w-auto",
+          panel: "h-full overflow-auto",
+          button: "px-4 h-7",
+          tabList: "border-b-0 border-t",
         }}
-        color="default"
-        defaultSelectedKey="body"
-        size="sm"
-        variant="underlined"
+        selectedKey={activeTab}
+        onSelectionChange={(key) => setActiveTab(key)}
       >
         <Tab key="body" title="Body">
-          <div className="flex flex-col h-full">
-            <div className="flex-1 overflow-hidden">
-              <Code
-                height="100%"
-                language={getLanguageFromContentType(contentType)}
-                readOnly={true}
-                value={
-                  typeof data !== "string"
-                    ? JSON.stringify(data, null, 2)
-                    : String(data)
-                }
-              />
-            </div>
-          </div>
+          <Code
+            height="100%"
+            language={getLanguageFromContentType(contentType)}
+            readOnly={true}
+            value={
+              typeof data !== "string"
+                ? JSON.stringify(data, null, 2)
+                : String(data)
+            }
+          />
         </Tab>
 
         <Tab
           key="headers"
           title={`Headers (${Object.keys(response.getHeaders()).length})`}
         >
-          <div className="flex flex-col h-full">
-            <div className="flex-1 overflow-auto">
-              <div className="divide-y divide-divider">
-                {Object.entries(response.getHeaders()).map(([key, value]) => (
-                  <div
-                    key={key}
-                    className="grid grid-cols-2 gap-4 p-3 transition-colors"
-                  >
-                    <div className="font-mono text-[12px] font-medium text-primary">
-                      {key}
-                    </div>
-                    <div className="font-mono text-[12px] text-default-600 break-all">
-                      {Array.isArray(value) ? value.join(", ") : value}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
+          <table className="w-full text-left border-collapse">
+            <tbody className="divide-y divide-divider/30">
+              {Object.entries(response.getHeaders()).map(([key, value]) => (
+                <tr
+                  key={key}
+                  className="hover:bg-foreground-100/5 transition-colors"
+                >
+                  <td className="p-3 font-mono text-[11px] font-bold text-primary-400 w-1/3 select-all tracking-tight">
+                    {key}
+                  </td>
+                  <td className="p-3 font-mono text-[11px] text-foreground-400 break-all select-all">
+                    {Array.isArray(value) ? value.join(", ") : value}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </Tab>
 
-        <Tab key="info" title="Info">
-          <div className="h-full p-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-1">
-                <div className="text-xs font-medium text-default-500 uppercase tracking-wide">
-                  URL
-                </div>
-                <p className="text-xs font-mono text-default-700 break-all">
-                  {response.getUrl()}
-                </p>
+        <Tab key="info" title="Metadata">
+          {[
+            { label: "URL", value: response.getUrl(), mono: true },
+            {
+              label: "Status",
+              value: `${response.getStatus()} ${response.getStatusText()}`,
+            },
+            { label: "Timestamp", value: response.getDate() },
+            { label: "Content Type", value: contentType },
+            { label: "Success", value: response.getOK() ? "Yes" : "No" },
+          ].map((item) => (
+            <div key={item.label} className="bg-background-500 p-4">
+              <div className="text-[9px] font-black text-foreground-600 uppercase tracking-[0.2em] mb-1">
+                {item.label}
               </div>
-              <div className="space-y-1">
-                <div className="text-xs font-medium text-default-500 uppercase tracking-wide">
-                  Status
-                </div>
-                <p className="text-xs text-default-700">
-                  {response.getStatus()}{" "}
-                  {response.getStatusText()
-                    ? ` ${response.getStatusText()}`
-                    : ""}
-                </p>
-              </div>
-              <div className="space-y-1">
-                <div className="text-xs font-medium text-default-500 uppercase tracking-wide">
-                  Date
-                </div>
-                <p className="text-xs text-default-700">{response.getDate()}</p>
-              </div>
-              <div className="space-y-1">
-                <div className="text-xs font-medium text-default-500 uppercase tracking-wide">
-                  Content Type
-                </div>
-                <p className="text-xs text-default-700">{contentType}</p>
-              </div>
-              <div className="space-y-1">
-                <div className="text-xs font-medium text-default-500 uppercase tracking-wide">
-                  Success
-                </div>
-                <p className="text-xs text-default-700">
-                  {response.getOK() ? "Yes" : "No"}
-                </p>
-              </div>
+              <p
+                className={cn(
+                  "text-xs text-foreground-200 break-all",
+                  item.mono && "font-mono"
+                )}
+              >
+                {item.value}
+              </p>
             </div>
-          </div>
+          ))}
         </Tab>
       </Tabs>
     </div>
   );
 };
 
-ResponsePanel.displayName = "ResponsePanel";
-
 export const OperationBottomBar = observer(() => {
   const { operationFocused } = useStore((state) => state);
 
-  // Use custom drag resize hook
   const {
     isDragging,
     isCollapsed,
-    isMaximized,
     currentHeight,
     containerRef,
     dragRef,
@@ -193,112 +172,95 @@ export const OperationBottomBar = observer(() => {
   return (
     <div
       ref={containerRef}
-      className={`relative overflow-hidden flex flex-col border-t border-divider ${isCollapsed ? "" : "bg-content2 shadow-2xl"}`}
-      style={{
-        height: currentHeight,
-      }}
+      className={cn(
+        "relative flex flex-col transition-colors duration-300",
+        isCollapsed
+          ? "border-t border-divider bg-background-500"
+          : "bg-background-500 border-t border-divider"
+      )}
+      style={{ height: currentHeight }}
     >
-      {/* Loading Animation Bar */}
+      {/* Wave Loading Bar */}
       {isLoading && (
-        <div className="absolute top-0 left-0 w-full h-0.5 bg-transparent overflow-hidden">
-          <div
-            className="h-full bg-primary"
-            style={{
-              animation: "loading-wave 2s ease-in-out infinite",
-              width: "30%",
-            }}
-          />
+        <div className="absolute top-0 left-0 w-full h-[1px] bg-primary-900/20 overflow-hidden z-[60]">
+          <div className="h-full bg-primary-500 shadow-[0_0_10px_#BE976E] animate-loading-wave w-[30%]" />
         </div>
       )}
 
-      {/* Resize Handle */}
-      <div
-        ref={dragRef}
-        aria-label="Resize response panel"
-        className={`
-          h-1 cursor-ns-resize
-          absolute top-0 left-0 right-0
-          hover:bg-primary/10 transition-all duration-0
-          ${isDragging ? "bg-primary/50" : "bg-transparent"}
-          ${isCollapsed || isMaximized ? "cursor-default opacity-0" : "cursor-ns-resize"}
-        `}
-        role="button"
-        style={{
-          pointerEvents: isCollapsed || isMaximized ? "none" : "auto",
-        }}
-        tabIndex={0}
-        onMouseDown={handleMouseDown}
-      />
+      {/* Resize Handle - Fixed TS and A11y */}
+      {!isCollapsed && (
+        <button
+          ref={dragRef as unknown as React.RefObject<HTMLButtonElement>}
+          aria-label="Resize response panel"
+          aria-valuemin={RESPONSE_PANEL.MIN_HEIGHT}
+          aria-valuenow={Math.round(currentHeight)}
+          className={cn(
+            "h-[4px] w-full absolute top-0 left-0 right-0 z-50 transition-colors border-none p-0 outline-none",
+            isDragging
+              ? "bg-primary-500"
+              : "hover:bg-primary-500/50 cursor-ns-resize bg-transparent"
+          )}
+          role="slider"
+          type="button"
+          onMouseDown={handleMouseDown}
+        />
+      )}
 
       {/* Header Bar */}
-      <div className="w-full flex items-center justify-between p-2">
-        <Button
-          isIconOnly
-          className="min-w-6 w-6 h-6"
-          color="default"
-          size="sm"
-          variant="light"
-          onClick={toggleCollapse}
-        >
-          <ChevronUp
-            className={`size-3 transition-transform ${isCollapsed ? "rotate-0" : "rotate-180"}`}
-          />
-        </Button>
+      <div
+        className={cn(
+          "flex items-center justify-between px-4 h-10 shrink-0 border-b border-divider"
+        )}
+      >
+        <div className="flex items-center gap-4">
+          <button
+            className="flex items-center justify-center size-6 hover:bg-foreground-100/10 rounded transition-colors"
+            type="button"
+            onClick={toggleCollapse}
+          >
+            <ChevronUp
+              className={cn(
+                "size-3.5 transition-transform duration-300",
+                !isCollapsed && "rotate-180"
+              )}
+            />
+          </button>
+
+          <span className="text-xxs font-black uppercase tracking-[0.2em] text-foreground-400">
+            RESPONSE
+          </span>
+        </div>
 
         {(response || isLoading) && (
-          <>
-            <div className="flex items-center gap-2 text-xs text-default-500">
-              {isLoading ? (
-                <>
-                  <Spinner size="sm" />
-                  <span>Loading...</span>
-                </>
-              ) : response ? (
-                <>
-                  <span>{response.getDate()}</span>
-                  <Chip color="default" radius="sm" size="sm" variant="flat">
-                    {(response.getHeaders()?.["content-type"] as string) ||
-                      "application/json"}
-                  </Chip>
-                  <Chip
-                    color={getStatusColorVariant(response.getStatus())}
-                    radius="sm"
-                    size="sm"
-                    title={`${response.getStatus()}: ${response.getStatusText()}`}
-                    variant="flat"
-                  >
-                    {response.getStatus()} {response.getStatusText()}
-                  </Chip>
-                </>
-              ) : null}
-            </div>
-          </>
+          <div className="flex items-center gap-3">
+            {isLoading ? (
+              <Chip label="Requesting..." size="xs" variant="ghost-primary" />
+            ) : response ? (
+              <div className="flex items-center gap-2">
+                <span className="text-xxs font-mono text-foreground-100 mr-2">
+                  {response.getDate()}
+                </span>
+                <Chip
+                  label={`${response.getStatus()} ${response.getStatusText()}`}
+                  size="xs"
+                  variant={getStatusColorVariant(response.getStatus())}
+                />
+              </div>
+            ) : null}
+          </div>
         )}
       </div>
 
-      {/* Content */}
+      {/* Content Area */}
       {!isCollapsed && (
-        <div className="flex-1 overflow-y-auto min-h-0">
+        <div className="flex-1 overflow-hidden">
           {response ? (
             <ResponsePanel isLoading={isLoading} response={response} />
           ) : (
-            <div className="flex items-center justify-center h-full">
-              <div className="flex flex-col items-center gap-4">
-                {isLoading ? (
-                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 ">
-                    <div className="flex gap-2 items-center">
-                      <Spinner size="lg" />
-                      <p className="text-sm text-default-500">
-                        Waiting for response...
-                      </p>
-                    </div>
-                  </div>
-                ) : (
-                  <p className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-sm text-default-500">
-                    Execute a request to see the response
-                  </p>
-                )}
-              </div>
+            <div className="flex items-center justify-center h-full opacity-40">
+              <p className="text-[10px] uppercase tracking-[0.3em] font-bold">
+                Await execution
+              </p>
             </div>
           )}
         </div>
@@ -307,21 +269,15 @@ export const OperationBottomBar = observer(() => {
   );
 });
 
-// Helper function for status color using constants
-const getStatusColorVariant = memoize(
-  (
-    status: number
-  ): "success" | "warning" | "danger" | "secondary" | "default" => {
-    const { SUCCESS, REDIRECT, CLIENT_ERROR, SERVER_ERROR } =
-      HTTP_STATUS_RANGES;
+const getStatusColorVariant = memoize((status: number): Variant => {
+  const { SUCCESS, REDIRECT, CLIENT_ERROR, SERVER_ERROR } = HTTP_STATUS_RANGES;
 
-    if (status >= SUCCESS.min && status <= SUCCESS.max) return "success";
-    if (status >= REDIRECT.min && status <= REDIRECT.max) return "warning";
-    if (status >= CLIENT_ERROR.min && status <= CLIENT_ERROR.max)
-      return "danger";
-    if (status >= SERVER_ERROR.min && status <= SERVER_ERROR.max)
-      return "secondary";
+  if (status >= SUCCESS.min && status <= SUCCESS.max) return "ghost-success";
+  if (status >= REDIRECT.min && status <= REDIRECT.max) return "ghost-calm";
+  if (status >= CLIENT_ERROR.min && status <= CLIENT_ERROR.max)
+    return "ghost-danger";
+  if (status >= SERVER_ERROR.min && status <= SERVER_ERROR.max)
+    return "ghost-danger";
 
-    return "default";
-  }
-);
+  return "ghost-default";
+});

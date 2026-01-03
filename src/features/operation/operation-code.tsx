@@ -1,13 +1,10 @@
 import { useState } from "react";
 
-import { Subtitle } from "../../shared/components/ui/subtitle";
-
 import {
   OperationCodePreview,
   SupportedLanguage,
 } from "@/features/operation/operation-code-preview";
-import { CardSelectableButtons } from "@/shared/components/ui/card-selectable-buttons";
-import { LanguageIcon } from "@/shared/components/ui/icons";
+import { CardSelectableButtons } from "@/shared/components/card-selectable-buttons/card-selectable-buttons";
 
 export const OperationCode = ({
   requestPreview,
@@ -25,8 +22,6 @@ export const OperationCode = ({
   return (
     <div className="flex flex-col space-y-4">
       <div className="space-y-2">
-        <Subtitle>Code Examples</Subtitle>
-
         {/* Language Selector */}
         <CardSelectableButtons
           options={["JavaScript", "cURL", "TypeScript", "Python", "PHP"].map(
@@ -38,17 +33,10 @@ export const OperationCode = ({
           onClick={(value: string) =>
             setSelectedLanguage(value as SupportedLanguage)
           }
-        >
-          <>
-            <LanguageIcon className="size-4" />
-            <span>Language</span>
-          </>
-        </CardSelectableButtons>
+        />
       </div>
       <div className="space-y-2">
         {/* Code Preview Component */}
-        <Subtitle>Code Preview</Subtitle>
-
         <OperationCodePreview
           language={selectedLanguage}
           requestPreview={requestPreview}

@@ -1,116 +1,141 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { Tooltip } from "@heroui/tooltip";
 import { observer } from "mobx-react-lite";
 
 import { ServerModal } from "../server/server-modal";
 import { AuthorizationModal } from "../authorization/authorization-modal";
 
 import { ApiExplorerTagList } from "./api-explorer-tag-list";
+import { QuickNav } from "./quicknav";
 
 import {
-  InfoIcon,
   LockIcon,
   UnlockIcon,
   ServerIcon,
-  ThunderIcon,
-} from "@/shared/components/ui/icons";
-import { Resizable } from "@/shared/components/ui/resizable";
+  InfoIcon,
+} from "@/shared/components/icons";
+import { Resizable } from "@/shared/components/resizable";
 import { useStore } from "@/hooks/use-store";
-import { ButtonSelectable } from "@/shared/components/ui/button-selectable";
-import { ROUTES } from "@/shared/constants/constants";
+import { cn } from "@/shared/utils/cn";
 
 export const ApiExplorer = observer(() => {
   const { operationFocused, focusOperation, spec } = useStore();
   const [isServerModalOpen, setIsServerModalOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModelOpen] = useState(false);
 
-  const navigate = useNavigate();
-
   if (!spec) return null;
 
   const selectedServer = spec.getSelectedServer();
   const servers = spec.getServers();
   const isSecuritySatisfied = spec.isSecuritySatisfied();
+  const securitySchemes = spec.getGlobalSecurity();
 
   return (
-    <aside className="flex h-full w-auto">
+    <aside className="flex h-full w-auto text-foreground-400">
       <Resizable axis="x" defaultWidth={320}>
-        <div className="relative flex flex-col overflow-y-auto h-full no-scrollbar">
-          <div className="px-4 py-2 sticky top-0 z-10 border-b border-divider bg-background/50 backdrop-blur-md shadow-md flex gap-2 justify-center items-center">
-            <ButtonSelectable
-              active={operationFocused === null}
-              onSelect={() => focusOperation(null)}
-            >
-              <span className="font-semibold">Specification Info</span>
-            </ButtonSelectable>
+        <div className="flex flex-col h-full w-full">
+          {/* TOP FIXED HEADER */}
+          <div className="pb-3 pr-3 border-b border-white/10 mb-2">
+            <div className="flex flex-col gap-2 p-2">
+              {/* NAVIGATION BUTTON */}
+              <QuickNav />
 
-            <div className="flex gap-0.5">
-              <Tooltip content="Global Server Settings">
+              <div className="flex gap-2">
+                {/* SERVER BUTTON */}
                 <button
-                  aria-label="Open server settings"
-                  className="p-2.5 rounded-lg text-foreground/70"
+                  className="flex-1 flex items-center justify-center gap-2 p-2 rounded-md 
+                             bg-background-500 hover:bg-background-400 hover:text-foreground-100 
+                             border border-transparent hover:border-white/15 transition-all duration-200"
+                  type="button"
                   onClick={() => setIsServerModalOpen(true)}
                 >
-                  <ServerIcon aria-hidden="true" className="w-5 h-5" />
+                  <ServerIcon className="size-4 text-primary-500" />
+                  <span className="text-xs font-medium truncate max-w-[80px]">
+                    Servers
+                  </span>
                 </button>
-              </Tooltip>
 
-              <Tooltip content="Authorize">
+                {/* AUTH BUTTON */}
                 <button
-                  aria-label="Open authorization settings"
-                  className={`p-2.5 rounded-lg relative ${
+                  className={cn(
+                    "flex-1 flex flex-col items-center justify-center gap-1 p-1.5 rounded-md border transition-all duration-200 relative",
+                    "bg-background-500 hover:bg-background-400",
                     isSecuritySatisfied
-                      ? "text-success/70"
-                      : "text-foreground/70"
-                  }`}
+                      ? "border-success-900/50 text-success-400"
+                      : "border-transparent hover:border-white/15 text-foreground-400"
+                  )}
+                  type="button"
                   onClick={() => setIsAuthModelOpen(true)}
                 >
-                  <div className="flex flex-wrap relative">
+                  <div className="flex items-center gap-2">
                     {isSecuritySatisfied ? (
-                      <UnlockIcon aria-hidden="true" className="w-5 h-5" />
+                      <UnlockIcon className="size-4 text-primary-500" />
                     ) : (
-                      <LockIcon aria-hidden="true" className="w-5 h-5" />
+                      <LockIcon className="size-4 text-primary-500" />
                     )}
-                    <div className="flex w-full justify-around absolute left-0 right-0 -bottom-1.5">
-                      {spec.getGlobalSecurity().map((security) => (
-                        <div
-                          key={security.getKey()}
-                          className={`w-1 h-0.5 rounded-full ${
-                            security.logged
-                              ? "bg-success/70"
-                              : "bg-foreground/70"
-                          }`}
-                          title={security.getKey()}
-                        />
-                      ))}
-                    </div>
+                    <span className="text-xs font-medium">Authorize</span>
+                  </div>
+
+                  {/* SECURITY DOTS */}
+                  <div className="absolute bottom-0.5 flex gap-0.5 h-0.5">
+                    {securitySchemes.map((security) => (
+                      <div
+                        key={security.getKey()}
+                        className={cn(
+                          "w-2 h-0.5 rounded-full",
+                          security.logged
+                            ? "bg-success-500"
+                            : "bg-foreground-600"
+                        )}
+                        title={security.getKey()}
+                      />
+                    ))}
                   </div>
                 </button>
-              </Tooltip>
+              </div>
             </div>
           </div>
 
-          <div className="px-4 py-2">
-            <ApiExplorerTagList
-              focusOperation={focusOperation}
-              operationFocusedId={operationFocused?.id || null}
-            />
-          </div>
+          {/* SCROLLABLE SIDEBAR CONTENT */}
+          <div className="flex-1 overflow-y-auto no-scrollbar pr-3 pt-1 space-y-4">
+            <div className="space-y-1">
+              <p className="px-3 text-[9px] font-black uppercase tracking-widest text-foreground-600 mb-2">
+                General
+              </p>
+              <button
+                className={cn(
+                  "w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-all duration-200 hover:bg-background-400 hover:text-foreground-100",
+                  operationFocused === null
+                    ? "bg-primary-500/10 text-primary-400 font-semibold shadow-sm border border-primary-500/20"
+                    : "text-foreground-400 font-medium border border-transparent"
+                )}
+                onClick={() => focusOperation(null)}
+              >
+                <InfoIcon
+                  className={cn(
+                    "size-4",
+                    operationFocused === null
+                      ? "text-primary-500"
+                      : "text-foreground-400"
+                  )}
+                />
+                Overview
+              </button>
+            </div>
 
-          <div className="bg-background/50 backdrop-blur-md shadow-md px-4 py-4 sticky bottom-0 mt-auto">
-            {/* SPECIFICATION SELECTOR PAGE */}
-            <button
-              className="px-4 py-0.5 flex items-center gap-4 text-xs text-default-500 hover:text-default-700 transition-colors hover:underline"
-              onClick={() => navigate(ROUTES.SPECIFICATION_SELECTOR)}
-            >
-              <ThunderIcon className="size-3" />
-              <span>Go to select another specification</span>
-            </button>
+            <div className="space-y-1">
+              <p className="px-3 text-[9px] font-black uppercase tracking-widest text-foreground-600 mb-2">
+                Tags & Operations
+              </p>
+              <ApiExplorerTagList
+                focusOperation={focusOperation}
+                operationFocusedId={operationFocused?.id || null}
+              />
+            </div>
           </div>
         </div>
       </Resizable>
 
+      {/* MODALS */}
       {selectedServer && servers && isServerModalOpen && (
         <ServerModal
           description='These servers apply to all API "operations" by default.'

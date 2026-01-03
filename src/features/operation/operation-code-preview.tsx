@@ -1,4 +1,4 @@
-import { Code } from "@/shared/components/ui/code";
+import { Code } from "@/shared/components/code";
 
 export type SupportedLanguage =
   | "JavaScript"

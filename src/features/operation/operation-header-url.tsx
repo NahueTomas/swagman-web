@@ -1,144 +1,105 @@
 import { observer } from "mobx-react-lite";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 
 import { useStore } from "@/hooks/use-store";
+import { cn } from "@/shared/utils/cn";
 
-interface UrlProps {
-  url: string;
-  className?: string;
-}
+export const OperationHeaderUrl = observer(
+  ({ url, className }: { url: string; className?: string }) => {
+    const { spec, operationFocused: operationModel } = useStore(
+      (state) => state
+    );
+    const [isFocused, setIsFocused] = useState(false);
 
-export const OperationHeaderUrl = observer(({ url, className }: UrlProps) => {
-  const { spec, operationFocused: operationModel } = useStore((state) => state);
-  const [expanded, setExpanded] = useState<boolean>(false);
+    if (!operationModel || !spec) return null;
 
-  if (!operationModel || !spec) return null;
+    const requestPreview = spec.buildRequest(operationModel);
+    const selectedServer =
+      operationModel.getSelectedServer() || spec.getSelectedServer();
 
-  const requestPreview = spec?.buildRequest(operationModel);
-  const selectedServer =
-    operationModel.getSelectedServer() || spec.getSelectedServer();
-  const servers = !!operationModel.getServers()
-    ? operationModel.getServers()
-    : spec.getServers();
+    const segments = useMemo(() => {
+      const fullUrl = requestPreview.url;
+      const serverUrl = selectedServer
+        ? selectedServer.getUrlWithVariables()
+        : "";
+      const items: Array<{ text: string; type: string }> = [];
 
-  const getUrlTemplate = () => url;
-  const getServerDisplayUrl = () =>
-    selectedServer ? selectedServer.getUrlWithVariables() : selectedServer;
+      if (serverUrl) items.push({ text: serverUrl, type: "server" });
 
-  const renderHighlightedUrl = () => {
-    const processedUrl = requestPreview.url;
-    const templateUrl = getUrlTemplate();
+      const pathPart = url.split("?")[0];
+      const pathSegments = pathPart.split(/(\{.*?\})/g);
 
-    let result = "";
+      pathSegments.forEach((seg) => {
+        if (seg.startsWith("{") && seg.endsWith("}")) {
+          const paramName = seg.slice(1, -1);
+          const resolved = operationModel
+            .getPathParameters()
+            ?.find((p) => p.name === paramName)?.value;
 
-    const pathParamRegex = /\{([^{}]+)\}/g;
-    const queryParamRegex = /([^&?=]+)=([^&]+)?/g;
-
-    if (servers?.length && selectedServer) {
-      const displayUrl = getServerDisplayUrl();
-
-      result += displayUrl;
-    }
-
-    let lastIndex = 0;
-    let match: RegExpExecArray | null;
-
-    const templateUrlWithoutQuery = templateUrl.split("?")[0];
-    const processedUrlWithoutQuery = processedUrl.split("?")[0];
-
-    const getResolvedValue = (paramName: string, placeholder: string) => {
-      const paramData = operationModel
-        .getPathParameters()
-        ?.find((p) => p.name === paramName);
-
-      if (paramData?.value !== undefined) return paramData.value.toString();
-
-      const before = templateUrlWithoutQuery.substring(
-        0,
-        templateUrlWithoutQuery.indexOf(placeholder)
-      );
-      const after = templateUrlWithoutQuery.substring(
-        templateUrlWithoutQuery.indexOf(placeholder) + placeholder.length
-      );
-
-      if (
-        processedUrlWithoutQuery.startsWith(before) &&
-        processedUrlWithoutQuery.endsWith(after)
-      ) {
-        return processedUrlWithoutQuery.substring(
-          before.length,
-          processedUrlWithoutQuery.length - after.length
-        );
-      }
-
-      return "";
-    };
-
-    while ((match = pathParamRegex.exec(templateUrlWithoutQuery)) !== null) {
-      const [fullMatch, paramName] = match;
-      const startIndex = match.index;
-
-      if (startIndex > lastIndex) {
-        result += templateUrlWithoutQuery.substring(lastIndex, startIndex);
-      }
-
-      result += getResolvedValue(paramName, fullMatch) || fullMatch;
-      lastIndex = startIndex + fullMatch.length;
-    }
-
-    if (lastIndex < templateUrlWithoutQuery.length) {
-      result += templateUrlWithoutQuery.substring(lastIndex);
-    }
-
-    if (processedUrl.includes("?")) {
-      const query = processedUrl.substring(processedUrl.indexOf("?"));
-
-      result += "?";
-      lastIndex = 1;
-
-      while ((match = queryParamRegex.exec(query)) !== null) {
-        const [fullMatch] = match;
-        const startIndex = match.index;
-
-        if (startIndex > lastIndex) {
-          result += query.substring(lastIndex, startIndex);
+          items.push({ text: resolved?.toString() || seg, type: "param" });
+        } else if (seg) {
+          items.push({ text: seg, type: "base" });
         }
+      });
 
-        result += fullMatch;
-        lastIndex = startIndex + fullMatch.length;
+      if (fullUrl.includes("?")) {
+        items.push({
+          text: fullUrl.substring(fullUrl.indexOf("?")),
+          type: "query",
+        });
       }
 
-      if (lastIndex < query.length) {
-        result += query.substring(lastIndex);
-      }
-    }
+      return items;
+    }, [requestPreview.url, selectedServer, url, operationModel]);
 
-    return result;
-  };
-
-  return (
-    <div
-      className="relative w-full h-12 flex items-center"
-      // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
-      tabIndex={0}
-      onBlur={() => setExpanded(false)}
-      onFocus={() => setExpanded(true)}
-    >
-      <div
-        className={`w-full min-h-full rounded-md flex items-center ${
-          expanded
-            ? "px-4 py-2.5 outline-2 outline outline-primary/70 bg-content1 absolute top-0 z-10"
-            : "pointer-events-none"
-        } ${className || ""}`}
-      >
-        <span
-          className={`w-full text-sm xl:text-base ${
-            expanded ? "break-words" : "truncate"
-          }`}
+    return (
+      <div className={cn("relative w-full h-10", className)}>
+        <button
+          className={cn(
+            "w-full font-mono text-xs transition-colors duration-150 text-left items-start",
+            "bg-background-600 border rounded-md outline-none",
+            "select-text cursor-text",
+            isFocused
+              ? "absolute top-0 left-0 right-0 z-[100] h-auto min-h-full py-2.5 px-3 border-primary-500 shadow-2xl bg-background-700 ring-1 ring-primary-500"
+              : "h-full flex items-center px-3 border-white/15 overflow-hidden"
+          )}
+          type="button"
+          onBlur={(e) => {
+            if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+              setIsFocused(false);
+            }
+          }}
+          onFocus={() => setIsFocused(true)}
+          onMouseDown={(e) => {
+            if (isFocused) e.stopPropagation();
+          }}
         >
-          {renderHighlightedUrl()}
-        </span>
+          <div
+            className={cn(
+              "w-full pointer-events-auto",
+              isFocused
+                ? "whitespace-normal break-all block"
+                : "whitespace-nowrap overflow-hidden text-ellipsis block"
+            )}
+          >
+            {segments.map((seg, i) => (
+              <span
+                key={i}
+                className={cn(
+                  "inline",
+                  seg.type === "base" && "text-foreground-300",
+                  seg.type === "server" && "text-foreground-600 font-bold",
+                  seg.type === "param" &&
+                    "text-primary-400 font-bold underline decoration-primary-500/30 underline-offset-2",
+                  seg.type === "query" && "text-blue-400/90 italic"
+                )}
+              >
+                {seg.text}
+              </span>
+            ))}
+          </div>
+        </button>
       </div>
-    </div>
-  );
-});
+    );
+  }
+);

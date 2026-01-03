@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 
-import { Subtitle } from "@/shared/components/ui/subtitle";
+import { Subtitle } from "@/shared/components/subtitle";
 import { OperationModel } from "@/models/operation.model";
-import { Code } from "@/shared/components/ui/code";
-import { CardSelectableButtons } from "@/shared/components/ui/card-selectable-buttons";
+import { Code } from "@/shared/components/code";
+import { CardSelectableButtons } from "@/shared/components/card-selectable-buttons/card-selectable-buttons";
 
 type OperationResponseProps = {
   operation: OperationModel;
@@ -45,7 +45,7 @@ export const OperationResponse = ({
 
   if (!hasResponses) {
     return (
-      <div className="p-4 border border-divider rounded-lg text-center text-default-500">
+      <div className="p-4 border border-divider rounded-md text-center text-default-500">
         <div className="flex flex-col items-center justify-center text-center p-12">
           {/* Heroicon: arrow-path */}
           <svg
@@ -81,8 +81,6 @@ export const OperationResponse = ({
   return (
     <div className="flex flex-col space-y-4">
       <div className="space-y-2">
-        <Subtitle>Response Examples</Subtitle>
-
         {/* Status Code Selector */}
         <CardSelectableButtons
           options={responseStatusCodes.map((statusCode) => ({
@@ -90,22 +88,7 @@ export const OperationResponse = ({
             selected: effectiveSelection === statusCode,
           }))}
           onClick={(value: string) => setSelectedResponse(value)}
-        >
-          <svg
-            className="w-4 h-4"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            viewBox="0 0 24 24"
-          >
-            <path
-              d="M3.75 9h16.5m-16.5 6.75h16.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-          <span>Status Code</span>
-        </CardSelectableButtons>
+        />
       </div>
 
       <div className="space-y-2">
@@ -140,7 +123,7 @@ const ResponseContent = ({
 
   return (
     <>
-      <Subtitle>{response?.description || "Response"}</Subtitle>
+      <Subtitle size="sm">{response?.description || "Response"}</Subtitle>
       <Code
         language={getLanguageFromMimeType(acceptHeader)}
         value={responseExample || "No schema defined for this response"}

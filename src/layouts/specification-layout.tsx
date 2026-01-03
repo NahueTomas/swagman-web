@@ -2,19 +2,17 @@ import { useEffect, useState, useCallback } from "react";
 import {
   Outlet,
   useParams,
-  Link,
   useSearchParams,
   useNavigate,
 } from "react-router-dom";
-import { addToast } from "@heroui/toast";
 
 import { ApiExplorer } from "@/features/api-explorer";
 import { SpecModel } from "@/models/spec.model";
 import { useStore } from "@/hooks/use-store";
-import { Error as ErrorComponent } from "@/shared/components/ui/error";
 import { Loading } from "@/features/specification/loading";
-import { ROUTES } from "@/shared/constants/constants";
 import { escapeUrl } from "@/shared/utils/helpers";
+// Rename the import to avoid conflict with native 'Error'
+import { Error as SpecError } from "@/features/specification/error";
 
 export default function SpecificationLayout() {
   const { setSpec } = useStore();
@@ -29,26 +27,21 @@ export default function SpecificationLayout() {
 
   const loadLocalSpec = useCallback((): object | undefined => {
     try {
-      // Check if window.LOCAL_SPEC exists
       if (!window.LOCAL_SPEC) {
-        throw new Error(
-          "No local spec found. Define window.LOCAL_SPEC with your OpenAPI specification."
-        );
+        // Native Error constructor works now
+        throw new Error("No local spec found. Define window.LOCAL_SPEC.");
       }
 
-      // Verificar que sea un objeto válido
       if (typeof window.LOCAL_SPEC !== "object" || window.LOCAL_SPEC === null) {
-        throw new Error(
-          "window.LOCAL_SPEC is not a valid object with the OpenAPI specification."
-        );
+        throw new Error("window.LOCAL_SPEC is not a valid object.");
       }
 
       return window.LOCAL_SPEC;
-    } catch (error) {
-      // Use toast to show error
-      addToast({
+    } catch (err: any) {
+      // eslint-disable-next-line no-console
+      console.log({
         title: "Error loading local spec",
-        description: error instanceof Error ? error.message : "Unknown error",
+        description: err instanceof Error ? err.message : "Unknown error",
         color: "danger",
       });
     }
@@ -60,6 +53,7 @@ export default function SpecificationLayout() {
       setError(null);
 
       try {
+        // Ensure SpecModel has a 'processSpec' method and is a class
         const spec = new SpecModel();
 
         if (!url) {
@@ -72,7 +66,7 @@ export default function SpecificationLayout() {
 
         setSpec(spec);
       } catch (err: any) {
-        setError(err.message || "Failed to load or process the specification.");
+        setError(err.message || "Failed to load specification.");
       } finally {
         setIsLoading(false);
       }
@@ -88,22 +82,19 @@ export default function SpecificationLayout() {
     } else {
       loadSpec(specUrl);
     }
-  }, [specUrl, loadSpec]);
+  }, [specUrl, loadSpec, navigate, searchParams]);
 
   return (
-    <div className="flex h-dvh w-full">
+    <div className="flex p-4 h-dvh w-full bg-background-700 text-foreground-300 gap-4">
+      {/* Hide Sidebar only if error exists AND we aren't loading */}
       {!error && !isLoading && <ApiExplorer />}
 
-      <main className="flex-1 w-full items-center justify-center overflow-hidden bg-content1 mt-4 mb-2 border border-divider border-r-0 rounded-l-lg">
+      <main className="flex-1 w-full bg-background-500 border border-divider flex items-center justify-center overflow-hidden rounded-md relative">
         {error ? (
-          <ErrorComponent message={error} title="Error to get specification">
-            <Link
-              className="mt-10 underline text-primary"
-              to={ROUTES.SPECIFICATION_SELECTOR}
-            >
-              Go to select another specification
-            </Link>
-          </ErrorComponent>
+          <SpecError
+            message={error}
+            onRedirect={(newUrl: string) => navigate(`/${escapeUrl(newUrl)}`)}
+          />
         ) : isLoading ? (
           <Loading />
         ) : (

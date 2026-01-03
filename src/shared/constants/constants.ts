@@ -62,6 +62,33 @@ export const KEYFRAMES = {
 } as const;
 
 export const ROUTES = {
-  SPECIFICATION_SELECTOR: "/specification-selector",
   APP: "/",
 };
+
+export const VARIANTS = [
+  "default",
+  "primary",
+  "danger",
+  "warning",
+  "success",
+  "calm",
+  "alt",
+  // -- GHOST --
+  "ghost-default",
+  "ghost-primary",
+  "ghost-danger",
+  "ghost-warning",
+  "ghost-success",
+  "ghost-calm",
+  "ghost-alt",
+  // -- NOBG --
+  "nobg-default",
+  "nobg-primary",
+  "nobg-danger",
+  "nobg-warning",
+  "nobg-success",
+  "nobg-calm",
+  "nobg-alt",
+] as const;
+export const SIZES = ["xxs", "xs", "sm", "md", "lg", "xl"] as const;
+export const RADIUSES = ["none", "xs", "sm", "md", "lg"] as const;

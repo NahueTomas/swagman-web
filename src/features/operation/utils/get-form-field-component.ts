@@ -1,9 +1,8 @@
-import { FormFieldArray } from "@/shared/components/ui/form-fields/form-field-array";
-import { FormFieldFile } from "@/shared/components/ui/form-fields/form-field-file";
-import { FormFieldNumber } from "@/shared/components/ui/form-fields/form-field-number";
-import { FormFieldObject } from "@/shared/components/ui/form-fields/form-field-object";
-import { FormFieldSelect } from "@/shared/components/ui/form-fields/form-field-select";
-import { FormFieldText } from "@/shared/components/ui/form-fields/form-field-text";
+import { FormFieldArray } from "@/shared/components/form-field-array";
+import { FormFieldNumber } from "@/shared/components/form-field-number";
+import { FormFieldSelect } from "@/shared/components/form-field-select";
+import { FormFieldText } from "@/shared/components/form-field-text";
+import { FormFieldFile } from "@/shared/components/form-field-file";
 import { FormFieldProps } from "@/shared/types/form-field";
 import { OpenAPISchema } from "@/shared/types/openapi";
 
@@ -20,7 +19,7 @@ export const getFormFieldComponent = (
     case "integer":
       return FormFieldNumber;
     case "object":
-      return FormFieldObject;
+      return FormFieldText;
     case "array":
       return FormFieldArray;
     case "boolean":

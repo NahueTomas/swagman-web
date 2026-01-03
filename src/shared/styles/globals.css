@@ -31,17 +31,17 @@
 }
 
 ::-webkit-scrollbar-track {
-  @apply bg-content2 bg-opacity-15 rounded-full;
+  @apply bg-background-500 bg-opacity-15 rounded-full;
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-content3 rounded-full transition-colors hover:bg-content4;
+  @apply bg-background-500 rounded-full transition-colors hover:bg-background-400;
 }
 
 /* Firefox scrollbar styles */
 * {
   scrollbar-width: thin;
-  scrollbar-color: theme('colors.content3') theme('colors.content1');
+  scrollbar-color: #414143 #202021;
 }
 
 
@@ -54,15 +54,15 @@
 }
 
 .marked-lg code {
-  @apply bg-content3 px-1 rounded-lg text-sm italic;
+  @apply bg-background-400 px-1 rounded-md text-sm italic;
 }
 
 .marked-lg pre {
-  @apply bg-content3 px-4 py-2 rounded-lg text-sm;
+  @apply bg-background-400 px-4 py-2 rounded-md text-sm;
 }
 
 .marked-lg pre code {
-  @apply bg-gray-100 px-1 rounded-lg text-sm;
+  @apply bg-gray-100 px-1 rounded-md text-sm;
 }
 
 .marked-lg h1 {
@@ -98,15 +98,15 @@
 }
 
 .marked-sm code {
-  @apply bg-content3 px-1 rounded-lg text-xs italic;
+  @apply bg-background-400 px-1 rounded-md text-xs italic;
 }
 
 .marked-sm pre {
-  @apply bg-content3 px-4 py-2 rounded-lg text-sm;
+  @apply bg-background-400 px-4 py-2 rounded-md text-sm;
 }
 
 .marked-sm pre code {
-  @apply bg-gray-100 px-1 rounded-lg text-sm;
+  @apply bg-gray-100 px-1 rounded-md text-sm;
 }
 
 .marked-sm h1 {
@@ -114,7 +114,7 @@
 }
 
 .marked-sm h2 {
-  @apply text-medium font-bold;
+  @apply text-base font-bold;
 }
 
 .marked-sm h3 {
@@ -143,19 +143,19 @@
 }
 
 .marked-xs code {
-  @apply bg-content3 px-1 rounded-lg text-xs italic;
+  @apply bg-background-400 px-1 rounded-md text-xs italic;
 }
 
 .marked-xs pre {
-  @apply bg-content3 px-4 py-2 rounded-lg text-xs;
+  @apply bg-background-400 px-4 py-2 rounded-md text-xs;
 }
 
 .marked-xs pre code {
-  @apply bg-gray-100 px-1 rounded-lg text-xs;
+  @apply bg-gray-100 px-1 rounded-md text-xs;
 }
 
 .marked-xs h1 {
-  @apply text-medium font-bold;
+  @apply text-base font-bold;
 }
 
 .marked-xs h2 {
@@ -176,4 +176,48 @@
 
 .marked-xs li {
   @apply text-xs;
+}
+
+.marked-xxs a {
+  @apply text-primary font-medium text-xxs;
+}
+
+.marked-xxs a:hover {
+  @apply text-primary underline;
+}
+
+.marked-xxs code {
+  @apply bg-background-400 px-1 rounded-md text-xxs italic;
+}
+
+.marked-xxs pre {
+  @apply bg-background-400 px-4 py-2 rounded-md text-xs;
+}
+
+.marked-xxs pre code {
+  @apply bg-gray-100 px-1 rounded-md text-xxs;
+}
+
+.marked-xxs h1 {
+  @apply text-sm font-bold;
+}
+
+.marked-xxs h2 {
+  @apply text-xs font-bold;
+}
+
+.marked-xxs h3 {
+  @apply text-xxs font-bold;
+}
+
+.marked-xxs h4, h5, h6 {
+  @apply text-xxs font-bold;
+}
+
+.marked-xxs p {
+  @apply text-xxs;
+}
+
+.marked-xxs li {
+  @apply text-xxs;
 }
