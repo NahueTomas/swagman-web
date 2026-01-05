@@ -89,7 +89,7 @@ export const RequestBodyRow = observer(
                   ? ` <${requestBodyField.schema.items.type}>`
                   : ""
               }`}
-              radius="md"
+              radius="sm"
               size="xxs"
               variant="default"
             />
@@ -101,7 +101,7 @@ export const RequestBodyRow = observer(
           {schemaFormat ? (
             <Chip
               label={schemaFormat}
-              radius="md"
+              radius="sm"
               size="xxs"
               variant="default"
             />

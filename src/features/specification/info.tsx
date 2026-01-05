@@ -11,6 +11,7 @@ import {
   ThunderIcon,
 } from "@/shared/components/icons";
 import { cn } from "@/shared/utils/cn";
+import { Chip } from "@/shared/components/chip";
 
 export default function Info() {
   const { spec } = useStore();
@@ -35,9 +36,12 @@ export default function Info() {
                 <h1 className="text-3xl font-black tracking-tight text-foreground-100 uppercase italic">
                   {title}
                 </h1>
-                <span className="px-2 py-0.5 rounded border border-primary-500/30 bg-primary-500/10 text-primary-400 text-[10px] font-bold tracking-widest uppercase">
-                  v{version}
-                </span>
+                <Chip
+                  label={`v${version}`}
+                  radius="sm"
+                  size="sm"
+                  variant="ghost-primary"
+                />
               </div>
               <p className="text-[10px] font-black uppercase tracking-[0.4em] text-foreground-700">
                 Specification Overview

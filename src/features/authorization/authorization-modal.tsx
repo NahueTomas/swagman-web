@@ -138,6 +138,7 @@ const SecuritySchemeInput = observer(
               <Chip
                 className="bg-success-500/10 text-success-500 border-success-500/20"
                 label="Authorized"
+                radius="sm"
                 size="xxs"
                 variant="default"
               />
@@ -145,6 +146,7 @@ const SecuritySchemeInput = observer(
             <Chip
               className="bg-background-700 text-foreground-400"
               label={`${type} (${security.getIn() || "header"})`}
+              radius="sm"
               size="xxs"
               variant="default"
             />

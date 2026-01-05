@@ -77,16 +77,16 @@ export const OperationParameter = observer(
         <td className="px-3 py-0.5 align-middle">
           <Chip
             className="border-divider/50 text-foreground-400"
-            label={`${parameter.getType() || "any"}${
+            label={`${parameter.getType() !== "array" ? parameter.getType() || "any" : ""}${
               (parameter.schema?.items &&
                 typeof parameter.schema.items === "object" &&
                 "type" in parameter.schema.items &&
-                `[${parameter.schema.items.type}]`) ||
+                parameter.schema.items.type + "[ ]") ||
               ""
             }`.trim()}
-            radius="md"
+            radius="sm"
             size="xxs"
-            variant="default"
+            variant="ghost-default"
           />
         </td>
 
@@ -97,7 +97,7 @@ export const OperationParameter = observer(
             <Chip
               className="border-divider/50 text-foreground-400"
               label={`${parameter.style || "default"} ${String(parameter.explode)}`}
-              radius="md"
+              radius="sm"
               size="xxs"
               variant="default"
             />

@@ -234,7 +234,12 @@ export const OperationBottomBar = observer(() => {
         {(response || isLoading) && (
           <div className="flex items-center gap-3">
             {isLoading ? (
-              <Chip label="Requesting..." size="xs" variant="ghost-primary" />
+              <Chip
+                label="Requesting..."
+                radius="sm"
+                size="xs"
+                variant="ghost-primary"
+              />
             ) : response ? (
               <div className="flex items-center gap-2">
                 <span className="text-xxs font-mono text-foreground-100 mr-2">
@@ -242,6 +247,7 @@ export const OperationBottomBar = observer(() => {
                 </span>
                 <Chip
                   label={`${response.getStatus()} ${response.getStatusText()}`}
+                  radius="sm"
                   size="xs"
                   variant={getStatusColorVariant(response.getStatus())}
                 />

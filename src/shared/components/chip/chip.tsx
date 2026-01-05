@@ -32,7 +32,7 @@ const variantClasses: Partial<Record<Variant, string>> = {
   alt: "bg-background-400 text-alt",
 
   "ghost-default":
-    "bg-background-950/10 text-foreground-400 border border-foreground-500/20",
+    "bg-background-950/25 text-foreground-400 border border-foreground-500/20",
   "ghost-primary":
     "bg-primary-500/10 text-primary-400 border border-primary-500/20",
   "ghost-danger":

@@ -154,7 +154,12 @@ export const OperationHeader = observer(() => {
 
           {/* Metadata Chips */}
           {operation.deprecated && (
-            <Chip label="Deprecated" size="xs" variant="ghost-warning" />
+            <Chip
+              label="Deprecated"
+              radius="sm"
+              size="xs"
+              variant="ghost-warning"
+            />
           )}
         </div>
       </div>
