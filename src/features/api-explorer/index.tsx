@@ -35,7 +35,7 @@ export const ApiExplorer = observer(() => {
         <div className="flex flex-col h-full w-full">
           {/* TOP FIXED HEADER */}
           <div className="pb-3 pr-3 border-b border-white/10 mb-2">
-            <div className="flex flex-col gap-2 p-2">
+            <div className="flex flex-col gap-2">
               {/* NAVIGATION BUTTON */}
               <QuickNav />
 
@@ -96,7 +96,7 @@ export const ApiExplorer = observer(() => {
           </div>
 
           {/* SCROLLABLE SIDEBAR CONTENT */}
-          <div className="flex-1 overflow-y-auto no-scrollbar pr-3 pt-1 space-y-4">
+          <div className="flex-1 overflow-y-auto no-scrollbar pr-3 space-y-4">
             <div className="space-y-1">
               <p className="px-3 text-[9px] font-black uppercase tracking-widest text-foreground-600 mb-2">
                 General

@@ -85,7 +85,7 @@ export default function SpecificationLayout() {
   }, [specUrl, loadSpec, navigate, searchParams]);
 
   return (
-    <div className="flex p-4 h-dvh w-full bg-background-700 text-foreground-300 gap-4">
+    <div className="flex p-4 h-dvh w-full bg-background-700 text-foreground-300">
       {/* Hide Sidebar only if error exists AND we aren't loading */}
       {!error && !isLoading && <ApiExplorer />}
 
