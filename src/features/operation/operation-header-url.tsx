@@ -91,7 +91,7 @@ export const OperationHeaderUrl = observer(
                   seg.type === "server" && "text-foreground-600 font-bold",
                   seg.type === "param" &&
                     "text-primary-400 font-bold underline decoration-primary-500/30 underline-offset-2",
-                  seg.type === "query" && "text-blue-400/90 italic"
+                  seg.type === "query" && "text-secondary-400/90 italic"
                 )}
               >
                 {seg.text}
