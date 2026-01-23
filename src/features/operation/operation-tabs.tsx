@@ -19,6 +19,7 @@ import {
 } from "@/shared/components/icons";
 import { Tab, Tabs } from "@/shared/components/tabs";
 import { Subtitle } from "@/shared/components/subtitle";
+import { Chip } from "@/shared/components/chip";
 
 export const OperationTabs = observer(({ operation }: { operation: any }) => {
   const [selectedTab, setSelectedTab] = useState("parameters");
@@ -150,9 +151,7 @@ export const OperationTabs = observer(({ operation }: { operation: any }) => {
                   <div className="flex items-center gap-2">
                     <BodyIcon className="size-3" />
                     <span>Body</span>
-                    {body.required && (
-                      <span className="text-primary-500 ml-0.5">•</span>
-                    )}
+                    {body.required && <Chip label="*" variant="nobg-danger" />}
                   </div>
                 }
               >
