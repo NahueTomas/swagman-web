@@ -76,7 +76,6 @@ export const OperationParameter = observer(
         {/* 4. Type Info */}
         <td className="px-3 py-0.5 align-middle">
           <Chip
-            className="border-divider/50 text-foreground-400"
             label={`${parameter.getType() !== "array" ? parameter.getType() || "any" : ""}${
               (parameter.schema?.items &&
                 typeof parameter.schema.items === "object" &&
@@ -95,7 +94,6 @@ export const OperationParameter = observer(
           {isArray(parameter.getFirstType()) ||
           parameter.getFirstType() === "object" ? (
             <Chip
-              className="border-divider/50 text-foreground-400"
               label={`${parameter.style || "default"} ${String(parameter.explode)}`}
               radius="sm"
               size="xxs"

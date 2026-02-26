@@ -72,7 +72,7 @@ export const OperationHeader = observer(() => {
     <header className="sticky top-0 z-50 bg-background border-b border-divider/40">
       <div className="flex flex-col w-full">
         {/* Main URL Row - Maximized Space */}
-        <div className="flex items-center gap-4 px-4 h-14 lg:h-16">
+        <div className="flex items-center gap-2 pl-4 pr-6 h-14 lg:h-16">
           <div className="flex-shrink-0">
             <h2
               className={cn(
@@ -90,21 +90,13 @@ export const OperationHeader = observer(() => {
 
           <div className="flex-shrink-0">
             <MainButton
-              className="h-10 px-6 bg-primary-500 hover:bg-primary-400 text-background font-bold shadow-lg shadow-primary-500/10"
+              className="h-10 px-6 bg-primary-500 hover:bg-primary-400 text-background hover:underline font-bold shadow-lg shadow-primary-500/10"
               disabled={operation.loadingRequestResponse}
               onClick={handleExecute}
             >
-              <div className="flex items-center gap-3">
-                <span className="text-[11px] uppercase tracking-[0.2em]">
-                  {operation.loadingRequestResponse ? "Executing" : "Execute"}
-                </span>
-                <SendIcon
-                  className={cn(
-                    "size-3.5",
-                    operation.loadingRequestResponse && "animate-pulse"
-                  )}
-                />
-              </div>
+              <span className="text-xs font-black italic uppercase tracking-[0.2em]">
+                {operation.loadingRequestResponse ? "Executing" : "Execute"}
+              </span>
             </MainButton>
           </div>
         </div>

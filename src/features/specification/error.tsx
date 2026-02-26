@@ -36,16 +36,33 @@ export const Error = ({
   return (
     <div className="flex flex-col items-center justify-center h-full w-full p-6 text-center">
       <div className="max-w-sm w-full space-y-6">
+        {/* Branding */}
+        <div className="flex flex-col items-center space-y-3">
+          <img
+            alt="Swagman"
+            className="size-16 rounded-xl"
+            src="/swagman-logo.png"
+          />
+          <div className="space-y-1">
+            <h1 className="text-foreground-100 font-black text-2xl tracking-tight">
+              Swagman
+            </h1>
+            <p className="text-xs text-foreground-600">
+              OpenAPI Explorer & API Workbench
+            </p>
+          </div>
+        </div>
+
         {/* Error Icon & Message */}
         <div className="flex flex-col items-center space-y-3">
           <div className="p-3 rounded-full bg-danger-500/10 border border-danger-500/20">
-            <AlertTriangleIcon className="size-8 text-danger-500" />
+            <AlertTriangleIcon className="size-6 text-danger-500" />
           </div>
           <div className="space-y-1">
-            <h3 className="text-foreground-100 font-bold text-lg">
+            <h3 className="text-foreground-100 font-bold text-sm">
               Specification Error
             </h3>
-            <p className="text-sm text-foreground-500">{message}</p>
+            <p className="text-xs text-foreground-500">{message}</p>
           </div>
         </div>
 

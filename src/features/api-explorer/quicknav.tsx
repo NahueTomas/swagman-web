@@ -2,7 +2,8 @@ import { useState, useId } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { Dropdown } from "@/shared/components/dropdown";
-import { SendIcon } from "@/shared/components/icons";
+import { ActionButton } from "@/shared/components/action-button";
+import { SendIcon, ChevronDownIcon } from "@/shared/components/icons";
 import { escapeUrl } from "@/shared/utils/helpers";
 import { ROUTES } from "@/shared/constants/constants";
 import { FormFieldText } from "@/shared/components/form-field-text";
@@ -27,32 +28,33 @@ export const QuickNav = () => {
     <Dropdown
       className="w-full"
       trigger={
-        <p
-          className="flex-1 text-xxs text-foreground-500 font-black flex items-center justify-center gap-2 p-2 rounded-md uppercase
-        bg-background-500 hover:bg-background-400 hover:text-foreground-100 
-          border border-transparent hover:border-white/15 transition-all duration-200"
+        <ActionButton
+          className="w-full text-foreground-400 justify-between px-3"
+          label="Change Specification"
+          size="md"
+          variant="default"
         >
-          Change Specification
-        </p>
+          <ChevronDownIcon className="size-3.5 opacity-60" />
+        </ActionButton>
       }
     >
       <div className="flex flex-col gap-2 p-1">
         <button
-          className="flex items-center gap-3 px-3 py-2 rounded bg-primary-500/5 hover:bg-primary-500/10 text-xs text-center 
+          className="px-3 py-2 rounded bg-primary-500/5 hover:bg-primary-500/10 text-xs text-center 
                      text-primary-400 transition-all border border-primary-500/10 group w-full"
           onClick={handleLocal}
         >
-          WINDOW.LOCAL_SPEC
+          Go to local
         </button>
 
         <div className="h-px bg-white/10 my-1" />
 
-        <div className="flex flex-col gap-1.5 px-1 pb-1">
+        <div className="flex flex-col gap-2 px-1 pb-1">
           <label
-            className="text-[9px] font-black uppercase tracking-widest text-foreground-600"
+            className="text-xs font-semibold text-foreground-500"
             htmlFor={urlInputId}
           >
-            External Redirect
+            Use a custom URL
           </label>
           <div className="flex gap-1">
             <FormFieldText

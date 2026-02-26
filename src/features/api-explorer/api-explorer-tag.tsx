@@ -27,7 +27,7 @@ export const ApiExplorerTag = ({
   return (
     <div>
       <button
-        className="w-full flex flex-wrap flex-row py-2 transition-all rounded-md hover:text-foreground-100"
+        className="w-full flex flex-wrap flex-row py-2 px-3 transition-colors rounded-md text-foreground-400 hover:text-foreground-100 hover:bg-white/5 active:scale-[0.99] group"
         onClick={() => {
           setIsCollapsed(!isCollapsed);
           if (isCollapsed && tag.operationsResume.length)
@@ -38,7 +38,7 @@ export const ApiExplorerTag = ({
           <div className="w-2.5 h-2.5 shrink-0">
             <svg
               className={clsx(
-                "w-2.5 h-2.5 transform transition-transform duration-200",
+                "w-2.5 h-2.5 transform transition-transform duration-200 group-hover:text-primary-400",
                 isCollapsed ? "rotate-0" : "rotate-90"
               )}
               fill="none"
@@ -55,11 +55,13 @@ export const ApiExplorerTag = ({
           </div>
 
           <div className="flex-1 text-left overflow-hidden">
-            <div className="flex items-center gap-2">
-              <h4 className="text-sm font-bold truncate">{tag.title}</h4>
-              <p className="text-xxs">
-                ({String(tag.operationsResume.length)})
-              </p>
+            <div className="flex items-center justify-between gap-2">
+              <h4 className="text-sm font-semibold truncate group-hover:text-primary-50 transition-colors">
+                {tag.title}
+              </h4>
+              <span className="text-[10px] bg-background-400/30 px-1.5 py-0.5 rounded font-mono font-bold text-foreground-500 group-hover:bg-primary-500/20 group-hover:text-primary-400 transition-colors">
+                {tag.operationsResume.length}
+              </span>
             </div>
 
             {tag.description && (
@@ -81,7 +83,7 @@ export const ApiExplorerTag = ({
               <ApiExplorerTaggedItem
                 key={o.id}
                 active={o.id === operationFocusedId || false}
-                className="px-6"
+                className="pl-[1.8rem] pr-3"
                 deprecated={o.deprecated}
                 method={o.method}
                 title={o.title}

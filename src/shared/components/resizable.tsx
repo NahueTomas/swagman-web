@@ -156,7 +156,7 @@ export const Resizable = ({
 
       <div
         aria-label="Resize"
-        className="absolute bottom-0 right-0 p-2 cursor-pointer transition-all duration-200 ease-out"
+        className="absolute bottom-0 right-0 cursor-pointer transition-all duration-200 ease-out"
         role="button"
         style={{
           cursor: cursorType,

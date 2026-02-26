@@ -85,11 +85,15 @@ export default function SpecificationLayout() {
   }, [specUrl, loadSpec, navigate, searchParams]);
 
   return (
-    <div className="flex p-4 h-dvh w-full bg-background-700 text-foreground-300">
+    <div className="flex h-dvh w-full bg-background text-foreground-300 overflow-hidden">
       {/* Hide Sidebar only if error exists AND we aren't loading */}
-      {!error && !isLoading && <ApiExplorer />}
+      {!error && !isLoading && (
+        <div className="border-r border-divider/40 bg-background-600/30 flex-shrink-0 z-10 w-fit h-full">
+          <ApiExplorer />
+        </div>
+      )}
 
-      <main className="flex-1 w-full bg-background-500 border border-divider flex items-center justify-center overflow-hidden rounded-md relative">
+      <main className="flex-1 w-full bg-background relative flex flex-col h-full overflow-hidden">
         {error ? (
           <SpecError
             message={error}

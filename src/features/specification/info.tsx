@@ -12,6 +12,7 @@ import {
 } from "@/shared/components/icons";
 import { cn } from "@/shared/utils/cn";
 import { Chip } from "@/shared/components/chip";
+import { SectionTitle } from "@/shared/components/section-title";
 
 export default function Info() {
   const { spec } = useStore();
@@ -28,8 +29,8 @@ export default function Info() {
   return (
     <section className="h-full flex flex-col overflow-auto bg-background selection:bg-primary-500/30">
       {/* 1. Header Section - Dense & High Contrast */}
-      <header className="px-8 py-10 border-b border-divider/40 bg-background-500/20">
-        <div className="max-w-6xl mx-auto space-y-6">
+      <header className="px-6 py-10 border-b border-divider/50 bg-background/50">
+        <div className="w-full space-y-6">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
             <div className="space-y-2">
               <div className="flex items-center gap-3">
@@ -43,7 +44,7 @@ export default function Info() {
                   variant="ghost-primary"
                 />
               </div>
-              <p className="text-[10px] font-black uppercase tracking-[0.4em] text-foreground-700">
+              <p className="text-[11px] font-black uppercase tracking-[0.3em] text-primary-500/80">
                 Specification Overview
               </p>
             </div>
@@ -72,16 +73,16 @@ export default function Info() {
       </header>
 
       {/* 2. Content Body */}
-      <div className="flex-1 px-8 py-10">
-        <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-12">
+      <div className="flex-1 px-6 py-10">
+        <div className="w-full grid grid-cols-1 lg:grid-cols-3 gap-12">
           {/* Main Description */}
           <main
             className={cn("lg:col-span-2 space-y-6", !description && "hidden")}
           >
-            <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-foreground-700 border-b border-divider/30 pb-2">
+            <SectionTitle className="border-b border-divider/30 pb-3">
               Documentation
-            </h3>
-            <div className="prose prose-invert prose-sm max-w-none prose-headings:text-foreground-100 prose-p:text-foreground-500 prose-a:text-primary-500">
+            </SectionTitle>
+            <div className="prose prose-invert prose-sm max-w-full prose-headings:text-foreground-100 prose-p:text-foreground-500 prose-a:text-primary-500">
               <SanitizedMarkdown
                 className="marked-lg leading-relaxed"
                 content={description || ""}
@@ -94,10 +95,10 @@ export default function Info() {
             {/* Contact Card */}
             {contact && (
               <div className="space-y-4">
-                <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-foreground-700 border-b border-divider/30 pb-2">
+                <SectionTitle className="border-b border-divider/30 pb-3">
                   Maintainer
-                </h3>
-                <div className="space-y-3 p-4 rounded bg-background-500/40 border border-divider/20">
+                </SectionTitle>
+                <div className="space-y-3 p-5 rounded-md bg-background-500/20 border border-divider/50">
                   {contact.name && (
                     <div className="flex items-center gap-3 text-xs">
                       <UserIcon className="size-3.5 text-primary-500" />
@@ -137,10 +138,10 @@ export default function Info() {
             {/* License Card */}
             {license && (
               <div className="space-y-4">
-                <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-foreground-700 border-b border-divider/30 pb-2">
+                <SectionTitle className="border-b border-divider/30 pb-3">
                   Legal
-                </h3>
-                <div className="p-4 rounded border border-divider/20 flex flex-col gap-2">
+                </SectionTitle>
+                <div className="p-5 rounded-md border border-divider/50 flex flex-col gap-2 bg-background-500/20">
                   <div className="flex items-center gap-3 text-xs">
                     <ScaleIcon className="size-3.5 text-foreground-500" />
                     <span className="text-foreground-300 italic">

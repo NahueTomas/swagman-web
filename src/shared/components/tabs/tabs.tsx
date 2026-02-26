@@ -54,7 +54,7 @@ export const Tabs = ({
       <div
         aria-label={ariaLabel}
         className={cn(
-          "flex items-center gap-1 border-b border-divider/40 w-full",
+          "flex items-center gap-1 border-b border-divider/50 w-full",
           classNames?.tabList
         )}
         role="tablist"

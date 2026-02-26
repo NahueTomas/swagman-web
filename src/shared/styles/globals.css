@@ -44,6 +44,10 @@
   scrollbar-color: #414143 #202021;
 }
 
+body {
+  @apply bg-background text-foreground antialiased selection:bg-primary-500/30 selection:text-primary-50;
+}
+
 
 .marked-lg a {
   @apply text-primary font-medium text-base;

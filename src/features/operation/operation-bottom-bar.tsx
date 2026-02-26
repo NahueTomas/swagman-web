@@ -115,30 +115,32 @@ const ResponsePanel = ({ response, isLoading }: ResponsePanelProps) => {
         </Tab>
 
         <Tab key="info" title="Metadata">
-          {[
-            { label: "URL", value: response.getUrl(), mono: true },
-            {
-              label: "Status",
-              value: `${response.getStatus()} ${response.getStatusText()}`,
-            },
-            { label: "Timestamp", value: response.getDate() },
-            { label: "Content Type", value: contentType },
-            { label: "Success", value: response.getOK() ? "Yes" : "No" },
-          ].map((item) => (
-            <div key={item.label} className="bg-background-500 p-4">
-              <div className="text-[9px] font-black text-foreground-600 uppercase tracking-[0.2em] mb-1">
-                {item.label}
+          <div className="p-4 space-y-5">
+            {[
+              { label: "URL", value: response.getUrl(), mono: true },
+              {
+                label: "Status",
+                value: `${response.getStatus()} ${response.getStatusText()}`,
+              },
+              { label: "Timestamp", value: response.getDate() },
+              { label: "Content Type", value: contentType },
+              { label: "Success", value: response.getOK() ? "Yes" : "No" },
+            ].map((item) => (
+              <div key={item.label}>
+                <div className="text-[9px] font-black text-foreground-600 uppercase tracking-[0.2em] mb-1">
+                  {item.label}
+                </div>
+                <p
+                  className={cn(
+                    "text-xs text-foreground-200 break-all",
+                    item.mono && "font-mono"
+                  )}
+                >
+                  {item.value}
+                </p>
               </div>
-              <p
-                className={cn(
-                  "text-xs text-foreground-200 break-all",
-                  item.mono && "font-mono"
-                )}
-              >
-                {item.value}
-              </p>
-            </div>
-          ))}
+            ))}
+          </div>
         </Tab>
       </Tabs>
     </div>
@@ -175,8 +177,8 @@ export const OperationBottomBar = observer(() => {
       className={cn(
         "relative flex flex-col transition-colors duration-300",
         isCollapsed
-          ? "border-t border-divider bg-background-500"
-          : "bg-background-500 border-t border-divider"
+          ? "border-t border-divider bg-background-500 hover:bg-background-400"
+          : "bg-background-600 border-t border-divider shadow-inner"
       )}
       style={{ height: currentHeight }}
     >

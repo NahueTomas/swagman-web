@@ -10,7 +10,7 @@ export const MainButton = ({
       className={cn(
         "inline-flex items-center justify-center gap-2",
         "h-14 px-6",
-        "rounded-lg",
+        "rounded-md",
         "text-md font-medium",
 
         // Visual

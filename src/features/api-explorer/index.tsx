@@ -7,6 +7,8 @@ import { AuthorizationModal } from "../authorization/authorization-modal";
 import { ApiExplorerTagList } from "./api-explorer-tag-list";
 import { QuickNav } from "./quicknav";
 
+import { ActionButton } from "@/shared/components/action-button";
+import { SectionTitle } from "@/shared/components/section-title";
 import {
   LockIcon,
   UnlockIcon,
@@ -32,101 +34,91 @@ export const ApiExplorer = observer(() => {
   return (
     <aside className="flex h-full w-auto text-foreground-400">
       <Resizable axis="x" defaultWidth={320}>
-        <div className="flex flex-col h-full w-full">
+        <div className="flex flex-col h-full w-full pt-4 px-4">
           {/* TOP FIXED HEADER */}
-          <div className="pb-3 pr-3 border-b border-white/10 mb-2">
-            <div className="flex flex-col gap-2">
+          <div className="pb-4 border-b border-divider mb-4">
+            <div className="flex flex-col gap-4">
+              {/* BRANDING */}
+              <div className="flex items-center gap-2.5 px-0.5 mb-1 select-none">
+                <img
+                  alt="Swagman"
+                  className="size-7 rounded-md shadow-sm"
+                  src="/swagman-logo.png"
+                />
+                <span className="text-sm font-black tracking-tight text-foreground-100 uppercase italic">
+                  Swagman
+                </span>
+              </div>
+
               {/* NAVIGATION BUTTON */}
               <QuickNav />
 
-              <div className="flex gap-2">
+              <div className="flex gap-3">
                 {/* SERVER BUTTON */}
-                <button
-                  className="flex-1 flex items-center justify-center gap-2 p-2 rounded-md 
-                             bg-background-500 hover:bg-background-400 hover:text-foreground-100 
-                             border border-transparent hover:border-white/15 transition-all duration-200"
-                  type="button"
+                <ActionButton
+                  className="flex-1"
+                  icon={<ServerIcon className="size-4" />}
+                  label="Servers"
+                  size="sm"
                   onClick={() => setIsServerModalOpen(true)}
-                >
-                  <ServerIcon className="size-4 text-primary-500" />
-                  <span className="text-xs font-medium truncate max-w-[80px]">
-                    Servers
-                  </span>
-                </button>
+                />
 
                 {/* AUTH BUTTON */}
-                <button
-                  className={cn(
-                    "flex-1 flex flex-col items-center justify-center gap-1 p-1.5 rounded-md border transition-all duration-200 relative",
-                    "bg-background-500 hover:bg-background-400",
-                    isSecuritySatisfied
-                      ? "border-success-900/50 text-success-400"
-                      : "border-transparent hover:border-white/15 text-foreground-400"
-                  )}
-                  type="button"
-                  onClick={() => setIsAuthModelOpen(true)}
-                >
-                  <div className="flex items-center gap-2">
-                    {isSecuritySatisfied ? (
-                      <UnlockIcon className="size-4 text-primary-500" />
-                    ) : (
-                      <LockIcon className="size-4 text-primary-500" />
-                    )}
-                    <span className="text-xs font-medium">Authorize</span>
-                  </div>
-
-                  {/* SECURITY DOTS */}
-                  <div className="absolute bottom-0.5 flex gap-0.5 h-0.5">
-                    {securitySchemes.map((security) => (
-                      <div
-                        key={security.getKey()}
-                        className={cn(
-                          "w-2 h-0.5 rounded-full",
-                          security.logged
-                            ? "bg-success-500"
-                            : "bg-foreground-600"
-                        )}
-                        title={security.getKey()}
-                      />
-                    ))}
-                  </div>
-                </button>
+                <div className="flex-1 relative">
+                  <ActionButton
+                    active={isSecuritySatisfied}
+                    className="w-full"
+                    icon={
+                      isSecuritySatisfied ? (
+                        <UnlockIcon className="size-4" />
+                      ) : (
+                        <LockIcon className="size-4" />
+                      )
+                    }
+                    label="Authorize"
+                    size="sm"
+                    variant={isSecuritySatisfied ? "success" : "default"}
+                    onClick={() => setIsAuthModelOpen(true)}
+                  >
+                    {/* SECURITY DOTS - Cleanly positioned top-right indicator */}
+                    <div className="absolute bottom-0.5 left-1/2 -translate-x-1/2 flex gap-1">
+                      {securitySchemes.map((security) => (
+                        <div
+                          key={security.getKey()}
+                          className={cn(
+                            "w-2 h-0.5 rounded-full",
+                            security.logged
+                              ? "bg-success-600"
+                              : "bg-foreground-600/50"
+                          )}
+                          title={security.getKey()}
+                        />
+                      ))}
+                    </div>
+                  </ActionButton>
+                </div>
               </div>
             </div>
           </div>
 
           {/* SCROLLABLE SIDEBAR CONTENT */}
-          <div className="flex-1 overflow-y-auto no-scrollbar pr-3 space-y-4">
-            <div className="space-y-1">
-              <p className="px-3 text-[9px] font-black uppercase tracking-widest text-foreground-600 mb-2">
-                General
-              </p>
-              <button
-                className={cn(
-                  "w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-all duration-200 hover:bg-background-400 hover:text-foreground-100",
-                  operationFocused === null
-                    ? "bg-primary-500/10 text-primary-400 font-semibold shadow-sm border border-primary-500/20"
-                    : "text-foreground-400 font-medium border border-transparent"
-                )}
+          <div className="flex-1 overflow-y-auto no-scrollbar space-y-6">
+            <div className="space-y-2">
+              <SectionTitle>General</SectionTitle>
+              <ActionButton
+                active={operationFocused === null}
+                className="w-full text-sm py-2 px-3 justify-start"
+                icon={<InfoIcon className="size-4" />}
+                label="Overview"
+                variant={operationFocused === null ? "default" : "ghost"}
                 onClick={() => focusOperation(null)}
-              >
-                <InfoIcon
-                  className={cn(
-                    "size-4",
-                    operationFocused === null
-                      ? "text-primary-500"
-                      : "text-foreground-400"
-                  )}
-                />
-                Overview
-              </button>
+              />
             </div>
 
-            <div className="space-y-1">
-              <p className="px-3 text-[9px] font-black uppercase tracking-widest text-foreground-600 mb-2">
-                Tags & Operations
-              </p>
+            <div className="space-y-2">
+              <SectionTitle>Tags & Operations</SectionTitle>
               <ApiExplorerTagList
+                className="space-y-0.5"
                 focusOperation={focusOperation}
                 operationFocusedId={operationFocused?.id || null}
               />

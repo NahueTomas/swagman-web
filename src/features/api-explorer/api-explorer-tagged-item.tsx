@@ -38,16 +38,15 @@ export const ApiExplorerTaggedItem = ({
         ? "OPT"
         : methodUpper;
 
-  const activeClass =
-    "bg-primary-500/10 text-primary-400 font-semibold shadow-sm border-primary-500/20";
+  const activeClass = "bg-primary-500/10 text-primary-400";
   const inactiveClass =
-    "text-foreground-400 font-medium border-transparent hover:text-foreground";
+    "text-foreground-400 hover:bg-white/5 hover:text-foreground-100";
 
   return (
-    <li className="list-none rounded-md bg-background-700">
+    <li className="list-none">
       <button
         className={cn(
-          "w-full px-4 py-2 rounded-md border hover:bg-background-400",
+          "w-full px-4 py-2 rounded-md transition-colors duration-200 text-left active:scale-[0.99] outline-none focus-visible:ring-2 focus-visible:ring-primary-500",
           active ? activeClass : inactiveClass,
           className
         )}
@@ -56,7 +55,7 @@ export const ApiExplorerTaggedItem = ({
         <div className="flex gap-3 items-center flex-nowrap overflow-hidden">
           {/* Method indicator */}
           <Chip
-            className="w-6"
+            className="w-[34px] shrink-0 text-center"
             label={methodToRender}
             radius="sm"
             size="xxs"
@@ -66,8 +65,9 @@ export const ApiExplorerTaggedItem = ({
           {/* Operation title */}
           <span
             className={clsx(
-              "text-xs font-semibold truncate",
-              deprecated ? "line-through" : ""
+              "text-xs truncate",
+              active ? "font-semibold" : "font-medium",
+              deprecated ? "line-through opacity-60" : ""
             )}
           >
             {title}

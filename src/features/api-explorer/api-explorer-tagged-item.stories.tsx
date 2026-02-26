@@ -25,8 +25,9 @@ export const Active: Story = {
     title: "getPetById",
     method: "GET",
     active: true,
-    deprecated: false
-  }
+    deprecated: false,
+    onClick: () => alert("MOCK"),
+  },
 };
 
 export const Deprecated: Story = {
@@ -34,8 +35,9 @@ export const Deprecated: Story = {
     title: "getPetById",
     method: "GET",
     active: false,
-    deprecated: true
-  }
+    deprecated: true,
+    onClick: () => alert("MOCK"),
+  },
 };
 
 export const ActiveDeprecated: Story = {
@@ -43,6 +45,7 @@ export const ActiveDeprecated: Story = {
     title: "getPetById",
     method: "GET",
     active: true,
-    deprecated: true
-  }
+    deprecated: true,
+    onClick: () => alert("MOCK"),
+  },
 };

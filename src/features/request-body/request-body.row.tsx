@@ -91,7 +91,7 @@ export const RequestBodyRow = observer(
               }`}
               radius="sm"
               size="xxs"
-              variant="default"
+              variant="ghost-default"
             />
           </div>
         </td>
@@ -103,7 +103,7 @@ export const RequestBodyRow = observer(
               label={schemaFormat}
               radius="sm"
               size="xxs"
-              variant="default"
+              variant="ghost-default"
             />
           ) : (
             <span className="text-foreground-700 text-xs">—</span>

@@ -38,7 +38,12 @@ export function Loading() {
       </div>
 
       {/* Subtle Background Branding */}
-      <div className="absolute bottom-10 flex flex-col items-center gap-2 opacity-20">
+      <div className="absolute bottom-10 flex flex-col items-center gap-3 opacity-20 transition-opacity hover:opacity-100 duration-500">
+        <img
+          alt="Swagman"
+          className="size-10 grayscale brightness-200"
+          src="/swagman-logo.png"
+        />
         <span className="text-xxs font-black tracking-[0.5em] uppercase text-foreground-800">
           Swagman
         </span>
