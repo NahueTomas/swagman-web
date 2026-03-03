@@ -97,7 +97,7 @@ export const OperationParameter = observer(
               label={`${parameter.style || "default"} ${String(parameter.explode)}`}
               radius="sm"
               size="xxs"
-              variant="default"
+              variant="ghost-default"
             />
           ) : (
             <span className="text-foreground-700 text-xs">—</span>

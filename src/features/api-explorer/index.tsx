@@ -39,13 +39,11 @@ export const ApiExplorer = observer(() => {
           <div className="pb-4 border-b border-divider mb-4">
             <div className="flex flex-col gap-4">
               {/* BRANDING */}
-              <div className="flex items-center gap-2.5 px-0.5 mb-1 select-none">
-                <img
-                  alt="Swagman"
-                  className="size-7 rounded-md shadow-sm"
-                  src="/swagman-logo.png"
-                />
-                <span className="text-sm font-black tracking-tight text-foreground-100 uppercase italic">
+              <div className="flex items-center gap-2.5 px-0.5 mb-1 select-none group cursor-default">
+                <span
+                  className="text-sm font-black tracking-tight text-foreground-400 uppercase italic 
+                                 transition-all duration-300 group-hover:text-primary-500 group-hover:tracking-widest"
+                >
                   Swagman
                 </span>
               </div>

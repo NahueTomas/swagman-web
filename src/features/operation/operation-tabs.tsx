@@ -84,7 +84,6 @@ export const OperationTabs = observer(({ operation }: { operation: any }) => {
         </div>
       )}
 
-
       {/* SECTION 1: REQUEST CONFIGURATION */}
       <Tabs
         aria-label="Request configuration"
@@ -111,18 +110,18 @@ export const OperationTabs = observer(({ operation }: { operation: any }) => {
 
             {(operation.getQueryParameters().length > 0 ||
               querySecurities.length > 0) && (
-                <OperationParametersGrid title="Query Parameters">
-                  {querySecurities.map((sec) => (
-                    <OperationSecurityParameter
-                      key={sec.getKey()}
-                      security={sec}
-                    />
-                  ))}
-                  {operation.getQueryParameters().map((p: any) => (
-                    <OperationParameter key={p.id} parameter={p} />
-                  ))}
-                </OperationParametersGrid>
-              )}
+              <OperationParametersGrid title="Query Parameters">
+                {querySecurities.map((sec) => (
+                  <OperationSecurityParameter
+                    key={sec.getKey()}
+                    security={sec}
+                  />
+                ))}
+                {operation.getQueryParameters().map((p: any) => (
+                  <OperationParameter key={p.id} parameter={p} />
+                ))}
+              </OperationParametersGrid>
+            )}
 
             {/* Empty State */}
             {operation.getPathParameters().length === 0 &&
@@ -146,10 +145,7 @@ export const OperationTabs = observer(({ operation }: { operation: any }) => {
           <div className="pt-6 space-y-6">
             <OperationParametersGrid title="Request Headers">
               {headerSecurities.map((sec) => (
-                <OperationSecurityParameter
-                  key={sec.getKey()}
-                  security={sec}
-                />
+                <OperationSecurityParameter key={sec.getKey()} security={sec} />
               ))}
               {operation.getHeaderParameters().map((p: any) => (
                 <OperationParameter key={p.id} parameter={p} />
@@ -169,7 +165,7 @@ export const OperationTabs = observer(({ operation }: { operation: any }) => {
               </div>
             }
           >
-            <div className="mt-2">
+            <div className="pt-6">
               <OperationBody
                 body={operation.getRequestBody()}
                 contentTypeParameter={operation.getContentType()}

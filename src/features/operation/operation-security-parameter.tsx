@@ -38,7 +38,12 @@ export const OperationSecurityParameter = observer(
 
         {/* 4. Type Display */}
         <td className="px-3 py-0.5 align-middle">
-          <Chip label={`apiKey<${security.getKey()}>`} radius="sm" size="xxs" />
+          <Chip
+            label={`apiKey<${security.getKey()}>`}
+            radius="sm"
+            size="xxs"
+            variant="ghost-default"
+          />
         </td>
 
         {/* 5. Explode (empty) */}

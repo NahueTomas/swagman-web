@@ -22,33 +22,10 @@ export const OperationBody = observer(
     const currentMimeType = contentTypeParameter.value as string;
 
     return (
-      <div className="flex flex-col animate-in fade-in duration-300">
-        {/* Compact Header Row */}
-        <div className="flex flex-wrap items-center justify-between gap-4 mb-2">
-          {/* Compact Switcher */}
-          <span className="text-[10px] font-black text-foreground-700 uppercase tracking-tighter">
-            Encoding
-          </span>
-          <div className="origin-right">
-            <CardSelectableButtons
-              options={mimeTypes.map((type) => ({
-                value: type,
-                selected: currentMimeType === type,
-              }))}
-              onClick={(value) => {
-                if (value !== contentTypeParameter.value) {
-                  contentTypeParameter.setValue(value);
-                } else if (!body.required) {
-                  contentTypeParameter.setValue(undefined);
-                }
-              }}
-            />
-          </div>
-        </div>
-
+      <div className="flex flex-col gap-4 animate-in fade-in duration-300">
         {/* Description - Muted and secondary */}
         {body.description && (
-          <p className="relative mb-2 before:absolute before:top-0 before:bottom-0 before:w-0.5 before:bg-primary-700/50">
+          <p className="relative before:absolute before:top-0 before:bottom-0 before:w-0.5 before:bg-primary-700/50">
             <SanitizedMarkdown
               className="ml-4 text-xs italic text-foreground-500"
               content={body.description}
@@ -56,14 +33,20 @@ export const OperationBody = observer(
           </p>
         )}
 
-        {/* Technical Separator / Encoding Display */}
-        <div className="relative h-px bg-divider/20 mb-6 mt-2">
-          <div className="absolute -top-2 left-0 right-0 flex justify-center">
-            <span className="bg-background px-3 text-xxs font-mono text-primary-500/80 uppercase tracking-[0.2em] font-bold">
-              {currentMimeType || "waiting_for_input"}
-            </span>
-          </div>
-        </div>
+        {/* Compact Header Row */}
+        <CardSelectableButtons
+          options={mimeTypes.map((type) => ({
+            value: type,
+            selected: currentMimeType === type,
+          }))}
+          onClick={(value) => {
+            if (value !== contentTypeParameter.value) {
+              contentTypeParameter.setValue(value);
+            } else if (!body.required) {
+              contentTypeParameter.setValue(undefined);
+            }
+          }}
+        />
 
         {/* Editor Area */}
         <div
