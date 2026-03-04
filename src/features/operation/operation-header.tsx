@@ -2,12 +2,7 @@ import { useEffect, useState } from "react";
 import { observer } from "mobx-react-lite";
 
 import { useStore } from "@/hooks/use-store";
-import {
-  ServerIcon,
-  LockIcon,
-  UnlockIcon,
-  SendIcon,
-} from "@/shared/components/icons";
+import { ServerIcon, LockIcon, UnlockIcon } from "@/shared/components/icons";
 import { ServerModal } from "@/features/server/server-modal";
 import { AuthorizationModal } from "@/features/authorization/authorization-modal";
 import { OperationHeaderUrl } from "@/features/operation/operation-header-url";
