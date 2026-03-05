@@ -25,10 +25,14 @@ import { SwaggerConverter } from "@/lib/swagger-converter";
 import { ServerModel } from "@/models/server.model";
 import { getStatusCodeName } from "@/shared/utils/helpers";
 import { Value } from "@/shared/types/parameter-value";
+import { useCacheStore } from "@/hooks/use-cache-store";
 
 export class SpecModel {
   public processed: boolean;
   public openapi: string;
+  /** Stable key used as the top-level cache bucket. URL string for remote specs,
+   *  "local" for inline/embedded specs. */
+  public specKey: string = "local";
   public info: OpenAPIInfo;
   public paths: OpenAPIPaths;
   public components: OpenAPIComponents;
@@ -86,6 +90,8 @@ export class SpecModel {
   }
 
   public async processSpec(config: string | object) {
+    this.specKey = typeof config === "string" ? config : "local";
+
     const obj: { url?: string; spec?: object } = {};
 
     if (typeof config === "string") obj.url = config;
@@ -215,6 +221,7 @@ export class SpecModel {
   private generateOperations() {
     if (!this.processed) throw new Error("Spec not processed");
 
+    const { getOperation } = useCacheStore.getState();
     const operations: Array<OperationModel> = [];
     const operationList: string[] = [];
 
@@ -223,10 +230,13 @@ export class SpecModel {
 
       for (const method in pathItem) {
         const operation = pathItem[method as keyof OpenAPIPath];
+        const operationId = OperationModel.buildId(path, method);
+        const cachedValues = getOperation(this.specKey, operationId);
         const operationModel = new OperationModel(
           path,
           method,
-          operation as OpenAPIOperation
+          operation as OpenAPIOperation,
+          cachedValues
         );
 
         if (operationList.includes(operationModel.id)) continue;
@@ -358,7 +368,7 @@ export class SpecModel {
     if (
       requestBodyMediaType &&
       !Array.isArray(requestBodyMediaType.fields) &&
-      (requestBodyMediaType as any).value
+      (requestBodyMediaType as any).value != null
     ) {
       // Caso text/plain, application/json simple, etc
       requestBodyFormatted = (requestBodyMediaType as any).value;
@@ -437,6 +447,18 @@ export class SpecModel {
       },
       baseURL: server.getUrlWithVariables(),
     });
+
+    // SwaggerClient converts form bodies into FormData (for multipart) or
+    // url-encoded strings (for x-www-form-urlencoded). Both are opaque to
+    // OperationCodePreview, which needs a plain JS object to enumerate fields.
+    // Restore the plain body we computed so the code preview always has
+    // serialisable data.
+    if (
+      request.body instanceof FormData ||
+      request.formdata instanceof FormData
+    ) {
+      request.body = body;
+    }
 
     return request;
   }

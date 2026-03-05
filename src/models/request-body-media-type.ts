@@ -1,4 +1,5 @@
 import type { OpenAPIMediaType } from "@/shared/types/openapi";
+import type { BodyEntry } from "@/hooks/use-cache-store";
 
 import { action, makeObservable, observable } from "mobx";
 
@@ -14,6 +15,8 @@ const FORM_MEDIA_TYPES = [
 export class RequestBodyMediaType {
   public name: string;
   public mediaType: OpenAPIMediaType;
+  /** The parent operation's ID — used by components when writing to the cache. */
+  public operationId: string;
 
   // Only with "text"
   public value: string | undefined = undefined;
@@ -23,21 +26,30 @@ export class RequestBodyMediaType {
 
   private mediaTypeFormat: string;
 
-  constructor(name: string, mediaType: OpenAPIMediaType) {
+  constructor(
+    name: string,
+    mediaType: OpenAPIMediaType,
+    operationId?: string,
+    cachedEntry?: BodyEntry
+  ) {
     this.name = name;
     this.mediaType = mediaType;
+    this.operationId = operationId ?? "";
 
     this.mediaTypeFormat = this.processMediaTypeFormat();
 
     if (this.mediaTypeFormat === "form") {
-      this.fields = this.processFields();
+      this.fields = this.processFields(cachedEntry);
     } else {
-      // si es "text", usamos un único observable
-      this.value =
+      // For text format: use cached value if available, otherwise schema example
+      const schemaExample =
         getBodyExample(
           this.mediaType.schema,
           this.name.split("/")?.[1] || undefined
         ) || "";
+
+      this.value =
+        cachedEntry?.format === "text" ? cachedEntry.value : schemaExample;
 
       makeObservable(this, {
         value: observable,
@@ -54,7 +66,10 @@ export class RequestBodyMediaType {
     return "text";
   }
 
-  private processFields() {
+  private processFields(cachedEntry?: BodyEntry) {
+    const cachedFields =
+      cachedEntry?.format === "form" ? cachedEntry.fields : undefined;
+
     const fields: RequestBodyField[] = [];
     const properties = this.mediaType?.schema?.properties;
 
@@ -63,7 +78,9 @@ export class RequestBodyMediaType {
         new RequestBodyField(
           "file",
           this.mediaType?.schema?.required?.includes("file") || false,
-          this.mediaType.schema
+          this.mediaType.schema,
+          this.operationId,
+          this.name
         ),
       ];
 
@@ -71,12 +88,17 @@ export class RequestBodyMediaType {
 
     for (const property in properties) {
       const prop = properties[property];
+      const cachedField = cachedFields?.[property];
 
       fields.push(
         new RequestBodyField(
           property,
           this.mediaType?.schema?.required?.includes(property) || false,
-          prop
+          prop,
+          this.operationId,
+          this.name,
+          cachedField?.value,
+          cachedField?.included
         )
       );
     }

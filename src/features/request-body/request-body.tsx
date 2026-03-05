@@ -5,12 +5,17 @@ import { RequestBodyCode } from "@/features/request-body/request-body-code";
 import { CodeLanguage } from "@/shared/types";
 import { RequestBodyRow } from "@/features/request-body/request-body.row";
 import { Subtitle } from "@/shared/components/subtitle";
+import { useCacheStore } from "@/hooks/use-cache-store";
+import { useStore } from "@/hooks/use-store";
 
 interface RequestBodyProps {
   bodyMediaType: RequestBodyMediaType | undefined;
 }
 
 export const RequestBody = observer(({ bodyMediaType }: RequestBodyProps) => {
+  const { spec } = useStore();
+  const setBodyText = useCacheStore((s) => s.setBodyText);
+
   if (!bodyMediaType) return null;
 
   const mediaTypeName = bodyMediaType.name;
@@ -80,7 +85,17 @@ export const RequestBody = observer(({ bodyMediaType }: RequestBodyProps) => {
           CodeLanguage.TEXT
         }
         value={bodyMediaType.value || ""}
-        onChange={(value) => bodyMediaType.setValue(value)}
+        onChange={(value) => {
+          bodyMediaType.setValue(value);
+          if (spec?.specKey) {
+            setBodyText(
+              spec.specKey,
+              bodyMediaType.operationId,
+              mediaTypeName,
+              value
+            );
+          }
+        }}
       />
     );
   };

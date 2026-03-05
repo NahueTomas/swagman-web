@@ -2,6 +2,7 @@ import type {
   OpenAPIRequestBody,
   OpenAPIMediaType,
 } from "../shared/types/openapi";
+import type { OperationCache } from "@/hooks/use-cache-store";
 
 import { RequestBodyMediaType } from "./request-body-media-type";
 
@@ -12,7 +13,11 @@ export class RequestBodyModel {
 
   mediaTypes: RequestBodyMediaType[];
 
-  constructor(requestBody: OpenAPIRequestBody) {
+  constructor(
+    requestBody: OpenAPIRequestBody,
+    operationId?: string,
+    cachedBody?: OperationCache["body"]
+  ) {
     this.description = requestBody.description || "";
     this.required = requestBody.required || false;
     this.content = requestBody.content || {};
@@ -20,7 +25,12 @@ export class RequestBodyModel {
     const mediaTypes = Object.keys(this.content);
 
     this.mediaTypes = mediaTypes.map((mime) => {
-      return new RequestBodyMediaType(mime, this.content[mime]);
+      return new RequestBodyMediaType(
+        mime,
+        this.content[mime],
+        operationId,
+        cachedBody?.[mime]
+      );
     });
   }
 

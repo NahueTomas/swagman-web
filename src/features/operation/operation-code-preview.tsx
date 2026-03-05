@@ -12,7 +12,7 @@ interface CodePreviewProps {
     url: string;
     method: string;
     headers: Record<string, string>;
-    body: Record<string, any>;
+    body: Record<string, any> | string | null | undefined;
   };
   language: SupportedLanguage;
 }
@@ -30,7 +30,20 @@ export const OperationCodePreview = ({
   };
 
   const hasBody = (): boolean => {
-    return requestPreview.body && Object.keys(requestPreview.body).length > 0;
+    const { body } = requestPreview;
+
+    if (!body) return false;
+    if (typeof body === "string") return body.length > 0;
+
+    return Object.keys(body).length > 0;
+  };
+
+  const getBodyEntries = (): [string, any][] => {
+    const { body } = requestPreview;
+
+    if (!body || typeof body === "string") return [];
+
+    return Object.entries(body);
   };
 
   const escapeString = (str: string): string => {
@@ -89,7 +102,7 @@ export const OperationCodePreview = ({
 ${
   isMultipartFormData() && hasBody()
     ? `    const formData = new FormData();
-${Object.entries(requestPreview.body)
+${getBodyEntries()
   .map(
     ([key, value]) =>
       `    formData.append("${key}", ${
@@ -104,6 +117,7 @@ ${Object.entries(requestPreview.body)
 `
     : ""
 }
+
     const response = await fetch('${requestPreview.url}', {
       method: '${requestPreview.method}',
       headers: ${formattedHeaders}${
@@ -172,7 +186,7 @@ async function execute${
 ${
   isMultipartFormData() && hasBody()
     ? `    const formData = new FormData();
-${Object.entries(requestPreview.body)
+${getBodyEntries()
   .map(
     ([key, value]) =>
       `    formData.append("${key}", ${
@@ -253,7 +267,7 @@ ${
         files = {}
         data = {}
         
-${Object.entries(requestPreview.body)
+${getBodyEntries()
   .map(([key, value]) => {
     if (value && typeof value === "object" && "name" in value) {
       return `        files["${key}"] = open("${(value as any).name}", "rb")  # Replace with actual file path`;
@@ -389,7 +403,7 @@ ${
     ? isMultipartFormData()
       ? `    // Multipart form data
     $postData = [
-${Object.entries(requestPreview.body)
+${getBodyEntries()
   .map(([key, value]) => {
     if (value && typeof value === "object" && "name" in value) {
       return `        "${key}" => new CURLFile("${(value as any).name}") // Replace with actual file path`;
@@ -483,7 +497,7 @@ ${curlHeaders}${
           hasBody()
             ? `${
                 isMultipartFormData()
-                  ? ` \\\n${Object.entries(requestPreview.body)
+                  ? ` \\\n${getBodyEntries()
                       .map(([key, value]) => {
                         if (
                           value &&

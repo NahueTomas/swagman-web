@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState } from "react";
 import { observer } from "mobx-react-lite";
 
 // Components
@@ -49,12 +49,6 @@ export const OperationTabs = observer(({ operation }: { operation: any }) => {
   const headerSecurities = apiKeySecurities.filter(
     (s) => s.getIn() === "header"
   );
-
-  const requestPreview = useMemo(() => {
-    return operationFocused && spec
-      ? spec.buildRequest(operationFocused)
-      : null;
-  }, [operationFocused, spec]);
 
   useEffect(() => {
     if (!body) setSelectedTab("parameters");
@@ -224,7 +218,7 @@ export const OperationTabs = observer(({ operation }: { operation: any }) => {
           }
         >
           <div className="mt-6 h-full rounded-md overflow-hidden">
-            <OperationCode requestPreview={requestPreview} />
+            <OperationCode operation={operation} />
           </div>
         </Tab>
       </Tabs>

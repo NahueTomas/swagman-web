@@ -8,9 +8,26 @@ import { SanitizedMarkdown } from "@/shared/components/sanitized-markdown";
 import { Chip } from "@/shared/components/chip/chip";
 import { FormFieldCheckbox } from "@/shared/components/form-field-checkbox/form-field-checkbox";
 import { cn } from "@/shared/utils/cn";
+import { useCacheStore } from "@/hooks/use-cache-store";
+import { useStore } from "@/hooks/use-store";
 
 export const OperationParameter = observer(
   ({ parameter }: { parameter: ParameterModel }) => {
+    const { spec } = useStore();
+    const setParam = useCacheStore((s) => s.setParam);
+
+    const writeCache = (value: any, included: boolean) => {
+      if (!spec?.specKey) return;
+      setParam(
+        spec.specKey,
+        parameter.operationId,
+        parameter.getIn(),
+        parameter.name,
+        value,
+        included
+      );
+    };
+
     const FormFieldComponent = parameter.schema
       ? getFormFieldComponent(parameter.schema)
       : null;
@@ -30,7 +47,10 @@ export const OperationParameter = observer(
             required={parameter.required}
             size="sm"
             value={parameter.included || parameter.required}
-            onChange={(val) => parameter.setIncluded(val)}
+            onChange={(val) => {
+              parameter.setIncluded(val);
+              writeCache(parameter.value, val);
+            }}
           />
         </td>
 
@@ -63,7 +83,10 @@ export const OperationParameter = observer(
                 placeholder={parameter.name || "Value"}
                 required={parameter.required}
                 value={parameter.value}
-                onChange={(val) => parameter.setValue(val)}
+                onChange={(val) => {
+                  parameter.setValue(val);
+                  writeCache(val, parameter.included);
+                }}
               />
             </div>
           ) : (

@@ -15,6 +15,8 @@ import { getParameterDefaultValue } from "@/shared/utils/openapi";
 
 export class ParameterModel {
   id: string;
+  /** The parent operation's ID — used by components when writing to the cache. */
+  operationId: string;
 
   name: string;
   in?: OpenAPIParameterLocation;
@@ -45,6 +47,7 @@ export class ParameterModel {
     }
   ) {
     this.id = `${operationId}-${parameter.name}`;
+    this.operationId = operationId;
 
     this.name = parameter.name;
     this.in = parameter.in;
@@ -82,10 +85,11 @@ export class ParameterModel {
     const exampleValue = this.getExample();
 
     this.value =
-      parameter.defaultValue ||
-      (exampleValue !== null && exampleValue !== undefined)
-        ? this.getExample()
-        : undefined;
+      parameter.defaultValue !== undefined
+        ? parameter.defaultValue
+        : exampleValue !== null && exampleValue !== undefined
+          ? exampleValue
+          : undefined;
     this.included =
       parameter.defaultIncluded !== undefined
         ? parameter.defaultIncluded

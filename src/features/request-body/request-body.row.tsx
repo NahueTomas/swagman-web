@@ -6,6 +6,8 @@ import { RequestBodyField } from "@/models/request-body-field";
 import { FormFieldCheckbox } from "@/shared/components/form-field-checkbox/form-field-checkbox";
 import { Chip } from "@/shared/components/chip";
 import { SanitizedMarkdown } from "@/shared/components/sanitized-markdown";
+import { useCacheStore } from "@/hooks/use-cache-store";
+import { useStore } from "@/hooks/use-store";
 
 export const RequestBodyRow = observer(
   ({
@@ -15,6 +17,23 @@ export const RequestBodyRow = observer(
     requestBodyField: RequestBodyField;
     id?: string;
   }) => {
+    const { spec } = useStore();
+    const setBodyField = useCacheStore((s) => s.setBodyField);
+
+    const isFileField = requestBodyField.schema.format === "binary";
+
+    const writeCache = (value: any, included: boolean) => {
+      if (!spec?.specKey || isFileField) return;
+      setBodyField(
+        spec.specKey,
+        requestBodyField.operationId,
+        requestBodyField.mimeType,
+        requestBodyField.name,
+        value,
+        included
+      );
+    };
+
     const schemaType = requestBodyField.schema.type || "any";
     const schemaFormat = requestBodyField.schema.format;
 
@@ -30,7 +49,10 @@ export const RequestBodyRow = observer(
             id={`body-${id}`}
             size="sm"
             value={requestBodyField.included}
-            onChange={(check) => requestBodyField.setIncluded(check)}
+            onChange={(check) => {
+              requestBodyField.setIncluded(check);
+              writeCache(requestBodyField.value, check);
+            }}
           />
         </td>
 
@@ -68,7 +90,10 @@ export const RequestBodyRow = observer(
                 placeholder={requestBodyField.name}
                 required={requestBodyField.required}
                 value={requestBodyField.value}
-                onChange={(v) => requestBodyField.setValue(v)}
+                onChange={(v) => {
+                  requestBodyField.setValue(v);
+                  writeCache(v, requestBodyField.included);
+                }}
               />
             </div>
           ) : (

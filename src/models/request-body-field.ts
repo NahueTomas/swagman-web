@@ -10,20 +10,31 @@ export class RequestBodyField {
   public schema: OpenAPISchema;
   public value: Value | Value[];
   public included: boolean;
+  /** Parent operation ID — used by components when writing to the cache. */
+  public operationId: string;
+  /** Parent mime type — used by components when writing to the cache. */
+  public mimeType: string;
 
   constructor(
     name: string,
     required: boolean,
     schema: OpenAPISchema,
+    operationId: string = "",
+    mimeType: string = "",
     defaultValue?: Value | Value[],
-    defaultIncluded: boolean = true
+    defaultIncluded?: boolean
   ) {
     this.name = name;
     this.required = required;
     this.schema = schema;
+    this.operationId = operationId;
+    this.mimeType = mimeType;
 
-    // Reactive
-    this.value = defaultValue || this.getExample() || undefined;
+    // Cached value takes priority; fall back to schema example
+    this.value =
+      defaultValue !== undefined
+        ? defaultValue
+        : (this.getExample() ?? undefined);
     this.included = defaultIncluded !== undefined ? defaultIncluded : true;
 
     makeObservable(this, {

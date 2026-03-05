@@ -4,6 +4,7 @@ import type {
   OpenAPIServer,
   OpenAPISecurityRequirement,
 } from "../shared/types/openapi";
+import type { OperationCache } from "@/hooks/use-cache-store";
 
 import { action, makeObservable, observable } from "mobx";
 
@@ -15,6 +16,11 @@ import { RequestResponseModel } from "./request-response.model";
 import { SecurityModel } from "./security.model";
 
 export class OperationModel {
+  /** Derive the stable operation ID from path + method without constructing the model. */
+  public static buildId(path: string, method: string): string {
+    return `${method}-${path}`;
+  }
+
   public id: string;
   public path: string;
   public method: string;
@@ -39,7 +45,12 @@ export class OperationModel {
   //private externalDocs: OpenAPIExternalDocumentation | null;
   //private callbacks: { [callbackName: string]: Referenced<OpenAPICallback> };
 
-  constructor(path: string, method: string, operation: OpenAPIOperation) {
+  constructor(
+    path: string,
+    method: string,
+    operation: OpenAPIOperation,
+    cachedValues?: OperationCache
+  ) {
     this.id = this.generateId(path, method);
     this.path = path;
     this.method = method;
@@ -54,11 +65,14 @@ export class OperationModel {
     this.selectedServer = this.servers?.[0] || null;
 
     this.requestBody = operation.requestBody
-      ? new RequestBodyModel(operation.requestBody)
+      ? new RequestBodyModel(operation.requestBody, this.id, cachedValues?.body)
       : null;
 
     this.responses = new ResponsesModel(operation.responses);
-    this.parameters = this.processParameters(operation?.parameters || []);
+    this.parameters = this.processParameters(
+      operation?.parameters || [],
+      cachedValues?.params
+    );
     this.acceptHeader = this.parameters[0];
     this.security = operation.security || [];
 
@@ -74,7 +88,7 @@ export class OperationModel {
   }
 
   private generateId(path: string, method: string): string {
-    return `${method}-${path}`;
+    return OperationModel.buildId(path, method);
   }
 
   private processServers(servers: OpenAPIServer[] | null) {
@@ -91,8 +105,11 @@ export class OperationModel {
     return generatedServers;
   }
 
-  private processAcceptHeader(): ParameterModel {
+  private processAcceptHeaderWithCache(
+    cachedParams?: OperationCache["params"]
+  ): ParameterModel {
     const accepted = this.responses.accepted;
+    const cached = cachedParams?.["header.Accept"];
 
     return new ParameterModel(this.id, {
       name: "Accept",
@@ -104,13 +121,20 @@ export class OperationModel {
         enum: accepted,
       },
       example: accepted[0],
+      ...(cached !== undefined
+        ? { defaultValue: cached.value, defaultIncluded: cached.included }
+        : {}),
     });
   }
 
-  private processContentType(): ParameterModel | null {
+  private processContentTypeWithCache(
+    cachedParams?: OperationCache["params"]
+  ): ParameterModel | null {
     const mimeTypes = this.requestBody?.getMimeTypes();
 
     if (!mimeTypes?.length) return null;
+
+    const cached = cachedParams?.["header.Content-Type"];
 
     return new ParameterModel(this.id, {
       name: "Content-Type",
@@ -123,24 +147,39 @@ export class OperationModel {
         enum: mimeTypes,
       },
       example: mimeTypes[0],
+      ...(cached !== undefined
+        ? { defaultValue: cached.value, defaultIncluded: cached.included }
+        : {}),
     });
   }
 
   private processParameters(
-    parameters: OpenAPIParameter[]
+    parameters: OpenAPIParameter[],
+    cachedParams?: OperationCache["params"]
   ): Array<ParameterModel> {
-    const parametersArray =
-      parameters.map((param) => new ParameterModel(this.id, param)) || [];
+    const makeParam = (param: OpenAPIParameter) => {
+      const cacheKey = `${param.in || "query"}.${param.name}`;
+      const cached = cachedParams?.[cacheKey];
+
+      return new ParameterModel(this.id, {
+        ...param,
+        ...(cached !== undefined
+          ? { defaultValue: cached.value, defaultIncluded: cached.included }
+          : {}),
+      });
+    };
+
+    const parametersArray = parameters.map(makeParam);
 
     const acceptHeader =
       parametersArray.find(
         (p) => p.getIn() === "header" && p.name === "Accept"
-      ) || this.processAcceptHeader();
+      ) || this.processAcceptHeaderWithCache(cachedParams);
 
     const contentType =
       parametersArray.find(
         (p) => p.getIn() === "header" && p.name.toLowerCase() === "content-type"
-      ) || this.processContentType();
+      ) || this.processContentTypeWithCache(cachedParams);
 
     if (contentType instanceof ParameterModel)
       return [acceptHeader, contentType, ...(parametersArray || [])];
