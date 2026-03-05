@@ -1,5 +1,3 @@
-import clsx from "clsx";
-
 import { Chip } from "@/shared/components/chip/chip";
 import { Variant } from "@/shared/types/variant";
 import { cn } from "@/shared/utils/cn";
@@ -64,10 +62,10 @@ export const ApiExplorerTaggedItem = ({
 
           {/* Operation title */}
           <span
-            className={clsx(
+            className={cn(
               "text-xs truncate",
               active ? "font-semibold" : "font-medium",
-              deprecated ? "line-through opacity-60" : ""
+              deprecated && "line-through opacity-60"
             )}
           >
             {title}

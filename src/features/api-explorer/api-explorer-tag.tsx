@@ -1,7 +1,8 @@
 import { useState } from "react";
-import clsx from "clsx";
 
 import { Collapse } from "@/shared/components/collapse";
+import { ChevronDownIcon } from "@/shared/components/icons";
+import { cn } from "@/shared/utils/cn";
 import { ApiExplorerTaggedItem } from "@/features/api-explorer/api-explorer-tagged-item";
 
 export const ApiExplorerTag = ({
@@ -27,52 +28,36 @@ export const ApiExplorerTag = ({
   return (
     <div>
       <button
-        className="w-full flex flex-wrap flex-row py-2 px-3 transition-colors rounded-md text-foreground-400 hover:text-foreground-100 hover:bg-white/5 active:scale-[0.99] group"
+        className="w-full flex items-center gap-3 py-2 px-3 transition-colors rounded-md text-foreground-400 hover:text-foreground-100 hover:bg-white/5 active:scale-[0.99] group"
+        type="button"
         onClick={() => {
           setIsCollapsed(!isCollapsed);
           if (isCollapsed && tag.operationsResume.length)
             focusOperation(tag.operationsResume[0].id);
         }}
       >
-        <div className="flex items-center gap-3">
-          <div className="w-2.5 h-2.5 shrink-0">
-            <svg
-              className={clsx(
-                "w-2.5 h-2.5 transform transition-transform duration-200 group-hover:text-primary-400",
-                isCollapsed ? "rotate-0" : "rotate-90"
-              )}
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              viewBox="0 0 24 24"
-            >
-              <path
-                d="M8.25 4.5l7.5 7.5-7.5 7.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
+        <ChevronDownIcon
+          className={cn(
+            "size-3 shrink-0 transition-transform duration-200 group-hover:text-primary-400",
+            isCollapsed ? "-rotate-90" : "rotate-0"
+          )}
+        />
+
+        <div className="flex-1 min-w-0 text-left overflow-hidden">
+          <div className="flex items-center justify-between gap-2">
+            <h4 className="text-sm font-semibold truncate group-hover:text-primary-50 transition-colors">
+              {tag.title}
+            </h4>
+            <span className="text-[10px] bg-background-400/30 px-1.5 py-0.5 rounded font-mono font-bold text-foreground-500 group-hover:bg-primary-500/20 group-hover:text-primary-400 transition-colors shrink-0">
+              {tag.operationsResume.length}
+            </span>
           </div>
 
-          <div className="flex-1 text-left overflow-hidden">
-            <div className="flex items-center justify-between gap-2">
-              <h4 className="text-sm font-semibold truncate group-hover:text-primary-50 transition-colors">
-                {tag.title}
-              </h4>
-              <span className="text-[10px] bg-background-400/30 px-1.5 py-0.5 rounded font-mono font-bold text-foreground-500 group-hover:bg-primary-500/20 group-hover:text-primary-400 transition-colors">
-                {tag.operationsResume.length}
-              </span>
-            </div>
-
-            {tag.description && (
-              <div
-                className="mt-0.5 text-xxs truncate overflow-hidden"
-                title="description"
-              >
-                {tag.description}
-              </div>
-            )}
-          </div>
+          {tag.description && (
+            <p className="mt-0.5 text-xxs truncate text-foreground-600">
+              {tag.description}
+            </p>
+          )}
         </div>
       </button>
 
@@ -91,7 +76,9 @@ export const ApiExplorerTag = ({
               />
             ))
           ) : (
-            <div className="px-6 py-3 text-xxs">No operations available</div>
+            <p className="px-6 py-3 text-xxs text-foreground-600">
+              No operations available
+            </p>
           )}
         </ul>
       </Collapse>

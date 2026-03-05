@@ -7,7 +7,6 @@ import { AuthorizationModal } from "../authorization/authorization-modal";
 import { ApiExplorerTagList } from "./api-explorer-tag-list";
 import { QuickNav } from "./quicknav";
 
-import { ActionButton } from "@/shared/components/action-button";
 import { SectionTitle } from "@/shared/components/section-title";
 import {
   LockIcon,
@@ -127,21 +126,35 @@ export const ApiExplorer = observer(() => {
           </div>
 
           {/* SCROLLABLE SIDEBAR CONTENT */}
-          <div className="flex-1 overflow-y-auto no-scrollbar space-y-6">
-            <div className="space-y-2">
-              <SectionTitle>General</SectionTitle>
-              <ActionButton
-                active={operationFocused === null}
-                className="w-full text-sm py-2 px-3 justify-start"
-                icon={<InfoIcon className="size-4" />}
-                label="Overview"
-                variant={operationFocused === null ? "default" : "ghost"}
+          <div className="flex-1 overflow-y-auto no-scrollbar space-y-5">
+            <div className="space-y-1.5">
+              <SectionTitle className="text-[9px] font-black tracking-[0.2em] text-foreground-600 px-0.5">
+                General
+              </SectionTitle>
+              <button
+                className={cn(
+                  "w-full flex items-center gap-2.5 px-3 py-2 rounded-md text-xs font-medium transition-colors text-left",
+                  operationFocused === null
+                    ? "bg-primary-500/10 text-primary-400"
+                    : "text-foreground-400 hover:bg-white/5 hover:text-foreground-100"
+                )}
+                type="button"
                 onClick={() => focusOperation(null)}
-              />
+              >
+                <InfoIcon
+                  className={cn(
+                    "size-3.5 shrink-0",
+                    operationFocused === null ? "text-primary-500" : ""
+                  )}
+                />
+                Overview
+              </button>
             </div>
 
-            <div className="space-y-2">
-              <SectionTitle>Tags & Operations</SectionTitle>
+            <div className="space-y-1.5">
+              <SectionTitle className="text-[9px] font-black tracking-[0.2em] text-foreground-600 px-0.5">
+                Tags & Operations
+              </SectionTitle>
               <ApiExplorerTagList
                 className="space-y-0.5"
                 focusOperation={focusOperation}
