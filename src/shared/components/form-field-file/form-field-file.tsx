@@ -22,7 +22,9 @@ export const FormFieldFile: React.FC<FormFieldProps & { name?: string }> = ({
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = event.target.files?.[0];
 
-    onChange(selectedFile);
+    if (selectedFile) {
+      onChange(selectedFile);
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
