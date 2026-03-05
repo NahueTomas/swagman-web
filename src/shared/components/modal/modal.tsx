@@ -1,6 +1,6 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 /* eslint-disable jsx-a11y/click-events-have-key-events */
-import { ReactNode } from "react";
+import { ReactNode, useEffect } from "react";
 import { createPortal } from "react-dom";
 
 import { cn } from "@/shared/utils/cn";
@@ -27,13 +27,25 @@ export const Modal = ({
   footer,
   className,
 }: ModalProps) => {
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   return createPortal(
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8">
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-background-950/90 backdrop-blur-sm"
+        className="absolute inset-0 bg-background-950/90 backdrop-blur-md animate-modal-backdrop"
         onClick={onClose}
       />
 
@@ -41,19 +53,24 @@ export const Modal = ({
       <div
         className={cn(
           "relative w-full max-w-xl",
-          "bg-background-700 rounded-md",
-          "border border-divider",
-          "shadow-2xl shadow-black/50",
+          "bg-gradient-to-b from-background-600 to-background-700 rounded-xl",
+          "border border-white/[0.08] ring-1 ring-inset ring-white/[0.04]",
+          "shadow-2xl shadow-black/70",
           "flex flex-col max-h-[85vh]",
+          "animate-modal-panel",
           className
         )}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-divider">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.06] bg-background-600/40 rounded-t-xl">
           <div className="flex items-center gap-3">
-            {icon && <span className="text-primary-500">{icon}</span>}
+            {icon && (
+              <span className="flex items-center justify-center size-8 rounded-lg bg-primary-500/10 border border-primary-500/20 text-primary-400 shrink-0">
+                {icon}
+              </span>
+            )}
             <div>
-              <h2 className="text-base font-semibold text-foreground-100">
+              <h2 className="text-sm font-semibold text-foreground-100">
                 {title}
               </h2>
               {subtitle && (
@@ -62,7 +79,7 @@ export const Modal = ({
             </div>
           </div>
           <button
-            className="p-1.5 -mr-1.5 rounded-md text-foreground-500 hover:text-foreground-200 hover:bg-background-500 transition-colors"
+            className="p-2 -mr-1 rounded-lg text-foreground-600 hover:text-foreground-200 hover:bg-white/[0.06] transition-colors"
             type="button"
             onClick={onClose}
           >
@@ -77,7 +94,7 @@ export const Modal = ({
 
         {/* Footer */}
         {footer && (
-          <div className="px-5 py-4 border-t border-divider flex justify-end gap-3">
+          <div className="px-5 py-4 border-t border-white/[0.06] flex justify-end gap-3">
             {footer}
           </div>
         )}

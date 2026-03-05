@@ -5,10 +5,46 @@ import { useStore } from "@/hooks/use-store";
 import { SecurityModel } from "@/models/security.model";
 import { OperationModel } from "@/models/operation.model";
 import { LockIcon, KeyIcon, CheckIcon } from "@/shared/components/icons";
-import { FormFieldText } from "@/shared/components/form-field-text";
 import { cn } from "@/shared/utils/cn";
 import { Modal } from "@/shared/components/modal";
 import { Chip } from "@/shared/components/chip";
+
+// ─── Local custom input — visible border + filled bg for modal context ───────
+
+interface ModalTextInputProps {
+  value: string;
+  onChange: (v: string) => void;
+  placeholder?: string;
+  disabled?: boolean;
+}
+
+const ModalTextInput = ({
+  value,
+  onChange,
+  placeholder,
+  disabled,
+}: ModalTextInputProps) => (
+  <div className="relative group">
+    <input
+      className={cn(
+        "w-full h-9 px-3 rounded-md text-xs font-mono transition-all duration-200 outline-none",
+        "bg-background-900/50 text-foreground-200",
+        "border border-white/[0.1] hover:border-white/[0.2]",
+        "focus:border-primary-500/60 focus:ring-1 focus:ring-primary-500/20",
+        "disabled:opacity-40 disabled:cursor-not-allowed",
+        "placeholder:text-foreground-600 placeholder:font-sans placeholder:not-italic placeholder:font-normal"
+      )}
+      disabled={disabled}
+      placeholder={placeholder}
+      type="text"
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+    />
+    <div className="absolute bottom-px left-1/2 -translate-x-1/2 w-0 h-[1px] bg-primary-500 transition-all duration-300 group-focus-within:w-[88%] opacity-70 rounded-full" />
+  </div>
+);
+
+// ─── Feature components ───────────────────────────────────────────────────────
 
 export const AuthorizationModal = observer(
   ({
@@ -41,12 +77,12 @@ export const AuthorizationModal = observer(
 
     return (
       <Modal
-        icon={<LockIcon className="size-5" />}
+        icon={<LockIcon className="size-4" />}
         isOpen={isOpen}
         title="Available authorizations"
         onClose={onClose}
       >
-        <div className="space-y-4">
+        <div className="space-y-3">
           {securitiesToShow.map((s) => (
             <SecuritySchemeInput key={s.getKey()} security={s} />
           ))}
@@ -83,19 +119,26 @@ const SecuritySchemeInput = observer(
     return (
       <div
         className={cn(
-          "rounded-md border transition-colors",
+          "rounded-lg border transition-colors overflow-hidden",
           isLogged
-            ? "border-success-500/50 bg-success-500/5"
-            : "border-divider bg-background-800/50"
+            ? "border-success-500/30 bg-success-500/5"
+            : "border-white/[0.07] bg-background-800/60"
         )}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-divider/50">
+        <div
+          className={cn(
+            "flex items-center justify-between px-4 py-3 border-b",
+            isLogged
+              ? "border-success-500/20 bg-success-500/5"
+              : "border-white/[0.05] bg-background-700/40"
+          )}
+        >
           <div className="flex items-center gap-2.5">
             <KeyIcon
               className={cn(
                 "size-3.5",
-                isLogged ? "text-success-500" : "text-foreground-500"
+                isLogged ? "text-success-400" : "text-foreground-500"
               )}
             />
             <span className="text-sm font-mono font-medium text-foreground-200">
@@ -104,7 +147,7 @@ const SecuritySchemeInput = observer(
           </div>
           <div className="flex items-center gap-2">
             {isLogged && (
-              <span className="flex items-center gap-1 text-[10px] font-medium text-success-500">
+              <span className="flex items-center gap-1 text-[10px] font-semibold text-success-400">
                 <CheckIcon className="size-3" />
                 Authorized
               </span>
@@ -114,7 +157,7 @@ const SecuritySchemeInput = observer(
         </div>
 
         {/* Body */}
-        <div className="p-4 space-y-4">
+        <div className="p-4 space-y-3">
           {security.getDescription() && (
             <p className="text-xs text-foreground-500 leading-relaxed">
               {security.getDescription()}
@@ -122,55 +165,67 @@ const SecuritySchemeInput = observer(
           )}
 
           {type === "apiKey" ? (
-            <div className="space-y-3">
-              <div className="space-y-1.5">
-                <label className="text-xs font-medium text-foreground-400 uppercase tracking-wider">
-                  API Key
-                </label>
-                <FormFieldText
-                  disabled={isLogged}
-                  placeholder="Enter your API key"
-                  value={value}
-                  onChange={(v) => setValue(v as string)}
-                />
-                <p className="text-xs text-foreground-500">
-                  Header:{" "}
-                  <span className="font-mono text-foreground-400">
-                    {security.getSecuritySchema().name}
-                  </span>
-                </p>
-              </div>
-
-              <div className="flex justify-end">
-                {isLogged ? (
-                  <button
-                    className="px-4 py-1.5 text-xs font-medium text-danger-400 hover:text-danger-300 hover:bg-danger-500/10 rounded transition-colors"
-                    type="button"
-                    onClick={handleLogout}
-                  >
-                    Logout
-                  </button>
-                ) : (
-                  <button
-                    className="px-4 py-1.5 bg-primary-500 hover:bg-primary-400 disabled:opacity-40 disabled:cursor-not-allowed text-background text-xs font-semibold rounded transition-colors"
-                    disabled={!value.trim()}
-                    type="button"
-                    onClick={handleAuthorize}
-                  >
-                    Authorize
-                  </button>
-                )}
-              </div>
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-black uppercase tracking-[0.2em] text-foreground-500">
+                API Key
+              </label>
+              <ModalTextInput
+                disabled={isLogged}
+                placeholder="Enter your API key"
+                value={value}
+                onChange={(v) => setValue(v)}
+              />
+              <p className="text-xs text-foreground-600">
+                Header:{" "}
+                <span className="font-mono text-foreground-400">
+                  {security.getSecuritySchema().name}
+                </span>
+              </p>
             </div>
           ) : (
-            <div className="px-3 py-2.5 rounded-md border border-warning-600/40">
-              <p className="text-xs text-warning-500">
-                <span className="font-bold">{type}</span> authentication is not
-                yet supported.
-              </p>
+            <div className="flex gap-3 px-3.5 py-3 rounded-lg border border-warning-500/20 bg-warning-500/5">
+              <div className="shrink-0 mt-0.5 size-4 rounded-full border border-warning-500/40 flex items-center justify-center">
+                <span className="text-[9px] font-black text-warning-400">
+                  !
+                </span>
+              </div>
+              <div>
+                <p className="text-xs font-semibold text-warning-400">
+                  {type} not supported
+                </p>
+                <p className="text-xs text-warning-600 mt-0.5">
+                  This authentication scheme is not yet supported.
+                </p>
+              </div>
             </div>
           )}
         </div>
+
+        {/* Footer button — apiKey only */}
+        {type === "apiKey" && (
+          <div className="border-t border-white/[0.05]">
+            {isLogged ? (
+              <button
+                className="w-full flex items-center justify-center gap-2 h-10 text-xs font-bold text-danger-400 hover:text-danger-300 hover:bg-danger-500/10 transition-all"
+                type="button"
+                onClick={handleLogout}
+              >
+                <KeyIcon className="size-4" />
+                LOGOUT
+              </button>
+            ) : (
+              <button
+                className="w-full flex items-center justify-center gap-2 h-10 bg-primary-500 hover:bg-primary-400 disabled:opacity-30 disabled:cursor-not-allowed text-background text-xs font-bold shadow-lg shadow-primary-500/20 hover:shadow-primary-500/30 transition-all"
+                disabled={!value.trim()}
+                type="button"
+                onClick={handleAuthorize}
+              >
+                <LockIcon className="size-4" />
+                AUTHORIZE
+              </button>
+            )}
+          </div>
+        )}
       </div>
     );
   }

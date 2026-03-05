@@ -152,6 +152,27 @@ export default {
       fontSize: {
         xxs: ["0.625rem", { lineHeight: "0.875rem" }],
       },
+      keyframes: {
+        "modal-backdrop": {
+          from: { opacity: "0" },
+          to: { opacity: "1" },
+        },
+        "modal-panel": {
+          from: {
+            opacity: "0",
+            transform: "translateY(12px) scale(0.98)",
+          },
+          to: {
+            opacity: "1",
+            transform: "translateY(0) scale(1)",
+          },
+        },
+      },
+      animation: {
+        "modal-backdrop": "modal-backdrop 200ms ease forwards",
+        "modal-panel":
+          "modal-panel 250ms cubic-bezier(0.16, 1, 0.3, 1) forwards",
+      },
     },
   },
   plugins: [],
