@@ -2,7 +2,9 @@ import { useEffect, useState } from "react";
 import { observer } from "mobx-react-lite";
 
 import { useStore } from "@/hooks/use-store";
-import { LockIcon, UnlockIcon } from "@/shared/components/icons";
+import { useCacheStore } from "@/hooks/use-cache-store";
+import { LockIcon, ServerIcon, UnlockIcon } from "@/shared/components/icons";
+import { ServerModal } from "@/features/server/server-modal";
 import { AuthorizationModal } from "@/features/authorization/authorization-modal";
 import { OperationHeaderUrl } from "@/features/operation/operation-header-url";
 import { Chip } from "@/shared/components/chip/chip";
@@ -11,6 +13,7 @@ import { cn } from "@/shared/utils/cn";
 
 export const OperationHeader = observer(() => {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isServerModalOpen, setIsServerModalOpen] = useState(false);
 
   const { operationFocused: operation, spec } = useStore((state) => state);
 
@@ -55,6 +58,20 @@ export const OperationHeader = observer(() => {
     }
   };
 
+  // Operation-specific servers — only shown when the spec explicitly defines
+  // servers at the operation level (overrides global servers for this operation).
+  const operationServers = operation.getServers();
+  const hasOwnServers = (operationServers?.length ?? 0) > 0;
+  const operationServer = operation.getSelectedServer();
+
+  const handleOperationServerChange = (url: string) => {
+    if (!spec) return;
+    operation.setSelectedServer(url);
+    useCacheStore
+      .getState()
+      .setOperationServer(spec.specKey, operation.id, url);
+  };
+
   const globalSecurity = spec?.getGlobalSecurity() || [];
   const isAuthSatisfied = operation.isSecuritySatisfied(globalSecurity);
 
@@ -94,25 +111,56 @@ export const OperationHeader = observer(() => {
         {/* Action Status Bar */}
         <div className="flex items-center justify-between px-4 h-9 bg-background-500/20 border-t border-divider/20">
           <div className="flex items-center gap-4">
+            {/* Operation-specific server — only shown when defined in the spec */}
+            {hasOwnServers && operationServer && (
+              <button
+                className="flex items-center gap-2 group transition-colors px-1 rounded"
+                onClick={() => setIsServerModalOpen(true)}
+              >
+                <ServerIcon className="size-3.5 text-foreground-500 group-hover:text-primary-500 shrink-0" />
+                <div className="flex flex-col items-start">
+                  <span className="text-[8px] font-black uppercase tracking-[0.15em] text-foreground-600 leading-none mb-0.5">
+                    Operation server
+                  </span>
+                  <span className="text-[10px] font-mono text-foreground-400 group-hover:text-foreground-200 transition-colors leading-none">
+                    {operationServer.getUrl()}
+                  </span>
+                </div>
+              </button>
+            )}
+
+            {hasOwnServers &&
+              operationServer &&
+              operation.security.length > 0 && (
+                <div className="h-3 w-px bg-divider/50" />
+              )}
+
             {/* Authorization Button */}
             {operation.security.length > 0 && (
               <button
-                className={cn(
-                  "flex items-center gap-2 group transition-colors px-1 rounded",
-                  isAuthSatisfied
-                    ? "text-success hover:bg-success/5"
-                    : "text-foreground-500 hover:text-foreground-200"
-                )}
+                className="flex items-center gap-2 group transition-colors px-1 rounded"
                 onClick={() => setIsAuthModalOpen(true)}
               >
                 {isAuthSatisfied ? (
-                  <UnlockIcon className="size-3" />
+                  <UnlockIcon className="size-3.5 text-success-500 shrink-0" />
                 ) : (
-                  <LockIcon className="size-3" />
+                  <LockIcon className="size-3.5 text-foreground-500 group-hover:text-primary-500 shrink-0" />
                 )}
-                <span className="text-[10px] uppercase font-black tracking-[0.15em]">
-                  {isAuthSatisfied ? "Authorized" : "Auth Required"}
-                </span>
+                <div className="flex flex-col items-start">
+                  <span className="text-[8px] font-black uppercase tracking-[0.15em] text-foreground-600 leading-none mb-0.5">
+                    Authorization
+                  </span>
+                  <span
+                    className={cn(
+                      "text-[10px] font-mono leading-none transition-colors",
+                      isAuthSatisfied
+                        ? "text-success-500"
+                        : "text-foreground-400 group-hover:text-foreground-200"
+                    )}
+                  >
+                    {isAuthSatisfied ? "Authorized" : "Auth Required"}
+                  </span>
+                </div>
               </button>
             )}
           </div>
@@ -128,6 +176,19 @@ export const OperationHeader = observer(() => {
           )}
         </div>
       </div>
+
+      {/* Operation-specific server modal */}
+      {hasOwnServers && operationServer && isServerModalOpen && (
+        <ServerModal
+          description="These servers are defined only for this operation and override the global server."
+          isOpen={isServerModalOpen}
+          selectedServer={operationServer}
+          servers={operationServers!}
+          setSelectedServer={handleOperationServerChange}
+          subtitle="Operation Servers"
+          onClose={() => setIsServerModalOpen(false)}
+        />
+      )}
 
       {isAuthModalOpen && (
         <AuthorizationModal
