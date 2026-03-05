@@ -214,7 +214,7 @@ export const ApiExplorer = observer(() => {
                     operationFocused === null ? "text-primary-500" : ""
                   )}
                 />
-                Overview
+                About
               </button>
             </div>
 
