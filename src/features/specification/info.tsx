@@ -45,7 +45,7 @@ export default function Info() {
                 />
               </div>
               <p className="text-[11px] font-black uppercase tracking-[0.3em] text-primary-500/80">
-                Specification Overview
+                About this API
               </p>
             </div>
 
