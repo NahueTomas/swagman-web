@@ -9,16 +9,16 @@ interface ButtonSelectableProps {
 
 const variantStyles = {
   active: `
-    bg-primary-900/40
-    text-primary-200
-    border-primary-700
+    bg-primary-500/15
+    text-primary-300
+    border-primary-500/40
   `,
   inactive: `
     text-foreground-500
     border-divider
-    hover:text-primary-300
-    hover:border-primary-600
-    hover:bg-primary-950/30
+    hover:text-foreground-200
+    hover:border-white/[0.14]
+    hover:bg-white/5
   `,
 };
 

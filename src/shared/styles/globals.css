@@ -48,180 +48,345 @@ body {
   @apply bg-background text-foreground antialiased selection:bg-primary-500/30 selection:text-primary-50;
 }
 
+/* ─────────────────────────────────────────────────────────────────────────
+   MARKDOWN RENDERING  (.marked-xxs / .marked-xs / .marked-sm / .marked-lg)
+   Structural & color styles are shared; font sizes are per-variant.
+   ───────────────────────────────────────────────────────────────────────── */
 
+/* ── Inline: strong ─────────────────────────────────────────────────── */
+.marked-lg strong,
+.marked-sm strong,
+.marked-xs strong,
+.marked-xxs strong {
+  @apply font-bold text-foreground-200;
+}
+
+/* ── Links ──────────────────────────────────────────────────────────── */
+.marked-lg a,
+.marked-sm a,
+.marked-xs a,
+.marked-xxs a {
+  @apply text-primary-400 font-medium underline;
+  text-underline-offset: 2px;
+  text-decoration-color: theme("colors.primary.700");
+}
+
+.marked-lg a:hover,
+.marked-sm a:hover,
+.marked-xs a:hover,
+.marked-xxs a:hover {
+  @apply text-primary-300;
+  text-decoration-color: theme("colors.primary.500");
+}
+
+/* ── Inline code ────────────────────────────────────────────────────── */
+.marked-lg code,
+.marked-sm code,
+.marked-xs code,
+.marked-xxs code {
+  @apply font-mono not-italic text-foreground-300 bg-background-800 rounded px-1;
+  border: 1px solid rgb(255 255 255 / 0.08);
+}
+
+/* ── Code blocks ────────────────────────────────────────────────────── */
+.marked-lg pre,
+.marked-sm pre,
+.marked-xs pre,
+.marked-xxs pre {
+  @apply bg-background-800 rounded-md px-4 py-3 overflow-x-auto my-3;
+  border: 1px solid rgb(255 255 255 / 0.08);
+}
+
+/* Reset inline code styles inside a pre block */
+.marked-lg pre code,
+.marked-sm pre code,
+.marked-xs pre code,
+.marked-xxs pre code {
+  @apply bg-transparent p-0 text-foreground-300;
+  border: none;
+}
+
+/* ── Blockquote ─────────────────────────────────────────────────────── */
+.marked-lg blockquote,
+.marked-sm blockquote,
+.marked-xs blockquote,
+.marked-xxs blockquote {
+  @apply pl-3 italic text-foreground-600 my-3;
+  border-left: 2px solid theme("colors.primary.700");
+}
+
+/* ── Horizontal rule ────────────────────────────────────────────────── */
+.marked-lg hr,
+.marked-sm hr,
+.marked-xs hr,
+.marked-xxs hr {
+  @apply my-4;
+  border: none;
+  border-top: 1px solid theme("colors.divider.DEFAULT");
+  opacity: 0.4;
+}
+
+/* ── Lists ──────────────────────────────────────────────────────────── */
+.marked-lg ul,
+.marked-sm ul,
+.marked-xs ul,
+.marked-xxs ul {
+  @apply list-disc pl-5;
+}
+
+.marked-lg ol,
+.marked-sm ol,
+.marked-xs ol,
+.marked-xxs ol {
+  @apply list-decimal pl-5;
+}
+
+.marked-lg li + li,
+.marked-sm li + li,
+.marked-xs li + li,
+.marked-xxs li + li {
+  @apply mt-1;
+}
+
+/* ── Tables ─────────────────────────────────────────────────────────── */
+.marked-lg table,
+.marked-sm table,
+.marked-xs table,
+.marked-xxs table {
+  @apply w-full border-collapse my-3;
+}
+
+.marked-lg th,
+.marked-sm th,
+.marked-xs th,
+.marked-xxs th {
+  @apply px-3 py-1.5 text-left font-bold text-foreground-300;
+  border: 1px solid theme("colors.divider.DEFAULT");
+  background: rgb(20 20 21 / 0.6);
+}
+
+.marked-lg td,
+.marked-sm td,
+.marked-xs td,
+.marked-xxs td {
+  @apply px-3 py-1.5 text-foreground-500;
+  border: 1px solid theme("colors.divider.DEFAULT");
+}
+
+/* ── Heading colors ─────────────────────────────────────────────────── */
+.marked-lg h1,
+.marked-sm h1,
+.marked-xs h1,
+.marked-xxs h1 {
+  @apply font-black text-foreground-100;
+}
+
+.marked-lg h2,
+.marked-sm h2,
+.marked-xs h2,
+.marked-xxs h2 {
+  @apply font-bold text-foreground-200;
+}
+
+.marked-lg h3,
+.marked-sm h3,
+.marked-xs h3,
+.marked-xxs h3 {
+  @apply font-bold text-foreground-300;
+}
+
+.marked-lg h4,
+.marked-lg h5,
+.marked-lg h6,
+.marked-sm h4,
+.marked-sm h5,
+.marked-sm h6,
+.marked-xs h4,
+.marked-xs h5,
+.marked-xs h6,
+.marked-xxs h4,
+.marked-xxs h5,
+.marked-xxs h6 {
+  @apply font-semibold text-foreground-400;
+}
+
+/* ── Heading spacing ────────────────────────────────────────────────── */
+.marked-lg h1,
+.marked-lg h2,
+.marked-lg h3,
+.marked-lg h4,
+.marked-lg h5,
+.marked-lg h6 {
+  @apply mt-5 mb-2;
+}
+
+.marked-sm h1,
+.marked-sm h2,
+.marked-sm h3,
+.marked-sm h4,
+.marked-sm h5,
+.marked-sm h6 {
+  @apply mt-4 mb-1;
+}
+
+.marked-xs h1,
+.marked-xs h2,
+.marked-xs h3,
+.marked-xs h4,
+.marked-xs h5,
+.marked-xs h6,
+.marked-xxs h1,
+.marked-xxs h2,
+.marked-xxs h3,
+.marked-xxs h4,
+.marked-xxs h5,
+.marked-xxs h6 {
+  @apply mt-2 mb-0.5;
+}
+
+/* ── Paragraph spacing ──────────────────────────────────────────────── */
+.marked-lg p,
+.marked-sm p,
+.marked-xs p,
+.marked-xxs p {
+  @apply leading-relaxed;
+}
+
+.marked-lg p + p {
+  @apply mt-3;
+}
+.marked-sm p + p {
+  @apply mt-2;
+}
+.marked-xs p + p,
+.marked-xxs p + p {
+  @apply mt-1;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   SIZE VARIANTS — font sizes only
+   ───────────────────────────────────────────────────────────────────────── */
+
+/* marked-lg ────────────────────────────────────────────────────────── */
 .marked-lg a {
-  @apply text-primary font-medium text-base;
+  @apply text-base;
 }
-
-.marked-lg a:hover {
-  @apply text-primary underline;
-}
-
 .marked-lg code {
-  @apply bg-background-400 px-1 rounded-md text-sm italic;
+  @apply text-sm;
 }
-
 .marked-lg pre {
-  @apply bg-background-400 px-4 py-2 rounded-md text-sm;
+  @apply text-sm;
 }
-
-.marked-lg pre code {
-  @apply bg-gray-100 px-1 rounded-md text-sm;
-}
-
 .marked-lg h1 {
-  @apply text-2xl font-bold;
+  @apply text-2xl;
 }
-
 .marked-lg h2 {
-  @apply text-xl font-bold;
+  @apply text-xl;
 }
-
 .marked-lg h3 {
-  @apply text-lg font-bold;
+  @apply text-lg;
 }
-
-.marked-lg h4, h5, h6 {
-  @apply text-base font-bold;
+.marked-lg h4,
+.marked-lg h5,
+.marked-lg h6 {
+  @apply text-base;
 }
-
 .marked-lg p {
   @apply text-base;
 }
-
 .marked-lg li {
   @apply text-base;
 }
 
+/* marked-sm ────────────────────────────────────────────────────────── */
 .marked-sm a {
-  @apply text-primary font-medium text-sm;
+  @apply text-sm;
 }
-
-.marked-sm a:hover {
-  @apply text-primary underline;
-}
-
 .marked-sm code {
-  @apply bg-background-400 px-1 rounded-md text-xs italic;
+  @apply text-xs;
 }
-
 .marked-sm pre {
-  @apply bg-background-400 px-4 py-2 rounded-md text-sm;
+  @apply text-xs;
 }
-
-.marked-sm pre code {
-  @apply bg-gray-100 px-1 rounded-md text-sm;
-}
-
 .marked-sm h1 {
-  @apply text-lg font-bold;
+  @apply text-lg;
 }
-
 .marked-sm h2 {
-  @apply text-base font-bold;
+  @apply text-base;
 }
-
 .marked-sm h3 {
-  @apply text-sm font-bold;
+  @apply text-sm;
 }
-
-.marked-sm h4, h5, h6 {
-  @apply text-sm font-bold;
+.marked-sm h4,
+.marked-sm h5,
+.marked-sm h6 {
+  @apply text-sm;
 }
-
 .marked-sm p {
   @apply text-sm;
 }
-
 .marked-sm li {
   @apply text-sm;
 }
 
-
+/* marked-xs ────────────────────────────────────────────────────────── */
 .marked-xs a {
-  @apply text-primary font-medium text-xs;
+  @apply text-xs;
 }
-
-.marked-xs a:hover {
-  @apply text-primary underline;
-}
-
 .marked-xs code {
-  @apply bg-background-400 px-1 rounded-md text-xs italic;
+  @apply text-xxs;
 }
-
 .marked-xs pre {
-  @apply bg-background-400 px-4 py-2 rounded-md text-xs;
+  @apply text-xxs;
 }
-
-.marked-xs pre code {
-  @apply bg-gray-100 px-1 rounded-md text-xs;
-}
-
 .marked-xs h1 {
-  @apply text-base font-bold;
+  @apply text-base;
 }
-
 .marked-xs h2 {
-  @apply text-sm font-bold;
+  @apply text-sm;
 }
-
 .marked-xs h3 {
-  @apply text-xs font-bold;
+  @apply text-xs;
 }
-
-.marked-xs h4, h5, h6 {
-  @apply text-xs font-bold;
+.marked-xs h4,
+.marked-xs h5,
+.marked-xs h6 {
+  @apply text-xs;
 }
-
 .marked-xs p {
   @apply text-xs;
 }
-
 .marked-xs li {
   @apply text-xs;
 }
 
+/* marked-xxs ───────────────────────────────────────────────────────── */
 .marked-xxs a {
-  @apply text-primary font-medium text-xxs;
+  @apply text-xxs;
 }
-
-.marked-xxs a:hover {
-  @apply text-primary underline;
-}
-
 .marked-xxs code {
-  @apply bg-background-400 px-1 rounded-md text-xxs italic;
+  @apply text-xxs;
 }
-
 .marked-xxs pre {
-  @apply bg-background-400 px-4 py-2 rounded-md text-xs;
+  @apply text-xxs;
 }
-
-.marked-xxs pre code {
-  @apply bg-gray-100 px-1 rounded-md text-xxs;
-}
-
 .marked-xxs h1 {
-  @apply text-sm font-bold;
+  @apply text-sm;
 }
-
 .marked-xxs h2 {
-  @apply text-xs font-bold;
+  @apply text-xs;
 }
-
 .marked-xxs h3 {
-  @apply text-xxs font-bold;
+  @apply text-xxs;
 }
-
-.marked-xxs h4, h5, h6 {
-  @apply text-xxs font-bold;
+.marked-xxs h4,
+.marked-xxs h5,
+.marked-xxs h6 {
+  @apply text-xxs;
 }
-
 .marked-xxs p {
   @apply text-xxs;
 }
-
 .marked-xxs li {
   @apply text-xxs;
 }

@@ -4,7 +4,7 @@ import { observer } from "mobx-react-lite";
 import { useStore } from "@/hooks/use-store";
 import { useDragResize } from "@/hooks/use-drag-resize";
 import { Code } from "@/shared/components/code";
-import { ChevronUp } from "@/shared/components/icons";
+import { ChevronUp, ExecuteIcon } from "@/shared/components/icons";
 import {
   RESPONSE_PANEL,
   HTTP_STATUS_RANGES,
@@ -55,11 +55,11 @@ const ResponsePanel = ({ response, isLoading }: ResponsePanelProps) => {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-full">
-        <div className="flex flex-col items-center gap-3">
-          <Spinner className="h-8 w-8" />
-          <p className="text-[10px] uppercase tracking-[0.2em] text-foreground-400 font-bold">
-            Loading...
+      <div className="flex items-center justify-center h-full bg-background-700/40">
+        <div className="flex flex-col items-center gap-3 px-8 py-6 rounded-xl bg-background-600/60 border border-white/[0.06]">
+          <Spinner className="h-7 w-7" />
+          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-foreground-500">
+            Requesting...
           </p>
         </div>
       </div>
@@ -211,12 +211,13 @@ export const OperationBottomBar = observer(() => {
       {/* Header Bar */}
       <div
         className={cn(
-          "flex items-center justify-between px-4 h-10 shrink-0 border-b border-divider"
+          "flex items-center justify-between px-4 h-10 shrink-0",
+          !isCollapsed && "border-b border-divider/50"
         )}
       >
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
           <button
-            className="flex items-center justify-center size-6 hover:bg-foreground-100/10 rounded transition-colors"
+            className="flex items-center justify-center size-6 hover:bg-white/[0.06] rounded transition-colors"
             type="button"
             onClick={toggleCollapse}
           >
@@ -228,9 +229,19 @@ export const OperationBottomBar = observer(() => {
             />
           </button>
 
-          <span className="text-xxs font-black uppercase tracking-[0.2em] text-foreground-400">
-            RESPONSE
-          </span>
+          <div className="flex items-center gap-2">
+            {response && !isLoading && (
+              <div
+                className={cn(
+                  "w-1.5 h-1.5 rounded-full",
+                  getStatusDotClass(response.getStatus())
+                )}
+              />
+            )}
+            <span className="text-xxs font-black uppercase tracking-[0.2em] text-foreground-500">
+              Response
+            </span>
+          </div>
         </div>
 
         {(response || isLoading) && (
@@ -244,7 +255,7 @@ export const OperationBottomBar = observer(() => {
               />
             ) : response ? (
               <div className="flex items-center gap-2">
-                <span className="text-xxs font-mono text-foreground-100 mr-2">
+                <span className="text-xxs font-mono text-foreground-500 mr-1">
                   {response.getDate()}
                 </span>
                 <Chip
@@ -265,10 +276,18 @@ export const OperationBottomBar = observer(() => {
           {response ? (
             <ResponsePanel isLoading={isLoading} response={response} />
           ) : (
-            <div className="flex items-center justify-center h-full opacity-40">
-              <p className="text-[10px] uppercase tracking-[0.3em] font-bold">
-                Await execution
-              </p>
+            <div className="flex flex-col items-center justify-center gap-3 h-full">
+              <div className="p-3 rounded-lg bg-background-500/40 border border-white/[0.06]">
+                <ExecuteIcon className="size-5 text-foreground-700" />
+              </div>
+              <div className="space-y-1 text-center">
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-foreground-600">
+                  Awaiting Execution
+                </p>
+                <p className="text-[11px] text-foreground-700">
+                  Execute a request to see the response here
+                </p>
+              </div>
             </div>
           )}
         </div>
@@ -288,4 +307,17 @@ const getStatusColorVariant = memoize((status: number): Variant => {
     return "ghost-danger";
 
   return "ghost-default";
+});
+
+const getStatusDotClass = memoize((status: number): string => {
+  const { SUCCESS, REDIRECT, CLIENT_ERROR, SERVER_ERROR } = HTTP_STATUS_RANGES;
+
+  if (status >= SUCCESS.min && status <= SUCCESS.max) return "bg-success-500";
+  if (status >= REDIRECT.min && status <= REDIRECT.max) return "bg-calm-500";
+  if (status >= CLIENT_ERROR.min && status <= CLIENT_ERROR.max)
+    return "bg-danger-500";
+  if (status >= SERVER_ERROR.min && status <= SERVER_ERROR.max)
+    return "bg-danger-500";
+
+  return "bg-foreground-600";
 });

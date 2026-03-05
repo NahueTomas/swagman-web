@@ -1,5 +1,3 @@
-import { Subtitle } from "@/shared/components/subtitle";
-
 export const OperationParametersGrid = ({
   children,
   title,
@@ -9,7 +7,9 @@ export const OperationParametersGrid = ({
 }) => {
   return (
     <div className="space-y-2">
-      <Subtitle size="sm">{title}</Subtitle>
+      <p className="text-[9px] font-black uppercase tracking-[0.15em] text-foreground-600">
+        {title}
+      </p>
 
       <div className="border-b border-t border-divider">
         <table className="w-full text-left border-collapse table-fixed">
@@ -18,19 +18,29 @@ export const OperationParametersGrid = ({
               {/* Set explicit widths for small columns, let others flex */}
               <th className="w-10 px-3 py-1" />
               <th className="w-1/5 max-w-24 px-3 py-1">
-                <Subtitle size="xs">Name</Subtitle>
+                <span className="text-[9px] font-black uppercase tracking-[0.15em] text-foreground-600">
+                  Name
+                </span>
               </th>
               <th className="w-1/4 px-3 py-1">
-                <Subtitle size="xs">Value</Subtitle>
+                <span className="text-[9px] font-black uppercase tracking-[0.15em] text-foreground-600">
+                  Value
+                </span>
               </th>
               <th className="w-24 px-3 py-1">
-                <Subtitle size="xs">Type</Subtitle>
+                <span className="text-[9px] font-black uppercase tracking-[0.15em] text-foreground-600">
+                  Type
+                </span>
               </th>
               <th className="w-24 px-3 py-1">
-                <Subtitle size="xs">Explode</Subtitle>
+                <span className="text-[9px] font-black uppercase tracking-[0.15em] text-foreground-600">
+                  Explode
+                </span>
               </th>
               <th className="w-auto px-3 py-1">
-                <Subtitle size="xs">Description</Subtitle>
+                <span className="text-[9px] font-black uppercase tracking-[0.15em] text-foreground-600">
+                  Description
+                </span>
               </th>
             </tr>
           </thead>

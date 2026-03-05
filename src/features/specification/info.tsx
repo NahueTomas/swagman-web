@@ -82,12 +82,10 @@ export default function Info() {
             <SectionTitle className="border-b border-divider/30 pb-3">
               Documentation
             </SectionTitle>
-            <div className="prose prose-invert prose-sm max-w-full prose-headings:text-foreground-100 prose-p:text-foreground-500 prose-a:text-primary-500">
-              <SanitizedMarkdown
-                className="marked-lg leading-relaxed"
-                content={description || ""}
-              />
-            </div>
+            <SanitizedMarkdown
+              className="marked-lg text-foreground-500"
+              content={description || ""}
+            />
           </main>
 
           {/* Sidebar Metadata */}

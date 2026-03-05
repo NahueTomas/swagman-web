@@ -4,6 +4,7 @@ import { Subtitle } from "@/shared/components/subtitle";
 import { OperationModel } from "@/models/operation.model";
 import { Code } from "@/shared/components/code";
 import { CardSelectableButtons } from "@/shared/components/card-selectable-buttons/card-selectable-buttons";
+import { DocumentTextIcon } from "@/shared/components/icons";
 
 type OperationResponseProps = {
   operation: OperationModel;
@@ -45,30 +46,18 @@ export const OperationResponse = ({
 
   if (!hasResponses) {
     return (
-      <div className="p-4 border border-divider rounded-md text-center text-default-500">
-        <div className="flex flex-col items-center justify-center text-center p-12">
-          {/* Heroicon: arrow-path */}
-          <svg
-            className="w-8 h-8 text-zinc-300 mb-2"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            viewBox="0 0 24 24"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M15.75 15.75l-2.489-2.489m0 0a3.375 3.375 0 10-4.773-4.773 3.375 3.375 0 004.774 4.774zM21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-          <h4 className="text-sm font-medium">
+      <div className="flex flex-col items-center justify-center gap-3 py-12 border border-dashed border-divider/30 rounded-lg text-center">
+        <div className="p-2.5 rounded-lg bg-background-500/30 border border-white/[0.06]">
+          <DocumentTextIcon className="size-5 text-foreground-600" />
+        </div>
+        <div className="space-y-1">
+          <h4 className="text-xs font-bold text-foreground-400">
             No response examples available
           </h4>
+          <p className="text-[11px] text-foreground-600">
+            This endpoint does not define any response details
+          </p>
         </div>
-        <p className="text-xs mt-1">
-          This endpoint does not define any response details
-        </p>
       </div>
     );
   }

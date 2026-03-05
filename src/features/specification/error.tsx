@@ -66,35 +66,37 @@ export const Error = ({
           </div>
         </div>
 
-        <div className="space-y-3">
+        <div className="space-y-2">
           {/* Go to Local Button */}
           <button
-            className="w-full flex items-center justify-between p-4 rounded-md 
-                       bg-background-500 hover:bg-background-400 border border-white/5 
-                       hover:border-primary-500/30 transition-all group"
+            className="w-full flex items-center justify-between px-4 py-3 rounded-lg
+                       bg-background-500/20 border border-white/[0.07]
+                       hover:border-primary-500/30 hover:bg-primary-500/5 transition-all group"
             type="button"
             onClick={handleLocal}
           >
             <div className="flex items-center gap-3">
-              <LaptopIcon className="size-5 text-primary-500" />
+              <div className="p-1.5 rounded-md bg-primary-500/10">
+                <LaptopIcon className="size-4 text-primary-400" />
+              </div>
               <div className="flex flex-col items-start text-left">
-                <span className="text-sm font-bold text-foreground-200">
-                  Go to Local
+                <span className="text-[9px] font-black uppercase tracking-[0.15em] text-foreground-600">
+                  Local
                 </span>
-                <span className="text-xs text-foreground-600 font-mono">
-                  localhost:3000
+                <span className="text-xs font-semibold text-foreground-200">
+                  Open local file
                 </span>
               </div>
             </div>
-            <SendIcon className="size-4 opacity-0 group-hover:opacity-100 transition-opacity" />
+            <SendIcon className="size-3.5 text-foreground-600 opacity-0 group-hover:opacity-100 transition-opacity" />
           </button>
 
           {/* Manual URL Input Section */}
-          <div className="p-4 rounded-md bg-background-600 border border-white/5 space-y-3">
-            <div className="flex items-center gap-2 text-foreground-400">
-              <GlobeIcon className="size-4" />
+          <div className="p-4 rounded-lg bg-background-500/20 border border-white/[0.07] space-y-3">
+            <div className="flex items-center gap-2">
+              <GlobeIcon className="size-3.5 text-foreground-600" />
               <label
-                className="text-[10px] font-black uppercase tracking-widest"
+                className="text-[9px] font-black uppercase tracking-[0.15em] text-foreground-600"
                 htmlFor={urlInputId}
               >
                 Load from URL
@@ -103,9 +105,10 @@ export const Error = ({
 
             <div className="flex gap-2">
               <input
-                className="flex-1 bg-background-800 border border-white/10 rounded px-3 py-2 
-                           text-xs font-mono focus:outline-none focus:border-primary-500/50 
-                           text-foreground-200 placeholder:text-foreground-800"
+                className="flex-1 bg-background-900/50 border border-white/[0.1] rounded-md px-3 py-2
+                           text-xs font-mono focus:outline-none focus:border-primary-500/60
+                           focus:ring-1 focus:ring-primary-500/20
+                           text-foreground-200 placeholder:text-foreground-700"
                 id={urlInputId}
                 placeholder="https://api.example.com/openapi.json"
                 value={url}
@@ -113,8 +116,9 @@ export const Error = ({
                 onKeyDown={(e) => e.key === "Enter" && handleGo()}
               />
               <button
-                className="px-4 py-2 bg-primary-500 hover:bg-primary-600 text-background-900 
-                           text-xs font-bold rounded transition-colors"
+                className="px-3 py-2 bg-primary-500/15 hover:bg-primary-500/25
+                           border border-primary-500/30 hover:border-primary-500/50
+                           text-primary-300 text-xs font-black rounded-md transition-all"
                 type="button"
                 onClick={handleGo}
               >

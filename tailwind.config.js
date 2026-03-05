@@ -167,11 +167,18 @@ export default {
             transform: "translateY(0) scale(1)",
           },
         },
+        "loading-wave": {
+          "0%": { transform: "translateX(-100%)", opacity: "0" },
+          "20%": { opacity: "1" },
+          "80%": { opacity: "1" },
+          "100%": { transform: "translateX(233%)", opacity: "0" },
+        },
       },
       animation: {
         "modal-backdrop": "modal-backdrop 200ms ease forwards",
         "modal-panel":
           "modal-panel 250ms cubic-bezier(0.16, 1, 0.3, 1) forwards",
+        "loading-wave": "loading-wave 1.5s ease-in-out infinite",
       },
     },
   },

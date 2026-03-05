@@ -69,7 +69,7 @@ export const OperationTabs = observer(({ operation }: { operation: any }) => {
       {(operation.summary || operation.description) && (
         <div className="flex flex-col gap-3 max-w-4xl">
           {operation.summary && (
-            <h2 className="text-xs font-black tracking-tight text-foreground-500 uppercase italic">
+            <h2 className="text-sm font-semibold text-foreground-400 italic">
               {operation.summary}
             </h2>
           )}
@@ -126,8 +126,11 @@ export const OperationTabs = observer(({ operation }: { operation: any }) => {
             {/* Empty State */}
             {operation.getPathParameters().length === 0 &&
               operation.getQueryParameters().length === 0 && (
-                <div className="h-24 flex items-center justify-center border border-dashed border-divider rounded text-foreground-500 text-xs italic">
-                  No parameters required for this endpoint.
+                <div className="flex flex-col items-center justify-center gap-2 py-10 border border-dashed border-divider/30 rounded-lg">
+                  <ParametersIcon className="size-4 text-foreground-700" />
+                  <p className="text-[11px] text-foreground-600 italic">
+                    No parameters required for this endpoint.
+                  </p>
                 </div>
               )}
           </div>
@@ -142,15 +145,28 @@ export const OperationTabs = observer(({ operation }: { operation: any }) => {
             </div>
           }
         >
-          <div className="pt-6 space-y-6">
-            <OperationParametersGrid title="Request Headers">
-              {headerSecurities.map((sec) => (
-                <OperationSecurityParameter key={sec.getKey()} security={sec} />
-              ))}
-              {operation.getHeaderParameters().map((p: any) => (
-                <OperationParameter key={p.id} parameter={p} />
-              ))}
-            </OperationParametersGrid>
+          <div className="pt-6 space-y-6 animate-in fade-in slide-in-from-top-1">
+            {headerSecurities.length > 0 ||
+            operation.getHeaderParameters().length > 0 ? (
+              <OperationParametersGrid title="Request Headers">
+                {headerSecurities.map((sec) => (
+                  <OperationSecurityParameter
+                    key={sec.getKey()}
+                    security={sec}
+                  />
+                ))}
+                {operation.getHeaderParameters().map((p: any) => (
+                  <OperationParameter key={p.id} parameter={p} />
+                ))}
+              </OperationParametersGrid>
+            ) : (
+              <div className="flex flex-col items-center justify-center gap-2 py-10 border border-dashed border-divider/30 rounded-lg">
+                <HeadersIcon className="size-4 text-foreground-700" />
+                <p className="text-[11px] text-foreground-600 italic">
+                  No custom headers defined for this endpoint.
+                </p>
+              </div>
+            )}
           </div>
         </Tab>
 
@@ -184,8 +200,8 @@ export const OperationTabs = observer(({ operation }: { operation: any }) => {
         <Tab
           key="responses"
           title={
-            <div className="flex items-center gap-2 px-2">
-              <DocumentTextIcon className="size-3 text-primary-500" />
+            <div className="flex items-center gap-2">
+              <DocumentTextIcon className="size-3" />
               <span>Responses</span>
             </div>
           }
@@ -201,8 +217,8 @@ export const OperationTabs = observer(({ operation }: { operation: any }) => {
         <Tab
           key="snippet"
           title={
-            <div className="flex items-center gap-2 px-2">
-              <CodeIcon className="size-3 text-foreground-400" />
+            <div className="flex items-center gap-2">
+              <CodeIcon className="size-3" />
               <span>Snippet</span>
             </div>
           }

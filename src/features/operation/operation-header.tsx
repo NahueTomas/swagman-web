@@ -106,7 +106,7 @@ export const OperationHeader = observer(() => {
                 onClick={() => setIsServerModalOpen(true)}
               >
                 <ServerIcon className="size-4 text-foreground-500 group-hover:text-primary-500" />
-                <span className="text-[10px] uppercase font-bold tracking-widest">
+                <span className="text-[10px] uppercase font-black tracking-[0.15em]">
                   {selectedServer ? selectedServer.getUrl() : "Select Server"}
                 </span>
               </button>
@@ -132,7 +132,7 @@ export const OperationHeader = observer(() => {
                 ) : (
                   <LockIcon className="size-3" />
                 )}
-                <span className="text-[10px] uppercase font-bold tracking-widest">
+                <span className="text-[10px] uppercase font-black tracking-[0.15em]">
                   {isAuthSatisfied ? "Authorized" : "Auth Required"}
                 </span>
               </button>
