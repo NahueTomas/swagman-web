@@ -298,7 +298,11 @@ export class SpecModel {
     }
 
     for (const operation of this.operations) {
-      for (const tag of operation.tags) {
+      // Operations with no tags are assigned to the implicit "default" group,
+      // matching Swagger UI behaviour.
+      const tags = operation.tags.length > 0 ? operation.tags : ["default"];
+
+      for (const tag of tags) {
         if (!tagsObj[tag]) {
           tagsObj[tag] = {
             title: tag,
