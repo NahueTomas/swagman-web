@@ -65,13 +65,10 @@ export const AuthorizationModal = observer(
       ? operation?.security
       : spec?.security;
 
-    const securities = globalSecurity.filter((gs) => {
-      const authNames: string[] = [];
-
-      security?.forEach((s) => authNames.push(...Object.keys(s)));
-
-      return authNames.includes(gs.getKey());
-    });
+    const authNames = security?.flatMap((s) => Object.keys(s)) ?? [];
+    const securities = globalSecurity.filter((gs) =>
+      authNames.includes(gs.getKey())
+    );
 
     const securitiesToShow = !securities?.length ? globalSecurity : securities;
 

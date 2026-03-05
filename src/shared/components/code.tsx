@@ -4,6 +4,8 @@ import { memo, useCallback, useRef, useState } from "react";
 import { Editor } from "@monaco-editor/react";
 import * as monaco from "monaco-editor";
 
+import { cn } from "@/shared/utils/cn";
+
 // Define custom theme once to avoid recreating on every mount
 let themeRegistered = false;
 const registerTheme = (monaco: typeof import("monaco-editor")) => {
@@ -122,18 +124,15 @@ export const Code = memo<CodeProps>(
     const mappedLanguage = getLanguageMapping(language);
 
     const getContainerClass = () => {
-      const baseClass = "w-full";
-      const borderClass = readOnly
-        ? "border border-divider"
-        : "border border-primary/50";
-      const bgClass = readOnly ? "" : "bg-primary/5 hover:shadow-md";
-      const roundedClass = "rounded-md";
-
       if (height === "100%") {
-        return `${baseClass} h-full transition-height duration-200 ease-out`;
+        return "w-full h-full transition-height duration-200 ease-out";
       }
 
-      return `${baseClass} ${borderClass} ${bgClass} ${roundedClass}`;
+      return cn(
+        "w-full rounded-md",
+        readOnly ? "border border-divider" : "border border-primary/50",
+        !readOnly && "bg-primary/5 hover:shadow-md"
+      );
     };
 
     const handleEditorMount: OnMount = useCallback(

@@ -26,7 +26,7 @@ import { buildSharePayload, buildShareUrl } from "@/shared/utils/share-url";
 export const ApiExplorer = observer(() => {
   const { operationFocused, focusOperation, spec, setSpec } = useStore();
   const [isServerModalOpen, setIsServerModalOpen] = useState(false);
-  const [isAuthModalOpen, setIsAuthModelOpen] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
   const [isResetting, setIsResetting] = useState(false);
 
@@ -146,7 +146,7 @@ export const ApiExplorer = observer(() => {
                     : "border-white/[0.07] bg-background-500/20 hover:bg-background-500/50 hover:border-white/[0.14]"
                 )}
                 type="button"
-                onClick={() => setIsAuthModelOpen(true)}
+                onClick={() => setIsAuthModalOpen(true)}
               >
                 {isSecuritySatisfied ? (
                   <UnlockIcon className="size-3.5 text-success-500 shrink-0" />
@@ -251,7 +251,7 @@ export const ApiExplorer = observer(() => {
       {isAuthModalOpen && (
         <AuthorizationModal
           isOpen={isAuthModalOpen}
-          onClose={() => setIsAuthModelOpen(false)}
+          onClose={() => setIsAuthModalOpen(false)}
         />
       )}
     </aside>

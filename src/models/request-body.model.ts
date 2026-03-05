@@ -3,6 +3,7 @@ import type {
   OpenAPIMediaType,
 } from "../shared/types/openapi";
 import type { OperationCache } from "@/hooks/use-cache-store";
+import type { Value } from "@/shared/types/parameter-value";
 
 import { RequestBodyMediaType } from "./request-body-media-type";
 
@@ -42,17 +43,17 @@ export class RequestBodyModel {
     return this.mediaTypes.find((mediaType) => mediaType.name === mime);
   }
 
-  public getFieldDefaultValues(): {
-    [mime: string]:
-      | { [key: string]: { value: any; included: boolean } }
-      | string;
-  } {
+  public getFieldDefaultValues(): Record<
+    string,
+    Record<string, { value: Value | Value[]; included: boolean }> | string
+  > {
     const mimeTypes = this.getMimeTypes();
-    const mimeTypesAndObjects = mimeTypes.reduce<{
-      [mime: string]:
-        | { [key: string]: { value: any; included: boolean } }
-        | string;
-    }>((acc, mimeType) => {
+    const mimeTypesAndObjects = mimeTypes.reduce<
+      Record<
+        string,
+        Record<string, { value: Value | Value[]; included: boolean }> | string
+      >
+    >((acc, mimeType) => {
       const bodyMediaType = this.getMimeType(mimeType);
 
       if (bodyMediaType?.getMediaTypeFormat() === "text") {
@@ -60,14 +61,20 @@ export class RequestBodyModel {
 
         return acc;
       } else {
-        const bodyMediaTypeParams: {
-          [key: string]: { value: any; included: boolean };
-        } = {};
+        const bodyMediaTypeParams: Record<
+          string,
+          { value: Value | Value[]; included: boolean }
+        > = {};
 
         bodyMediaType?.fields &&
           bodyMediaType?.fields.forEach((field) => {
+            const example = field.getExample();
+
             bodyMediaTypeParams[field.name] = {
-              value: field.getExample(),
+              value:
+                example !== null && typeof example !== "boolean"
+                  ? (example ?? undefined)
+                  : undefined,
               included: true,
             };
           });

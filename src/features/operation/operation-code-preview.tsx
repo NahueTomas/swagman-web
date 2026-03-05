@@ -1,3 +1,5 @@
+import type { Value } from "@/shared/types/parameter-value";
+
 import { Code } from "@/shared/components/code";
 
 export type SupportedLanguage =
@@ -12,7 +14,7 @@ interface CodePreviewProps {
     url: string;
     method: string;
     headers: Record<string, string>;
-    body: Record<string, any> | string | null | undefined;
+    body: Record<string, Value | Value[]> | string | null | undefined;
   };
   language: SupportedLanguage;
 }
@@ -38,7 +40,7 @@ export const OperationCodePreview = ({
     return Object.keys(body).length > 0;
   };
 
-  const getBodyEntries = (): [string, any][] => {
+  const getBodyEntries = (): [string, Value | Value[]][] => {
     const { body } = requestPreview;
 
     if (!body || typeof body === "string") return [];
@@ -50,7 +52,10 @@ export const OperationCodePreview = ({
     return str.replace(/'/g, "\\'").replace(/"/g, '\\"');
   };
 
-  const getBodyForRequest = (body: any, indentSize: number = 8): string => {
+  const getBodyForRequest = (
+    body: Record<string, Value | Value[]> | string | null | undefined,
+    indentSize: number = 8
+  ): string => {
     const contentType =
       requestPreview.headers["Content-Type"] ||
       requestPreview.headers["content-type"] ||
@@ -108,8 +113,8 @@ ${getBodyEntries()
       `    formData.append("${key}", ${
         typeof value === "string"
           ? `"${escapeString(value)}"`
-          : value && typeof value === "object" && "name" in value
-            ? `/* File: ${(value as any).name} */`
+          : value instanceof File
+            ? `/* File: ${value.name} */`
             : JSON.stringify(value)
       });`
   )
@@ -192,8 +197,8 @@ ${getBodyEntries()
       `    formData.append("${key}", ${
         typeof value === "string"
           ? `"${escapeString(value)}"`
-          : value && typeof value === "object" && "name" in value
-            ? `/* File: ${(value as any).name} */ file`
+          : value instanceof File
+            ? `/* File: ${value.name} */ file`
             : JSON.stringify(value)
       });`
   )
@@ -269,8 +274,8 @@ ${
         
 ${getBodyEntries()
   .map(([key, value]) => {
-    if (value && typeof value === "object" && "name" in value) {
-      return `        files["${key}"] = open("${(value as any).name}", "rb")  # Replace with actual file path`;
+    if (value instanceof File) {
+      return `        files["${key}"] = open("${value.name}", "rb")  # Replace with actual file path`;
     }
 
     return `        data["${key}"] = ${JSON.stringify(value)}`;
@@ -405,8 +410,8 @@ ${
     $postData = [
 ${getBodyEntries()
   .map(([key, value]) => {
-    if (value && typeof value === "object" && "name" in value) {
-      return `        "${key}" => new CURLFile("${(value as any).name}") // Replace with actual file path`;
+    if (value instanceof File) {
+      return `        "${key}" => new CURLFile("${value.name}") // Replace with actual file path`;
     }
 
     return `        "${key}" => ${JSON.stringify(value)}`;
@@ -499,12 +504,8 @@ ${curlHeaders}${
                 isMultipartFormData()
                   ? ` \\\n${getBodyEntries()
                       .map(([key, value]) => {
-                        if (
-                          value &&
-                          typeof value === "object" &&
-                          "name" in value
-                        ) {
-                          return `  -F "${key}=@${(value as any).name}"`;
+                        if (value instanceof File) {
+                          return `  -F "${key}=@${value.name}"`;
                         }
 
                         return `  -F "${key}=${escapeString(String(value))}"`;

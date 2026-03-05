@@ -1,10 +1,5 @@
 import { useEffect, useState, useCallback, useRef } from "react";
-import {
-  Outlet,
-  useParams,
-  useSearchParams,
-  useNavigate,
-} from "react-router-dom";
+import { Outlet, useParams, useNavigate } from "react-router-dom";
 
 import { ApiExplorer } from "@/features/api-explorer";
 import { SpecModel } from "@/models/spec.model";
@@ -63,7 +58,6 @@ export default function SpecificationLayout() {
    *  renders (where operationFocused is null) don't wipe ?op= from the URL. */
   const readyRef = useRef(false);
 
-  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
   const params = useParams();
@@ -80,7 +74,7 @@ export default function SpecificationLayout() {
       }
 
       return window.LOCAL_SPEC;
-    } catch (err: any) {
+    } catch (err: unknown) {
       // eslint-disable-next-line no-console
       console.log({
         title: "Error loading local spec",
@@ -118,7 +112,12 @@ export default function SpecificationLayout() {
   // Mount-only: handle legacy ?url= query param redirect.
 
   useEffect(() => {
-    const urlParam = searchParams.get("url");
+    const hash = window.location.hash.slice(1); // strip "#"
+    const qIdx = hash.indexOf("?");
+
+    if (qIdx === -1) return;
+
+    const urlParam = new URLSearchParams(hash.slice(qIdx + 1)).get("url");
 
     if (urlParam) {
       navigate(`/${escapeUrl(urlParam)}`, { replace: true });
@@ -152,8 +151,11 @@ export default function SpecificationLayout() {
         }
 
         if (!stale) setSpec(newSpec);
-      } catch (err: any) {
-        if (!stale) setError(err.message || "Failed to load specification.");
+      } catch (err: unknown) {
+        if (!stale)
+          setError(
+            err instanceof Error ? err.message : "Failed to load specification."
+          );
       } finally {
         if (!stale) setIsLoading(false);
       }
@@ -199,10 +201,7 @@ export default function SpecificationLayout() {
 
       <main className="flex-1 w-full bg-background relative flex flex-col h-full overflow-hidden">
         {error ? (
-          <SpecError
-            message={error}
-            onRedirect={(newUrl: string) => navigate(`/${escapeUrl(newUrl)}`)}
-          />
+          <SpecError message={error} />
         ) : isLoading ? (
           <Loading />
         ) : (

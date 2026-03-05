@@ -1,3 +1,5 @@
+import type { Value } from "@/shared/types/parameter-value";
+
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
@@ -6,7 +8,7 @@ import { persist } from "zustand/middleware";
 // ---------------------------------------------------------------------------
 
 export interface ParamEntry {
-  value: any;
+  value: Value | Value[];
   included: boolean;
 }
 
@@ -43,7 +45,7 @@ interface CacheState {
     operationId: string,
     location: string,
     name: string,
-    value: any,
+    value: Value | Value[],
     included: boolean
   ) => void;
 
@@ -59,7 +61,7 @@ interface CacheState {
     operationId: string,
     mimeType: string,
     fieldName: string,
-    value: any,
+    value: Value | Value[],
     included: boolean
   ) => void;
 
@@ -85,18 +87,24 @@ interface CacheState {
 const MAX_BODY_TEXT_BYTES = 100 * 1024;
 
 // ---------------------------------------------------------------------------
-// Helper: safely get or create a nested path in the cache object
+// Helpers
 // ---------------------------------------------------------------------------
-function ensureOperation(
+
+/** Deep-clone the cache and ensure the nested path exists. Returns both the
+ *  cloned top-level object and the (possibly freshly created) operation entry
+ *  so callers can mutate and return in one step. */
+function cloneAndEnsure(
   cache: Record<string, Record<string, OperationCache>>,
   specKey: string,
   operationId: string
-): OperationCache {
-  if (!cache[specKey]) cache[specKey] = {};
-  if (!cache[specKey][operationId])
-    cache[specKey][operationId] = { params: {}, body: {} };
+): [Record<string, Record<string, OperationCache>>, OperationCache] {
+  const next = structuredClone(cache);
 
-  return cache[specKey][operationId];
+  if (!next[specKey]) next[specKey] = {};
+  if (!next[specKey][operationId])
+    next[specKey][operationId] = { params: {}, body: {} };
+
+  return [next, next[specKey][operationId]];
 }
 
 // ---------------------------------------------------------------------------
@@ -111,8 +119,7 @@ export const useCacheStore = create<CacheState>()(
 
       setParam(specKey, operationId, location, name, value, included) {
         set((state) => {
-          const next = structuredClone(state.cache);
-          const op = ensureOperation(next, specKey, operationId);
+          const [next, op] = cloneAndEnsure(state.cache, specKey, operationId);
 
           op.params[`${location}.${name}`] = { value, included };
 
@@ -125,8 +132,7 @@ export const useCacheStore = create<CacheState>()(
         if (value && new Blob([value]).size > MAX_BODY_TEXT_BYTES) return;
 
         set((state) => {
-          const next = structuredClone(state.cache);
-          const op = ensureOperation(next, specKey, operationId);
+          const [next, op] = cloneAndEnsure(state.cache, specKey, operationId);
 
           op.body[mimeType] = { format: "text", value };
 
@@ -136,16 +142,12 @@ export const useCacheStore = create<CacheState>()(
 
       setBodyField(specKey, operationId, mimeType, fieldName, value, included) {
         set((state) => {
-          const next = structuredClone(state.cache);
-          const op = ensureOperation(next, specKey, operationId);
+          const [next, op] = cloneAndEnsure(state.cache, specKey, operationId);
 
           const existing = op.body[mimeType];
           const formEntry: BodyFormEntry =
             existing?.format === "form"
-              ? {
-                  ...(existing as BodyFormEntry),
-                  fields: { ...(existing as BodyFormEntry).fields },
-                }
+              ? { ...existing, fields: { ...existing.fields } }
               : { format: "form", fields: {} };
 
           formEntry.fields[fieldName] = { value, included };
@@ -177,8 +179,7 @@ export const useCacheStore = create<CacheState>()(
 
       setOperationServer(specKey, operationId, url) {
         set((state) => {
-          const next = structuredClone(state.cache);
-          const op = ensureOperation(next, specKey, operationId);
+          const [next, op] = cloneAndEnsure(state.cache, specKey, operationId);
 
           op.server = url;
 

@@ -87,7 +87,9 @@ export class ParameterModel {
     this.value =
       parameter.defaultValue !== undefined
         ? parameter.defaultValue
-        : exampleValue !== null && exampleValue !== undefined
+        : exampleValue !== null &&
+            exampleValue !== undefined &&
+            typeof exampleValue !== "boolean"
           ? exampleValue
           : undefined;
     this.included =
@@ -105,7 +107,7 @@ export class ParameterModel {
     });
   }
 
-  public getExample(): any {
+  public getExample(): Value | Value[] | boolean | null {
     return getParameterDefaultValue(this, this.required);
   }
 

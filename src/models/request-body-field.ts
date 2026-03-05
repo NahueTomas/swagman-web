@@ -31,10 +31,14 @@ export class RequestBodyField {
     this.mimeType = mimeType;
 
     // Cached value takes priority; fall back to schema example
+    const example = this.getExample();
+
     this.value =
       defaultValue !== undefined
         ? defaultValue
-        : (this.getExample() ?? undefined);
+        : example !== null && typeof example !== "boolean"
+          ? (example ?? undefined)
+          : undefined;
     this.included = defaultIncluded !== undefined ? defaultIncluded : true;
 
     makeObservable(this, {

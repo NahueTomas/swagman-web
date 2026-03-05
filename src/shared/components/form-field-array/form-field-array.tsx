@@ -1,3 +1,5 @@
+import type { Value } from "@/shared/types/parameter-value";
+
 import { FormFieldActionButton } from "../form-field-action-button";
 
 import { cn } from "@/shared/utils/cn";
@@ -15,7 +17,7 @@ export const FormFieldArray = ({
 }: FormFieldProps) => {
   // Normalize value to an array of strings
   const items = isArray(value)
-    ? (value as any[]).map((v) =>
+    ? (value as Value[]).map((v) =>
         PRIMITIVE_TYPES.includes(typeof v) ? String(v) : JSON.stringify(v)
       )
     : [];

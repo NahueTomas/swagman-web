@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 
+import { cn } from "@/shared/utils/cn";
+
 // Animation variants
 type AnimationVariant = "slide" | "fade" | "slide-fade" | "zoom" | "bounce";
 
@@ -146,9 +148,11 @@ export const Collapse = ({
       bounce: active ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4",
     };
 
-    return `${transitionBase} ${
-      animationSpecific[variant] || animationSpecific["slide-fade"]
-    } ${className}`;
+    return cn(
+      transitionBase,
+      animationSpecific[variant] || animationSpecific["slide-fade"],
+      className
+    );
   };
 
   // Get dynamic styles based on variant
@@ -188,7 +192,7 @@ export const Collapse = ({
     return (
       <div
         ref={contentRef}
-        className={`overflow-hidden ${className}`}
+        className={cn("overflow-hidden", className)}
         style={{
           height: active ? "auto" : "0px",
           overflow: "hidden",
@@ -208,11 +212,11 @@ export const Collapse = ({
       style={getAnimationStyles()}
     >
       <div
-        className={`${classNameContent} ${
-          variant === "zoom" || variant === "bounce"
-            ? "transform transition-transform duration-250"
-            : ""
-        }`}
+        className={cn(
+          classNameContent,
+          (variant === "zoom" || variant === "bounce") &&
+            "transform transition-transform duration-250"
+        )}
       >
         {children}
       </div>

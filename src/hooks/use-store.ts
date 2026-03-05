@@ -37,10 +37,7 @@ export const useStore = create<StoreState>((set) => ({
   _operationsCache: new Map(),
 
   setSpec: (spec: SpecModel) => {
-    set((state) => {
-      // Clear cache when spec changes
-      state._operationsCache.clear();
-
+    set(() => {
       // Populate cache with operations for O(1) searches
       const operations = spec.getOperations();
       const cache = new Map<string, OperationModel>();

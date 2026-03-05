@@ -25,12 +25,12 @@ export const OperationBody = observer(
       <div className="flex flex-col gap-4 animate-in fade-in duration-300">
         {/* Description - Muted and secondary */}
         {body.description && (
-          <p className="relative before:absolute before:top-0 before:bottom-0 before:w-0.5 before:bg-primary-700/50">
+          <div className="relative before:absolute before:top-0 before:bottom-0 before:w-0.5 before:bg-primary-700/50">
             <SanitizedMarkdown
               className="ml-4 text-xs text-foreground-500"
               content={body.description}
             />
-          </p>
+          </div>
         )}
 
         {/* Compact Header Row */}

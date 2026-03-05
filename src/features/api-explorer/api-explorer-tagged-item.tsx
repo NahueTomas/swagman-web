@@ -48,7 +48,8 @@ export const ApiExplorerTaggedItem = ({
           active ? activeClass : inactiveClass,
           className
         )}
-        onClick={() => onClick()}
+        type="button"
+        onClick={onClick}
       >
         <div className="flex gap-3 items-center flex-nowrap overflow-hidden">
           {/* Method indicator */}

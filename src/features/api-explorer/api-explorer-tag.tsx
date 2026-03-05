@@ -67,7 +67,7 @@ export const ApiExplorerTag = ({
             tag.operationsResume.map((o) => (
               <ApiExplorerTaggedItem
                 key={o.id}
-                active={o.id === operationFocusedId || false}
+                active={o.id === operationFocusedId}
                 className="pl-[1.8rem] pr-3"
                 deprecated={o.deprecated}
                 method={o.method}

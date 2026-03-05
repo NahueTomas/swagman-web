@@ -1,4 +1,5 @@
 import type { SpecModel } from "@/models/spec.model";
+import type { Value } from "@/shared/types/parameter-value";
 
 import { useCacheStore } from "@/hooks/use-cache-store";
 
@@ -9,11 +10,11 @@ import { useCacheStore } from "@/hooks/use-cache-store";
 /** Data captured for a single operation. */
 export interface OperationShareData {
   /** "location.name" → [value, included] */
-  p?: Record<string, [any, boolean]>;
+  p?: Record<string, [Value | Value[], boolean]>;
   /** body text: mimeType → raw string value */
   bt?: Record<string, string>;
   /** body form fields: mimeType → fieldName → [value, included] */
-  bf?: Record<string, Record<string, [any, boolean]>>;
+  bf?: Record<string, Record<string, [Value | Value[], boolean]>>;
   /** selected server URL (only for operations that define their own servers) */
   sv?: string;
 }
@@ -54,6 +55,15 @@ export function decodeShare(token: string): SharePayload | null {
 }
 
 // ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+/** Returns true when the object has at least one own key. */
+function hasEntries(obj: Record<string, unknown>): boolean {
+  return Object.keys(obj).length > 0;
+}
+
+// ---------------------------------------------------------------------------
 // URL building
 // Generates a clean base URL share link: http://host/?share=<token>
 // The spec URL is encoded inside the token.
@@ -81,9 +91,9 @@ export function buildSharePayload(
 
   spec.getOperations().forEach((operation) => {
     const opData: OperationShareData = {};
-    const p: Record<string, [any, boolean]> = {};
+    const p: Record<string, [Value | Value[], boolean]> = {};
     const bt: Record<string, string> = {};
-    const bf: Record<string, Record<string, [any, boolean]>> = {};
+    const bf: Record<string, Record<string, [Value | Value[], boolean]>> = {};
 
     // Parameters — SecurityModel instances are not ParameterModel, so naturally excluded
     operation.getParameters().forEach((param) => {
@@ -105,21 +115,21 @@ export function buildSharePayload(
           mediaType.getMediaTypeFormat() === "form" &&
           mediaType.fields
         ) {
-          const fields: Record<string, [any, boolean]> = {};
+          const fields: Record<string, [Value | Value[], boolean]> = {};
 
           mediaType.fields.forEach((field) => {
             if (field.schema?.format === "binary") return;
             fields[field.name] = [field.value, field.included];
           });
 
-          if (Object.keys(fields).length > 0) bf[mime] = fields;
+          if (hasEntries(fields)) bf[mime] = fields;
         }
       });
     }
 
-    if (Object.keys(p).length > 0) opData.p = p;
-    if (Object.keys(bt).length > 0) opData.bt = bt;
-    if (Object.keys(bf).length > 0) opData.bf = bf;
+    if (hasEntries(p)) opData.p = p;
+    if (hasEntries(bt)) opData.bt = bt;
+    if (hasEntries(bf)) opData.bf = bf;
 
     // Operation-level server (only when the operation defines its own servers)
     const opServer = operation.getSelectedServer();
@@ -142,7 +152,7 @@ export function buildSharePayload(
 
   if (globalServer) payload.sv = globalServer.getUrl();
 
-  if (Object.keys(ops).length > 0) payload.ops = ops;
+  if (hasEntries(ops)) payload.ops = ops;
 
   return payload;
 }

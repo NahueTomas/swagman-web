@@ -97,11 +97,29 @@ export const OperationHeader = observer(() => {
 
           <div className="flex-shrink-0">
             <MainButton
-              className="h-10 px-6 bg-primary-500 hover:bg-primary-400 text-background hover:underline font-bold shadow-lg shadow-primary-500/10"
+              className={cn(
+                "relative h-10 w-32 text-sm uppercase font-bold tracking-[0.25em] text-background overflow-hidden",
+                "bg-primary-500 shadow-lg shadow-primary-500/10",
+                "transition-all duration-300 ease-out",
+                // Idle hover
+                !operation.loadingRequestResponse &&
+                  "hover:bg-primary-400 hover:tracking-[0.1em] hover:shadow-xl hover:shadow-primary-500/25 hover:scale-[1.02] active:scale-[0.97] active:shadow-md active:shadow-primary-500/15",
+                // Loading state
+                operation.loadingRequestResponse &&
+                  "bg-primary-600 cursor-wait tracking-[0.15em]"
+              )}
               disabled={operation.loadingRequestResponse}
               onClick={handleExecute}
             >
-              <span className="text-xs font-black italic uppercase tracking-[0.2em]">
+              {/* Shimmer sweep overlay — visible while loading */}
+              {operation.loadingRequestResponse && (
+                <span className="absolute inset-0 animate-execute-shimmer bg-gradient-to-r from-transparent via-white/15 to-transparent pointer-events-none" />
+              )}
+              {/* Ambient glow pulse — visible while loading */}
+              {operation.loadingRequestResponse && (
+                <span className="absolute -inset-1 rounded-md animate-execute-pulse bg-primary-500/30 blur-md pointer-events-none" />
+              )}
+              <span className="relative z-10">
                 {operation.loadingRequestResponse ? "Executing" : "Execute"}
               </span>
             </MainButton>

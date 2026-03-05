@@ -11,7 +11,10 @@ interface TabProps {
 interface TabsProps {
   selectedKey: string;
   onSelectionChange: (key: string) => void;
-  children: React.ReactElement<TabProps> | React.ReactElement<TabProps>[];
+  children:
+    | React.ReactElement<TabProps>
+    | React.ReactElement<TabProps>[]
+    | (React.ReactElement<TabProps> | false | null | undefined)[];
   "aria-label"?: string;
   className?: string;
   classNames?: {

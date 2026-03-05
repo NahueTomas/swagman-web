@@ -1,4 +1,4 @@
-import { Radius } from "../types/radius";
+import { Radius } from "@/shared/types/radius";
 
 export const RADIUSES_LITERAL: Record<Radius, string> = {
   none: "radius-none",

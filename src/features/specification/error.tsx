@@ -12,7 +12,6 @@ import { ROUTES } from "@/shared/constants/constants";
 
 interface ErrorStateProps {
   message?: string;
-  onRedirect?: (url: string) => void;
 }
 
 export const Error = ({

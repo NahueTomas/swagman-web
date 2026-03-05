@@ -1,4 +1,4 @@
-import React from "react";
+import type { ChangeEvent } from "react";
 
 import { cn } from "@/shared/utils/cn";
 import { FormFieldProps } from "@/shared/types/form-field";
@@ -27,7 +27,7 @@ export const FormFieldNumber = ({
   // Otherwise, we pass an empty string to the input.
   const numericValue = typeof value === "number" ? value : "";
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
 
     // If input is cleared, we default to 0 (or you could send undefined)

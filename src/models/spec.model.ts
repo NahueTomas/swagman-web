@@ -27,6 +27,19 @@ import { getStatusCodeName } from "@/shared/utils/helpers";
 import { Value } from "@/shared/types/parameter-value";
 import { useCacheStore } from "@/hooks/use-cache-store";
 
+interface OperationResume {
+  id: string;
+  title: string;
+  method: string;
+  deprecated: boolean;
+}
+
+interface TagGroup {
+  title: string;
+  description?: string;
+  operationsResume: OperationResume[];
+}
+
 export class SpecModel {
   public processed: boolean;
   public openapi: string;
@@ -48,16 +61,7 @@ export class SpecModel {
 
   // Cache for expensive operations
   private operations: Array<OperationModel>;
-  private tagList: Array<{
-    title: string;
-    description?: string;
-    operationsResume: {
-      id: string;
-      title: string;
-      method: string;
-      deprecated: boolean;
-    }[];
-  }>;
+  private tagList: TagGroup[];
 
   // Flags to know if they have been generated (memoization)
   private _operationsGenerated: boolean = false;
@@ -194,9 +198,9 @@ export class SpecModel {
     name: string,
     credentials: SecurityCredentials
   ): void {
-    this.globalSecurity.find((gs) => {
-      if (gs.getKey() === name) gs.setCredentials(credentials);
-    });
+    const scheme = this.globalSecurity.find((gs) => gs.getKey() === name);
+
+    if (scheme) scheme.setCredentials(credentials);
   }
 
   public isSecuritySatisfied(): boolean {
@@ -262,39 +266,15 @@ export class SpecModel {
       this._operationsGenerated = true;
     }
 
-    const tagsObj: {
-      [title: string]: {
-        title: string;
-        description?: string;
-        operationsResume: {
-          id: string;
-          title: string;
-          method: string;
-          deprecated: boolean;
-        }[];
-      };
-    } = {};
+    const tagsObj: Record<string, TagGroup> = {};
 
+    // Seed entries from spec-level tag definitions (preserves descriptions)
     for (const tag of this.tags) {
       tagsObj[tag.name] = {
         title: tag.name,
         description: tag.description,
         operationsResume: [],
       };
-    }
-
-    const tagsFromOperations = this.operations
-      .map((operation) => operation.tags)
-      .flat()
-      .map((tagName) => tagName);
-
-    for (const tag of tagsFromOperations) {
-      if (!tagsObj[tag]) {
-        tagsObj[tag] = {
-          title: tag,
-          operationsResume: [],
-        };
-      }
     }
 
     for (const operation of this.operations) {
@@ -390,11 +370,11 @@ export class SpecModel {
 
     if (
       requestBodyMediaType &&
-      !Array.isArray(requestBodyMediaType.fields) &&
-      (requestBodyMediaType as any).value != null
+      requestBodyMediaType.getMediaTypeFormat() === "text" &&
+      requestBodyMediaType.value != null
     ) {
       // Caso text/plain, application/json simple, etc
-      requestBodyFormatted = (requestBodyMediaType as any).value;
+      requestBodyFormatted = requestBodyMediaType.value;
     } else if (requestBodyMediaType?.fields?.length) {
       // Caso form-data o json con propiedades
       const obj: { [key: string]: Value | Value[] } = {};
@@ -416,10 +396,10 @@ export class SpecModel {
     };
   }
 
-  private buildAuthorizations(): Record<string, any> {
+  private buildAuthorizations(): Record<string, { value: string }> {
     if (!this.processed) throw new Error("Spec not processed");
 
-    const auths: Record<string, any> = {};
+    const auths: Record<string, { value: string }> = {};
 
     this.globalSecurity.forEach((security) => {
       const creds = security.credentials;
@@ -462,7 +442,13 @@ export class SpecModel {
       responseContentType: operation?.getAccept()?.value,
       mediaType: contentType?.value,
       securities: { authorized: authorizations },
-      responseInterceptor: (res: any) => {
+      responseInterceptor: (
+        res: Record<string, unknown> & {
+          status: number;
+          date?: string;
+          statusText?: string;
+        }
+      ) => {
         res.date = new Date().toLocaleString();
         res.statusText = getStatusCodeName(res.status);
 
@@ -511,7 +497,13 @@ export class SpecModel {
         responseContentType: operation?.getAccept()?.value,
         mediaType: contentType?.value,
         securities: { authorized: authorizations },
-        responseInterceptor: (res: any) => {
+        responseInterceptor: (
+          res: Record<string, unknown> & {
+            status: number;
+            date?: string;
+            statusText?: string;
+          }
+        ) => {
           res.date = new Date().toLocaleString();
           res.statusText = getStatusCodeName(res.status);
 
@@ -521,8 +513,11 @@ export class SpecModel {
       });
 
       return request;
-    } catch (error: any) {
-      if (error.response) return error.response;
+    } catch (error: unknown) {
+      if (error instanceof Object && "response" in error && error.response) {
+        return error.response;
+      }
+
       throw error;
     }
   }

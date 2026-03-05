@@ -1,3 +1,5 @@
+import type { Value } from "@/shared/types/parameter-value";
+
 import { observer } from "mobx-react-lite";
 
 import { cn } from "@/shared/utils/cn";
@@ -22,7 +24,7 @@ export const RequestBodyRow = observer(
 
     const isFileField = requestBodyField.schema.format === "binary";
 
-    const writeCache = (value: any, included: boolean) => {
+    const writeCache = (value: Value | Value[], included: boolean) => {
       if (!spec?.specKey || isFileField) return;
       setBodyField(
         spec.specKey,

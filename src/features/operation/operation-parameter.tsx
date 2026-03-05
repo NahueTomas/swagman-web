@@ -1,3 +1,5 @@
+import type { Value } from "@/shared/types/parameter-value";
+
 import { observer } from "mobx-react-lite";
 
 import { ParameterModel } from "@/models/parameter.model";
@@ -16,7 +18,7 @@ export const OperationParameter = observer(
     const { spec } = useStore();
     const setParam = useCacheStore((s) => s.setParam);
 
-    const writeCache = (value: any, included: boolean) => {
+    const writeCache = (value: Value | Value[], included: boolean) => {
       if (!spec?.specKey) return;
       setParam(
         spec.specKey,

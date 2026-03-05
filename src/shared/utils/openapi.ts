@@ -1,5 +1,7 @@
 // TODO: Redoc file
 
+import type { Value } from "../types/parameter-value";
+
 import { sample } from "openapi-sampler";
 
 import { OpenAPIParameter, OpenAPISchema, OpenAPISpec } from "../types/openapi";
@@ -91,7 +93,7 @@ export function isPrimitiveType(
 export function getParameterDefaultValue(
   parameter: OpenAPIParameter,
   primitiveDefault: boolean = true
-): any {
+): Value | Value[] | boolean | null {
   const schema = parameter.schema;
 
   if (!schema) return undefined;
@@ -100,10 +102,14 @@ export function getParameterDefaultValue(
   const nullable = schema.nullable === true;
 
   // Example and default properties
-  if (schema.example !== undefined) return schema.example;
-  if (parameter.example !== undefined) return parameter.example;
-  if (schema.default !== undefined) return schema.default;
-  if (schema.enum?.length) return schema.enum[0];
+  if (schema.example !== undefined)
+    return schema.example as Value | Value[] | boolean | null;
+  if (parameter.example !== undefined)
+    return parameter.example as Value | Value[] | boolean | null;
+  if (schema.default !== undefined)
+    return schema.default as Value | Value[] | boolean | null;
+  if (schema.enum?.length)
+    return schema.enum[0] as Value | Value[] | boolean | null;
 
   // Combinations: allOf
   if (schema.allOf && Array.isArray(schema.allOf)) {
@@ -195,12 +201,17 @@ export function getParameterDefaultValue(
   return undefined;
 }
 
-export function getBodyExample(schema: any, format: string | undefined) {
+export function getBodyExample(
+  schema: OpenAPISchema | undefined,
+  format: string | undefined
+) {
   try {
     if (format === "text")
       return JSON.stringify(getParameterDefaultValue({ name: "text", schema }));
 
-    const result = sample(schema, {
+    if (!schema) return "";
+
+    const result = sample(schema as Record<string, unknown>, {
       format: format as "json" | "xml" | undefined,
     });
 

@@ -1,9 +1,9 @@
-import React from "react";
+import { memo } from "react";
 
 import { useStore } from "@/hooks/use-store";
 import { ApiExplorerTag } from "@/features/api-explorer/api-explorer-tag";
 
-export const ApiExplorerTagList = React.memo(
+export const ApiExplorerTagList = memo(
   ({
     operationFocusedId,
     focusOperation,

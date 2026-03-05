@@ -40,30 +40,9 @@ export const HTTP_STATUS_RANGES = {
   SERVER_ERROR: { min: 500, max: 599 },
 } as const;
 
-export const KEYFRAMES = {
-  LOADING_WAVE: `
-    @keyframes loading-wave {
-      0% {
-        transform: translateX(-100%);
-        opacity: 0;
-      }
-      20% {
-        opacity: 1;
-      }
-      80% {
-        opacity: 1;
-      }
-      100% {
-        transform: translateX(233%);
-        opacity: 0;
-      }
-    }
-  `,
-} as const;
-
 export const ROUTES = {
   APP: "/",
-};
+} as const;
 
 export const VARIANTS = [
   "default",

@@ -1,5 +1,4 @@
-import { Size } from "../types/size";
-
+import { Size } from "@/shared/types/size";
 import { cn } from "@/shared/utils/cn";
 
 // Mapping sizes to Tailwind typography classes

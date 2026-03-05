@@ -5,6 +5,7 @@ import type {
   OpenAPISecurityRequirement,
 } from "../shared/types/openapi";
 import type { OperationCache } from "@/hooks/use-cache-store";
+import type { Value } from "@/shared/types/parameter-value";
 
 import { action, makeObservable, observable } from "mobx";
 
@@ -51,7 +52,7 @@ export class OperationModel {
     operation: OpenAPIOperation,
     cachedValues?: OperationCache
   ) {
-    this.id = this.generateId(path, method);
+    this.id = OperationModel.buildId(path, method);
     this.path = path;
     this.method = method;
 
@@ -94,10 +95,6 @@ export class OperationModel {
       setLoadingRequestResponse: action,
       setSelectedServer: action,
     });
-  }
-
-  private generateId(path: string, method: string): string {
-    return OperationModel.buildId(path, method);
   }
 
   private processServers(servers: OpenAPIServer[] | null) {
@@ -229,17 +226,25 @@ export class OperationModel {
   }
 
   public getParameterDefaultValues(): {
-    path: { [key: string]: { value: any; included: boolean } };
-    query: { [key: string]: { value: any; included: boolean } };
-    header: { [key: string]: { value: any; included: boolean } };
-    cookie: { [key: string]: { value: any; included: boolean } };
+    path: Record<string, { value: Value | Value[]; included: boolean }>;
+    query: Record<string, { value: Value | Value[]; included: boolean }>;
+    header: Record<string, { value: Value | Value[]; included: boolean }>;
+    cookie: Record<string, { value: Value | Value[]; included: boolean }>;
   } {
-    // Params to object
     const params = {
-      path: {} as { [key: string]: { value: any; included: boolean } },
-      query: {} as { [key: string]: { value: any; included: boolean } },
-      header: {} as { [key: string]: { value: any; included: boolean } },
-      cookie: {} as { [key: string]: { value: any; included: boolean } },
+      path: {} as Record<string, { value: Value | Value[]; included: boolean }>,
+      query: {} as Record<
+        string,
+        { value: Value | Value[]; included: boolean }
+      >,
+      header: {} as Record<
+        string,
+        { value: Value | Value[]; included: boolean }
+      >,
+      cookie: {} as Record<
+        string,
+        { value: Value | Value[]; included: boolean }
+      >,
     };
 
     this.parameters.forEach((param) => {
@@ -250,11 +255,17 @@ export class OperationModel {
         paramIn === "query" ||
         paramIn === "header" ||
         paramIn === "cookie"
-      )
+      ) {
+        const example = param.getExample();
+
         params[paramIn][param.name] = {
-          value: param.getExample(),
+          value:
+            example !== null && typeof example !== "boolean"
+              ? (example ?? undefined)
+              : undefined,
           included: param.deprecated ? false : true,
         };
+      }
     });
 
     return params;
@@ -317,9 +328,9 @@ export class OperationModel {
 
   public async setRequestResponse(requestResponse: {
     data: string;
-    body: { [key: string]: any } | string;
-    headers: { [key: string]: string | string[] };
-    obj: { [key: string]: any } | string;
+    body: Record<string, unknown> | string;
+    headers: Record<string, string | string[]>;
+    obj: Record<string, unknown> | string;
     ok: boolean;
     status: number;
     statusText: string;

@@ -62,13 +62,14 @@ export function SanitizedMarkdown({
         ],
         ALLOWED_ATTR: ["href", "title", "target", "rel", "alt", "src", "class"],
       });
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (error: unknown | Error) {
+    } catch {
       // eslint-disable-next-line no-console
       console.log({
         description: "Error to create description",
         color: "danger",
       });
+
+      return "";
     }
   }, [content]);
 
