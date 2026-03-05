@@ -29,8 +29,16 @@ export default function Info() {
   return (
     <section className="h-full flex flex-col overflow-auto bg-background selection:bg-primary-500/30">
       {/* 1. Header Section - Dense & High Contrast */}
-      <header className="px-6 py-10 border-b border-divider/50 bg-background/50">
-        <div className="w-full space-y-6">
+      <header className="relative px-6 py-10 border-b border-divider/50 bg-background/50 overflow-hidden">
+        {/* Ambient gradient mesh */}
+        <div
+          className="absolute inset-0 opacity-[0.04] pointer-events-none"
+          style={{
+            backgroundImage:
+              "radial-gradient(ellipse 60% 50% at 10% 50%, #BE976E, transparent), radial-gradient(ellipse 40% 60% at 90% 20%, #7850B8, transparent)",
+          }}
+        />
+        <div className="relative w-full space-y-6">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
             <div className="space-y-2">
               <div className="flex items-center gap-3">

@@ -1,5 +1,3 @@
-import { cn } from "@/shared/utils/cn";
-
 export function Loading() {
   return (
     <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-background p-4">
@@ -16,12 +14,7 @@ export function Loading() {
 
         {/* Custom Technical Progress Bar */}
         <div className="relative h-0.5 w-full bg-divider/30 overflow-hidden rounded-full">
-          <div
-            className={cn(
-              "absolute h-full bg-primary-500 shadow-[0_0_15px_rgba(190,151,110,0.5)]",
-              "animate-loading-bar w-1/3"
-            )}
-          />
+          <div className="absolute h-full bg-primary-500 shadow-[0_0_15px_rgba(190,151,110,0.5)] animate-loading-wave w-1/3" />
         </div>
 
         {/* Metadata / Subtext */}

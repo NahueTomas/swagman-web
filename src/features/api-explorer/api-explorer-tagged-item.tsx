@@ -27,7 +27,29 @@ export const ApiExplorerTaggedItem = ({
     DEFAULT: "nobg-default",
   };
 
+  // Active background tint per method
+  const methodActiveBg: Record<string, string> = {
+    GET: "bg-success-500/8",
+    POST: "bg-warning-500/8",
+    PUT: "bg-calm-500/8",
+    PATCH: "bg-alt-500/8",
+    DELETE: "bg-danger-500/8",
+    DEFAULT: "bg-primary-500/10",
+  };
+
+  // Left accent bar color per method
+  const methodAccent: Record<string, string> = {
+    GET: "bg-success-500",
+    POST: "bg-warning-500",
+    PUT: "bg-calm-500",
+    PATCH: "bg-alt-500",
+    DELETE: "bg-danger-500",
+    DEFAULT: "bg-primary-500",
+  };
+
   const selectedVariant = methodColors[methodUpper] || methodColors.DEFAULT;
+  const activeBg = methodActiveBg[methodUpper] || methodActiveBg.DEFAULT;
+  const accentColor = methodAccent[methodUpper] || methodAccent.DEFAULT;
 
   const methodToRender =
     methodUpper === "DELETE"
@@ -36,21 +58,29 @@ export const ApiExplorerTaggedItem = ({
         ? "OPT"
         : methodUpper;
 
-  const activeClass = "bg-primary-500/10 text-primary-400";
-  const inactiveClass =
-    "text-foreground-400 hover:bg-white/5 hover:text-foreground-100";
-
   return (
     <li className="list-none">
       <button
         className={cn(
-          "w-full px-4 py-2 rounded-md transition-colors duration-200 text-left active:scale-[0.99] outline-none focus-visible:ring-2 focus-visible:ring-primary-500",
-          active ? activeClass : inactiveClass,
+          "relative w-full px-4 py-2 rounded-md transition-all duration-200 text-left active:scale-[0.99] outline-none focus-visible:ring-2 focus-visible:ring-primary-500",
+          active
+            ? cn(activeBg, "text-foreground-200")
+            : "text-foreground-400 hover:bg-white/5 hover:text-foreground-100",
           className
         )}
         type="button"
         onClick={onClick}
       >
+        {/* Left accent bar */}
+        {active && (
+          <div
+            className={cn(
+              "absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-4 rounded-r-full",
+              accentColor
+            )}
+          />
+        )}
+
         <div className="flex gap-3 items-center flex-nowrap overflow-hidden">
           {/* Method indicator */}
           <Chip

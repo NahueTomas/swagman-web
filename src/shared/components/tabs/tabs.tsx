@@ -1,4 +1,10 @@
-import React, { useId, useEffect } from "react";
+import React, {
+  useId,
+  useEffect,
+  useRef,
+  useLayoutEffect,
+  useState,
+} from "react";
 
 import { cn } from "@/shared/utils/cn";
 
@@ -37,6 +43,12 @@ export const Tabs = ({
   ) as React.ReactElement<TabProps>[];
   const baseId = useId();
 
+  // Refs for measuring tab positions
+  const tabListRef = useRef<HTMLDivElement>(null);
+  const tabRefs = useRef<Map<string, HTMLButtonElement>>(new Map());
+  const [indicator, setIndicator] = useState({ left: 0, width: 0 });
+  const hasAnimated = useRef(false);
+
   useEffect(() => {
     const validKeys = tabs.map((t) => t.key?.toString());
 
@@ -47,7 +59,32 @@ export const Tabs = ({
         onSelectionChange(firstTab.key.toString());
       }
     }
-  }, [selectedKey, tabs, onSelectionChange]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedKey, children, onSelectionChange]);
+
+  // Measure active tab and update indicator position
+  useLayoutEffect(() => {
+    const activeButton = tabRefs.current.get(selectedKey);
+    const tabList = tabListRef.current;
+
+    if (activeButton && tabList) {
+      const listRect = tabList.getBoundingClientRect();
+      const btnRect = activeButton.getBoundingClientRect();
+
+      setIndicator({
+        left: btnRect.left - listRect.left,
+        width: btnRect.width,
+      });
+
+      // Enable transitions after first paint
+      if (!hasAnimated.current) {
+        requestAnimationFrame(() => {
+          hasAnimated.current = true;
+        });
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedKey, children]);
 
   const activeTab = tabs.find((tab) => tab.key?.toString() === selectedKey);
 
@@ -55,9 +92,10 @@ export const Tabs = ({
     <div className={cn("w-full flex flex-col", className)}>
       {/* Tab List */}
       <div
+        ref={tabListRef}
         aria-label={ariaLabel}
         className={cn(
-          "flex items-center gap-1 border-b border-divider/50 w-full",
+          "relative flex items-center gap-1 border-b border-divider/50 w-full",
           classNames?.tabList
         )}
         role="tablist"
@@ -70,10 +108,13 @@ export const Tabs = ({
           return (
             <button
               key={tabKey}
+              ref={(el) => {
+                if (el) tabRefs.current.set(tabKey, el);
+              }}
               aria-controls={`${baseId}-panel-${tabKey}`}
               aria-selected={isActive}
               className={cn(
-                "group relative h-10 px-6 flex items-center justify-center transition-all outline-none",
+                "group relative h-10 px-6 flex items-center justify-center transition-colors duration-200 outline-none",
                 "text-xxs font-black uppercase tracking-[0.2em]",
                 isActive
                   ? "text-primary-500"
@@ -92,20 +133,27 @@ export const Tabs = ({
             >
               {tab.props.title}
 
-              {/* Indicator */}
-              {isActive && (
-                <div
-                  className="absolute bottom-[-1px] left-0 right-0 h-[2px] bg-primary-500 z-20"
-                  style={{ boxShadow: "0 -2px 10px rgba(190, 151, 110, 0.4)" }}
-                />
-              )}
-
               {!isActive && !isDisabled && (
                 <div className="absolute inset-0 bg-foreground-100/0 group-hover:bg-foreground-100/5 transition-colors duration-200" />
               )}
             </button>
           );
         })}
+
+        {/* Sliding indicator */}
+        <div
+          className={cn(
+            "absolute bottom-[-1px] h-[2px] bg-primary-500 z-20",
+            hasAnimated.current
+              ? "transition-all duration-300 ease-out"
+              : "transition-none"
+          )}
+          style={{
+            left: indicator.left,
+            width: indicator.width,
+            boxShadow: "0 -2px 10px rgba(190, 151, 110, 0.4)",
+          }}
+        />
       </div>
 
       {/* Tab Panel */}

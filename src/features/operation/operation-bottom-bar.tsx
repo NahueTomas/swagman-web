@@ -231,12 +231,22 @@ export const OperationBottomBar = observer(() => {
 
           <div className="flex items-center gap-2">
             {response && !isLoading && (
-              <div
-                className={cn(
-                  "w-1.5 h-1.5 rounded-full",
-                  getStatusDotClass(response.getStatus())
-                )}
-              />
+              <div className="relative flex items-center justify-center">
+                <div
+                  className={cn(
+                    "w-1.5 h-1.5 rounded-full",
+                    getStatusDotClass(response.getStatus())
+                  )}
+                />
+                {/* Ping ring on arrival */}
+                <div
+                  className={cn(
+                    "absolute w-3 h-3 rounded-full animate-ping opacity-40",
+                    getStatusDotClass(response.getStatus())
+                  )}
+                  style={{ animationIterationCount: 2 }}
+                />
+              </div>
             )}
             <span className="text-xxs font-black uppercase tracking-[0.2em] text-foreground-500">
               Response
@@ -276,16 +286,22 @@ export const OperationBottomBar = observer(() => {
           {response ? (
             <ResponsePanel isLoading={isLoading} response={response} />
           ) : (
-            <div className="flex flex-col items-center justify-center gap-3 h-full">
-              <div className="p-3 rounded-lg bg-background-500/40 border border-white/[0.06]">
-                <ExecuteIcon className="size-5 text-foreground-700" />
+            <div className="flex flex-col items-center justify-center gap-4 h-full">
+              <div className="relative p-4 rounded-xl bg-background-500/30 border border-white/[0.06]">
+                <ExecuteIcon className="size-6 text-foreground-700" />
+                {/* Subtle ambient ring */}
+                <div className="absolute inset-0 rounded-xl border border-dashed border-foreground-800 animate-pulse" />
               </div>
-              <div className="space-y-1 text-center">
+              <div className="space-y-1.5 text-center">
                 <p className="text-[10px] font-black uppercase tracking-[0.2em] text-foreground-600">
                   Awaiting Execution
                 </p>
-                <p className="text-[11px] text-foreground-700">
-                  Execute a request to see the response here
+                <p className="text-[11px] text-foreground-700 max-w-[200px] leading-relaxed">
+                  Press{" "}
+                  <span className="font-semibold text-primary-600">
+                    Execute
+                  </span>{" "}
+                  above to send a request
                 </p>
               </div>
             </div>

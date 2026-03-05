@@ -103,7 +103,7 @@ export const QuickNav = () => {
                   "flex-1 h-8 px-2.5 rounded-md text-xs font-mono transition-all duration-200 outline-none min-w-0",
                   "bg-background-900/50 text-foreground-200",
                   "border border-white/[0.1] hover:border-white/[0.18]",
-                  "focus:border-primary-500/60 focus:ring-1 focus:ring-primary-500/20",
+                  "focus:border-primary-500/60 focus:ring-1 focus:ring-primary-500/20 focus:shadow-[0_0_12px_rgba(190,151,110,0.15)]",
                   "placeholder:text-foreground-600 placeholder:font-sans placeholder:font-normal"
                 )}
                 id={urlInputId}
