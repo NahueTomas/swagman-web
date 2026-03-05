@@ -15,15 +15,53 @@ import { applySharePayload, decodeShare } from "@/shared/utils/share-url";
 // Rename the import to avoid conflict with native 'Error'
 import { Error as SpecError } from "@/features/specification/error";
 
+// ---------------------------------------------------------------------------
+// Hash URL helpers — manipulate ?op= inside the hash without triggering
+// react-router re-renders (uses replaceState directly).
+// ---------------------------------------------------------------------------
+function getHashOpParam(): string | null {
+  const hash = window.location.hash.slice(1); // strip "#"
+  const qIdx = hash.indexOf("?");
+
+  if (qIdx === -1) return null;
+
+  return new URLSearchParams(hash.slice(qIdx + 1)).get("op");
+}
+
+function setHashOpParam(opId: string | null): void {
+  const hash = window.location.hash.slice(1);
+  const qIdx = hash.indexOf("?");
+  const path = qIdx === -1 ? hash : hash.slice(0, qIdx);
+  const params = new URLSearchParams(qIdx === -1 ? "" : hash.slice(qIdx + 1));
+
+  if (opId) {
+    params.set("op", opId);
+  } else {
+    params.delete("op");
+  }
+
+  const search = params.toString();
+  const newHash = search ? `${path}?${search}` : path;
+
+  window.history.replaceState(null, "", `#${newHash}`);
+}
+
 export default function SpecificationLayout() {
-  const { setSpec, focusOperation, spec } = useStore((state) => state);
+  const { setSpec, focusOperation, spec, operationFocused } = useStore(
+    (state) => state
+  );
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  /** operationId to auto-focus once the spec finishes loading from a share link */
-  const sharedOpIdRef = useRef<string | null>(null);
+  /** operationId to auto-focus once the spec finishes loading.
+   *  Eagerly read from hash ?op= so it's captured before any effect runs. */
+  const pendingOpIdRef = useRef<string | null>(getHashOpParam());
   /** Prevents the main load effect from firing while a share redirect is pending */
   const pendingShareRef = useRef(false);
+  /** True once the first spec load has completed.
+   *  The sync effect is suppressed until this is true so that mount-time
+   *  renders (where operationFocused is null) don't wipe ?op= from the URL. */
+  const readyRef = useRef(false);
 
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -52,35 +90,8 @@ export default function SpecificationLayout() {
     }
   }, []);
 
-  const loadSpec = useCallback(
-    async (url: string | undefined) => {
-      setIsLoading(true);
-      setError(null);
-
-      try {
-        const spec = new SpecModel();
-
-        if (!url) {
-          const localSpec = loadLocalSpec();
-
-          if (localSpec) await spec.processSpec(localSpec);
-        } else {
-          await spec.processSpec(url);
-        }
-
-        setSpec(spec);
-      } catch (err: any) {
-        setError(err.message || "Failed to load specification.");
-      } finally {
-        setIsLoading(false);
-      }
-    },
-    [setSpec, loadLocalSpec]
-  );
-
   // Mount-only effect: handle a base URL ?share=<token> link.
   // Apply cache values first, then redirect to the spec's hash route.
-  // The pendingShareRef prevents the main load effect from firing prematurely.
 
   useEffect(() => {
     const baseParams = new URLSearchParams(window.location.search);
@@ -92,23 +103,30 @@ export default function SpecificationLayout() {
 
     if (!payload?.spec) return;
 
-    // Write values to cache before models are constructed
     applySharePayload(payload.spec, payload);
-    sharedOpIdRef.current = payload.op ?? null;
+    pendingOpIdRef.current = payload.op ?? null;
     pendingShareRef.current = true;
 
-    // Remove ?share= from the base URL so it doesn't persist or confuse the router
     window.history.replaceState(null, "", window.location.pathname);
 
-    // Navigate to the spec's hash route
     const route =
       payload.spec === "local" ? "/" : `/${escapeUrl(payload.spec)}`;
 
     navigate(route, { replace: true });
   }, []);
 
-  // Main load effect: fires when specUrl or searchParams change.
-  // Skip if a share redirect is still pending (handled above).
+  // Mount-only: handle legacy ?url= query param redirect.
+
+  useEffect(() => {
+    const urlParam = searchParams.get("url");
+
+    if (urlParam) {
+      navigate(`/${escapeUrl(urlParam)}`, { replace: true });
+    }
+  }, []);
+
+  // Main load effect.
+  // Uses a stale flag so StrictMode's double-mount only applies the last result.
   useEffect(() => {
     if (pendingShareRef.current) {
       pendingShareRef.current = false;
@@ -116,24 +134,60 @@ export default function SpecificationLayout() {
       return;
     }
 
-    const urlParam = searchParams.get("url");
+    let stale = false;
 
-    if (urlParam) {
-      navigate(`/${escapeUrl(urlParam)}`, { replace: true });
+    const load = async () => {
+      setIsLoading(true);
+      setError(null);
 
-      return;
-    }
+      try {
+        const newSpec = new SpecModel();
 
-    loadSpec(specUrl);
-  }, [specUrl, loadSpec, navigate, searchParams]);
+        if (!specUrl) {
+          const localSpec = loadLocalSpec();
 
-  // Once the spec has loaded and we have a pending shared operationId, focus it.
+          if (localSpec) await newSpec.processSpec(localSpec);
+        } else {
+          await newSpec.processSpec(specUrl);
+        }
+
+        if (!stale) setSpec(newSpec);
+      } catch (err: any) {
+        if (!stale) setError(err.message || "Failed to load specification.");
+      } finally {
+        if (!stale) setIsLoading(false);
+      }
+    };
+
+    load();
+
+    return () => {
+      stale = true;
+    };
+  }, [specUrl, setSpec, loadLocalSpec]);
+
+  // Once the spec has loaded, focus the pending operation (from share link or URL ?op=).
   useEffect(() => {
-    if (!spec || !sharedOpIdRef.current) return;
+    if (!spec) return;
 
-    focusOperation(sharedOpIdRef.current);
-    sharedOpIdRef.current = null;
+    const opId = pendingOpIdRef.current;
+
+    pendingOpIdRef.current = null;
+    readyRef.current = true;
+
+    if (opId) {
+      focusOperation(opId);
+    }
   }, [spec, focusOperation]);
+
+  // Sync store → URL: update ?op= whenever the focused operation changes.
+  // Suppressed until the first spec load completes (readyRef) so that
+  // mount-time null values don't wipe the URL.
+  useEffect(() => {
+    if (!readyRef.current) return;
+
+    setHashOpParam(operationFocused?.id ?? null);
+  }, [operationFocused]);
 
   return (
     <div className="flex h-dvh w-full bg-background text-foreground-300 overflow-hidden">
