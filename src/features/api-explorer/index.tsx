@@ -111,90 +111,89 @@ export const ApiExplorer = observer(() => {
                   </button>
                 </div>
               </div>
-
-              {/* STATUS CONTROLS */}
-              <div className="flex flex-col gap-1.5">
-                {/* SPEC (QuickNav) */}
-                <QuickNav />
-
-                {/* SERVER STATUS */}
-                <button
-                  className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg border border-white/[0.07] bg-background-500/20 hover:bg-background-500/50 hover:border-white/[0.14] transition-all group text-left"
-                  type="button"
-                  onClick={() => setIsServerModalOpen(true)}
-                >
-                  <ServerIcon className="size-3.5 text-foreground-600 group-hover:text-primary-400 shrink-0 transition-colors" />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-[9px] font-black uppercase tracking-[0.15em] text-foreground-600 leading-none mb-1">
-                      Server
-                    </p>
-                    <p className="text-[11px] font-mono text-foreground-500 truncate group-hover:text-foreground-300 transition-colors leading-none">
-                      {selectedServer?.getUrl() || "No server selected"}
-                    </p>
-                  </div>
-                </button>
-
-                {/* AUTH STATUS */}
-                <button
-                  className={cn(
-                    "w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg border transition-all group text-left",
-                    isSecuritySatisfied
-                      ? "border-success-500/25 bg-success-500/5 hover:bg-success-500/10 hover:border-success-500/40"
-                      : "border-white/[0.07] bg-background-500/20 hover:bg-background-500/50 hover:border-white/[0.14]"
-                  )}
-                  type="button"
-                  onClick={() => setIsAuthModelOpen(true)}
-                >
-                  {isSecuritySatisfied ? (
-                    <UnlockIcon className="size-3.5 text-success-500 shrink-0" />
-                  ) : (
-                    <LockIcon className="size-3.5 text-foreground-600 group-hover:text-primary-400 shrink-0 transition-colors" />
-                  )}
-                  <div className="flex-1 min-w-0">
-                    <p
-                      className={cn(
-                        "text-[9px] font-black uppercase tracking-[0.15em] leading-none mb-1",
-                        isSecuritySatisfied
-                          ? "text-success-600"
-                          : "text-foreground-600"
-                      )}
-                    >
-                      Authorization
-                    </p>
-                    {securitySchemes.length > 0 ? (
-                      <p className="text-[11px] font-mono text-foreground-500 group-hover:text-foreground-300 transition-colors leading-none">
-                        {securitySchemes.filter((s) => s.logged).length} /{" "}
-                        {securitySchemes.length} authorized
-                      </p>
-                    ) : (
-                      <p className="text-[11px] font-mono text-foreground-500 leading-none">
-                        No schemes
-                      </p>
-                    )}
-                  </div>
-                  {securitySchemes.length > 0 && (
-                    <div className="flex gap-0.5 shrink-0">
-                      {securitySchemes.map((security) => (
-                        <div
-                          key={security.getKey()}
-                          className={cn(
-                            "w-1 h-3.5 rounded-full transition-colors",
-                            security.logged
-                              ? "bg-success-500"
-                              : "bg-foreground-700"
-                          )}
-                          title={security.getKey()}
-                        />
-                      ))}
-                    </div>
-                  )}
-                </button>
-              </div>
+              {/* SPEC (QuickNav) */}
+              <QuickNav />
             </div>
           </div>
 
           {/* SCROLLABLE SIDEBAR CONTENT */}
           <div className="flex-1 overflow-y-auto no-scrollbar space-y-5">
+            {/* STATUS CONTROLS */}
+            <div className="flex flex-col gap-1.5">
+              {/* SERVER STATUS */}
+              <button
+                className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg border border-white/[0.07] bg-background-500/20 hover:bg-background-500/50 hover:border-white/[0.14] transition-all group text-left"
+                type="button"
+                onClick={() => setIsServerModalOpen(true)}
+              >
+                <ServerIcon className="size-3.5 text-foreground-600 group-hover:text-primary-400 shrink-0 transition-colors" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-[9px] font-black uppercase tracking-[0.15em] text-foreground-600 leading-none mb-1">
+                    Server
+                  </p>
+                  <p className="text-[11px] font-mono text-foreground-500 truncate group-hover:text-foreground-300 transition-colors leading-none">
+                    {selectedServer?.getUrl() || "No server selected"}
+                  </p>
+                </div>
+              </button>
+
+              {/* AUTH STATUS */}
+              <button
+                className={cn(
+                  "w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg border transition-all group text-left",
+                  isSecuritySatisfied
+                    ? "border-success-500/25 bg-success-500/5 hover:bg-success-500/10 hover:border-success-500/40"
+                    : "border-white/[0.07] bg-background-500/20 hover:bg-background-500/50 hover:border-white/[0.14]"
+                )}
+                type="button"
+                onClick={() => setIsAuthModelOpen(true)}
+              >
+                {isSecuritySatisfied ? (
+                  <UnlockIcon className="size-3.5 text-success-500 shrink-0" />
+                ) : (
+                  <LockIcon className="size-3.5 text-foreground-600 group-hover:text-primary-400 shrink-0 transition-colors" />
+                )}
+                <div className="flex-1 min-w-0">
+                  <p
+                    className={cn(
+                      "text-[9px] font-black uppercase tracking-[0.15em] leading-none mb-1",
+                      isSecuritySatisfied
+                        ? "text-success-600"
+                        : "text-foreground-600"
+                    )}
+                  >
+                    Authorization
+                  </p>
+                  {securitySchemes.length > 0 ? (
+                    <p className="text-[11px] font-mono text-foreground-500 group-hover:text-foreground-300 transition-colors leading-none">
+                      {securitySchemes.filter((s) => s.logged).length} /{" "}
+                      {securitySchemes.length} authorized
+                    </p>
+                  ) : (
+                    <p className="text-[11px] font-mono text-foreground-500 leading-none">
+                      No schemes
+                    </p>
+                  )}
+                </div>
+                {securitySchemes.length > 0 && (
+                  <div className="flex gap-0.5 shrink-0">
+                    {securitySchemes.map((security) => (
+                      <div
+                        key={security.getKey()}
+                        className={cn(
+                          "w-1 h-3.5 rounded-full transition-colors",
+                          security.logged
+                            ? "bg-success-500"
+                            : "bg-foreground-700"
+                        )}
+                        title={security.getKey()}
+                      />
+                    ))}
+                  </div>
+                )}
+              </button>
+            </div>
+
             <div className="space-y-1.5">
               <SectionTitle className="text-[9px] font-black tracking-[0.2em] text-foreground-600 px-0.5">
                 General
@@ -219,7 +218,7 @@ export const ApiExplorer = observer(() => {
               </button>
             </div>
 
-            <div className="space-y-1.5">
+            <div className="space-y-1.5 pb-4">
               <SectionTitle className="text-[9px] font-black tracking-[0.2em] text-foreground-600 px-0.5">
                 Tags & Operations
               </SectionTitle>
