@@ -64,6 +64,15 @@ export class OperationModel {
     this.servers = this.processServers(operation?.servers || null);
     this.selectedServer = this.servers?.[0] || null;
 
+    // Restore persisted operation-level server if one was saved
+    if (cachedValues?.server && this.servers) {
+      const cached = this.servers.find(
+        (s) => s.getUrl() === cachedValues.server
+      );
+
+      if (cached) this.selectedServer = cached;
+    }
+
     this.requestBody = operation.requestBody
       ? new RequestBodyModel(operation.requestBody, this.id, cachedValues?.body)
       : null;

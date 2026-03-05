@@ -25,6 +25,7 @@ export type BodyEntry = BodyTextEntry | BodyFormEntry;
 export interface OperationCache {
   params: Record<string, ParamEntry>; // key: `${location}.${name}`
   body: Record<string, BodyEntry>; // key: mimeType
+  server?: string; // selected server URL for operation-level server override
 }
 
 // ---------------------------------------------------------------------------
@@ -34,6 +35,8 @@ export interface OperationCache {
 interface CacheState {
   /** Nested: specKey → operationId → OperationCache */
   cache: Record<string, Record<string, OperationCache>>;
+  /** Selected server URL per spec. Key: specKey, value: server URL. */
+  servers: Record<string, string>;
 
   setParam: (
     specKey: string,
@@ -64,6 +67,15 @@ interface CacheState {
     specKey: string,
     operationId: string
   ) => OperationCache | undefined;
+
+  clearSpec: (specKey: string) => void;
+
+  setGlobalServer: (specKey: string, url: string) => void;
+  setOperationServer: (
+    specKey: string,
+    operationId: string,
+    url: string
+  ) => void;
 }
 
 // ---------------------------------------------------------------------------
@@ -95,6 +107,7 @@ export const useCacheStore = create<CacheState>()(
   persist(
     (set, get) => ({
       cache: {},
+      servers: {},
 
       setParam(specKey, operationId, location, name, value, included) {
         set((state) => {
@@ -145,10 +158,37 @@ export const useCacheStore = create<CacheState>()(
       getOperation(specKey, operationId) {
         return get().cache[specKey]?.[operationId];
       },
+
+      clearSpec(specKey) {
+        set((state) => {
+          const next = { ...state.cache };
+          const nextServers = { ...state.servers };
+
+          delete next[specKey];
+          delete nextServers[specKey];
+
+          return { cache: next, servers: nextServers };
+        });
+      },
+
+      setGlobalServer(specKey, url) {
+        set((state) => ({ servers: { ...state.servers, [specKey]: url } }));
+      },
+
+      setOperationServer(specKey, operationId, url) {
+        set((state) => {
+          const next = structuredClone(state.cache);
+          const op = ensureOperation(next, specKey, operationId);
+
+          op.server = url;
+
+          return { cache: next };
+        });
+      },
     }),
     {
       name: "swagman-cache",
-      partialize: (state) => ({ cache: state.cache }),
+      partialize: (state) => ({ cache: state.cache, servers: state.servers }),
     }
   )
 );

@@ -119,6 +119,11 @@ export class SpecModel {
     this.globalSecurity = this.generateGlobalSecurity();
     this.selectedServer = this.servers[0];
 
+    // Restore persisted server selection, if any
+    const cachedServerUrl = useCacheStore.getState().servers[this.specKey];
+
+    if (cachedServerUrl) this.setSelectedServer(cachedServerUrl);
+
     // Reset cache flags when processing new spec
     this._operationsGenerated = false;
     this._tagListGenerated = false;
@@ -331,6 +336,20 @@ export class SpecModel {
     }
 
     return this.tagList;
+  }
+
+  public resetAll(): void {
+    // Clear security credentials for all schemes
+    this.globalSecurity.forEach((sec) => sec.setCredentials(undefined));
+
+    // Reset server to first
+    if (this.servers.length > 0) {
+      this.setSelectedServer(this.servers[0].getUrl());
+    }
+
+    // Allow operations + tag list to be regenerated fresh
+    this._operationsGenerated = false;
+    this._tagListGenerated = false;
   }
 
   public getVersion(): string {

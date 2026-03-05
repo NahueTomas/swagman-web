@@ -2,8 +2,7 @@ import { useEffect, useState } from "react";
 import { observer } from "mobx-react-lite";
 
 import { useStore } from "@/hooks/use-store";
-import { ServerIcon, LockIcon, UnlockIcon } from "@/shared/components/icons";
-import { ServerModal } from "@/features/server/server-modal";
+import { LockIcon, UnlockIcon } from "@/shared/components/icons";
 import { AuthorizationModal } from "@/features/authorization/authorization-modal";
 import { OperationHeaderUrl } from "@/features/operation/operation-header-url";
 import { Chip } from "@/shared/components/chip/chip";
@@ -11,7 +10,6 @@ import { MainButton } from "@/shared/components/main-button";
 import { cn } from "@/shared/utils/cn";
 
 export const OperationHeader = observer(() => {
-  const [isServerModalOpen, setIsServerModalOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
   const { operationFocused: operation, spec } = useStore((state) => state);
@@ -57,17 +55,14 @@ export const OperationHeader = observer(() => {
     }
   };
 
-  const selectedServer = operation.getSelectedServer();
-  const servers = operation.getServers();
-
   const globalSecurity = spec?.getGlobalSecurity() || [];
   const isAuthSatisfied = operation.isSecuritySatisfied(globalSecurity);
 
   return (
     <header className="sticky top-0 z-50 bg-background border-b border-divider/40">
       <div className="flex flex-col w-full">
-        {/* Main URL Row - Maximized Space */}
-        <div className="flex items-center gap-2 pl-4 pr-6 h-14 lg:h-16">
+        {/* Main URL Row */}
+        <div className="flex items-center gap-2 pl-4 pr-4 h-14 lg:h-16">
           <div className="flex-shrink-0">
             <h2
               className={cn(
@@ -96,26 +91,9 @@ export const OperationHeader = observer(() => {
           </div>
         </div>
 
-        {/* Action Status Bar (Settings & Metadata) */}
+        {/* Action Status Bar */}
         <div className="flex items-center justify-between px-4 h-9 bg-background-500/20 border-t border-divider/20">
           <div className="flex items-center gap-4">
-            {/* Server Selector Button */}
-            {selectedServer ? (
-              <button
-                className="flex items-center gap-2 group transition-colors px-1 rounded"
-                onClick={() => setIsServerModalOpen(true)}
-              >
-                <ServerIcon className="size-4 text-foreground-500 group-hover:text-primary-500" />
-                <span className="text-[10px] uppercase font-black tracking-[0.15em]">
-                  {selectedServer ? selectedServer.getUrl() : "Select Server"}
-                </span>
-              </button>
-            ) : undefined}
-
-            {selectedServer && operation.security.length ? (
-              <div className="h-3 w-px bg-divider/50" />
-            ) : undefined}
-
             {/* Authorization Button */}
             {operation.security.length > 0 && (
               <button
@@ -150,19 +128,6 @@ export const OperationHeader = observer(() => {
           )}
         </div>
       </div>
-
-      {/* Modals */}
-      {selectedServer && servers && isServerModalOpen && (
-        <ServerModal
-          description="These servers are defined only for this operation and override global servers."
-          isOpen={isServerModalOpen}
-          selectedServer={selectedServer!}
-          servers={operation.getServers() || spec?.getServers() || []}
-          setSelectedServer={operation.setSelectedServer}
-          subtitle="Operation-Specific Servers"
-          onClose={() => setIsServerModalOpen(false)}
-        />
-      )}
 
       {isAuthModalOpen && (
         <AuthorizationModal

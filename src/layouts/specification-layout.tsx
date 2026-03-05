@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import {
   Outlet,
   useParams,
@@ -11,13 +11,19 @@ import { SpecModel } from "@/models/spec.model";
 import { useStore } from "@/hooks/use-store";
 import { Loading } from "@/features/specification/loading";
 import { escapeUrl } from "@/shared/utils/helpers";
+import { applySharePayload, decodeShare } from "@/shared/utils/share-url";
 // Rename the import to avoid conflict with native 'Error'
 import { Error as SpecError } from "@/features/specification/error";
 
 export default function SpecificationLayout() {
-  const { setSpec } = useStore();
+  const { setSpec, focusOperation, spec } = useStore((state) => state);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+
+  /** operationId to auto-focus once the spec finishes loading from a share link */
+  const sharedOpIdRef = useRef<string | null>(null);
+  /** Prevents the main load effect from firing while a share redirect is pending */
+  const pendingShareRef = useRef(false);
 
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -28,7 +34,6 @@ export default function SpecificationLayout() {
   const loadLocalSpec = useCallback((): object | undefined => {
     try {
       if (!window.LOCAL_SPEC) {
-        // Native Error constructor works now
         throw new Error("No local spec found. Define window.LOCAL_SPEC.");
       }
 
@@ -53,7 +58,6 @@ export default function SpecificationLayout() {
       setError(null);
 
       try {
-        // Ensure SpecModel has a 'processSpec' method and is a class
         const spec = new SpecModel();
 
         if (!url) {
@@ -74,19 +78,65 @@ export default function SpecificationLayout() {
     [setSpec, loadLocalSpec]
   );
 
+  // Mount-only effect: handle a base URL ?share=<token> link.
+  // Apply cache values first, then redirect to the spec's hash route.
+  // The pendingShareRef prevents the main load effect from firing prematurely.
+
   useEffect(() => {
+    const baseParams = new URLSearchParams(window.location.search);
+    const shareToken = baseParams.get("share");
+
+    if (!shareToken) return;
+
+    const payload = decodeShare(shareToken);
+
+    if (!payload?.spec) return;
+
+    // Write values to cache before models are constructed
+    applySharePayload(payload.spec, payload);
+    sharedOpIdRef.current = payload.op ?? null;
+    pendingShareRef.current = true;
+
+    // Remove ?share= from the base URL so it doesn't persist or confuse the router
+    window.history.replaceState(null, "", window.location.pathname);
+
+    // Navigate to the spec's hash route
+    const route =
+      payload.spec === "local" ? "/" : `/${escapeUrl(payload.spec)}`;
+
+    navigate(route, { replace: true });
+  }, []);
+
+  // Main load effect: fires when specUrl or searchParams change.
+  // Skip if a share redirect is still pending (handled above).
+  useEffect(() => {
+    if (pendingShareRef.current) {
+      pendingShareRef.current = false;
+
+      return;
+    }
+
     const urlParam = searchParams.get("url");
 
     if (urlParam) {
       navigate(`/${escapeUrl(urlParam)}`, { replace: true });
-    } else {
-      loadSpec(specUrl);
+
+      return;
     }
+
+    loadSpec(specUrl);
   }, [specUrl, loadSpec, navigate, searchParams]);
+
+  // Once the spec has loaded and we have a pending shared operationId, focus it.
+  useEffect(() => {
+    if (!spec || !sharedOpIdRef.current) return;
+
+    focusOperation(sharedOpIdRef.current);
+    sharedOpIdRef.current = null;
+  }, [spec, focusOperation]);
 
   return (
     <div className="flex h-dvh w-full bg-background text-foreground-300 overflow-hidden">
-      {/* Hide Sidebar only if error exists AND we aren't loading */}
       {!error && !isLoading && (
         <div className="border-r border-divider/40 bg-background-600/30 flex-shrink-0 z-10 w-fit h-full">
           <ApiExplorer />
