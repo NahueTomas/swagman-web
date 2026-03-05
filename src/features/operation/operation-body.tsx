@@ -27,7 +27,7 @@ export const OperationBody = observer(
         {body.description && (
           <p className="relative before:absolute before:top-0 before:bottom-0 before:w-0.5 before:bg-primary-700/50">
             <SanitizedMarkdown
-              className="ml-4 text-xs italic text-foreground-500"
+              className="ml-4 text-xs text-foreground-500"
               content={body.description}
             />
           </p>
