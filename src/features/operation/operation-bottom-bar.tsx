@@ -1,8 +1,7 @@
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 import { observer } from "mobx-react-lite";
 
 import { useStore } from "@/hooks/use-store";
-import { useHistoryStore } from "@/hooks/use-history-store";
 import { useDragResize } from "@/hooks/use-drag-resize";
 import { Code } from "@/shared/components/code";
 import { ChevronUp, ExecuteIcon } from "@/shared/components/icons";
@@ -149,12 +148,7 @@ const ResponsePanel = ({ response, isLoading }: ResponsePanelProps) => {
 };
 
 export const OperationBottomBar = observer(() => {
-  const { operationFocused, spec } = useStore((state) => state);
-  const specKey = spec?.specKey ?? "";
-  const operationId = operationFocused?.id ?? "";
-  const lastExecution = useHistoryStore(
-    (s) => s.history[specKey]?.[operationId]
-  );
+  const { operationFocused } = useStore((state) => state);
 
   const {
     isDragging,
@@ -174,28 +168,8 @@ export const OperationBottomBar = observer(() => {
 
   const isLoading = operationFocused.loadingRequestResponse;
 
-  // Use the live in-memory response, or reconstruct from persisted history
-  const liveResponse = operationFocused.requestResponse;
-  const restoredResponse = useMemo(() => {
-    if (liveResponse || !lastExecution?.response) return null;
-
-    const r = lastExecution.response;
-
-    return new RequestResponseModel(
-      r.data,
-      r.body,
-      r.headers,
-      r.obj,
-      r.ok,
-      lastExecution.status,
-      r.statusText,
-      typeof r.body === "string" ? r.body : JSON.stringify(r.body),
-      r.url,
-      new Date(lastExecution.timestamp).toLocaleString()
-    );
-  }, [liveResponse, lastExecution]);
-
-  const response = liveResponse ?? restoredResponse;
+  // Use the live in-memory response only — responses are no longer persisted
+  const response = operationFocused.requestResponse;
 
   if (isLoading && isCollapsed) toggleCollapse();
 
@@ -258,26 +232,22 @@ export const OperationBottomBar = observer(() => {
           </button>
 
           <div className="flex items-center gap-2">
-            {!isLoading && (response || lastExecution) && (
+            {!isLoading && response && (
               <div className="relative flex items-center justify-center">
                 <div
                   className={cn(
                     "w-1.5 h-1.5 rounded-full",
-                    getStatusDotClass(
-                      response ? response.getStatus() : lastExecution!.status
-                    )
+                    getStatusDotClass(response.getStatus())
                   )}
                 />
-                {/* Ping ring on arrival — only for live responses */}
-                {response && (
-                  <div
-                    className={cn(
-                      "absolute w-3 h-3 rounded-full animate-ping opacity-40",
-                      getStatusDotClass(response.getStatus())
-                    )}
-                    style={{ animationIterationCount: 2 }}
-                  />
-                )}
+                {/* Ping ring on arrival */}
+                <div
+                  className={cn(
+                    "absolute w-3 h-3 rounded-full animate-ping opacity-40",
+                    getStatusDotClass(response.getStatus())
+                  )}
+                  style={{ animationIterationCount: 2 }}
+                />
               </div>
             )}
             <span className="text-xxs font-black uppercase tracking-[0.2em] text-foreground-500">
@@ -286,7 +256,7 @@ export const OperationBottomBar = observer(() => {
           </div>
         </div>
 
-        {(response || isLoading || lastExecution) && (
+        {(response || isLoading) && (
           <div className="flex items-center gap-3">
             {isLoading ? (
               <Chip
@@ -297,11 +267,6 @@ export const OperationBottomBar = observer(() => {
               />
             ) : response ? (
               <div className="flex items-center gap-2">
-                {lastExecution && (
-                  <span className="text-xxs font-mono font-bold text-foreground-400">
-                    {lastExecution.duration}ms
-                  </span>
-                )}
                 <span className="text-xxs font-mono text-foreground-500 mr-1">
                   {response.getDate()}
                 </span>
@@ -310,21 +275,6 @@ export const OperationBottomBar = observer(() => {
                   radius="sm"
                   size="xs"
                   variant={getStatusColorVariant(response.getStatus())}
-                />
-              </div>
-            ) : lastExecution ? (
-              <div className="flex items-center gap-2">
-                <span className="text-xxs font-mono font-bold text-foreground-400">
-                  {lastExecution.duration}ms
-                </span>
-                <span className="text-xxs font-mono text-foreground-500 mr-1">
-                  {new Date(lastExecution.timestamp).toLocaleString()}
-                </span>
-                <Chip
-                  label={String(lastExecution.status)}
-                  radius="sm"
-                  size="xs"
-                  variant={getStatusColorVariant(lastExecution.status)}
                 />
               </div>
             ) : null}

@@ -4,7 +4,6 @@ import { Collapse } from "@/shared/components/collapse";
 import { ChevronDownIcon } from "@/shared/components/icons";
 import { cn } from "@/shared/utils/cn";
 import { ApiExplorerTaggedItem } from "@/features/api-explorer/api-explorer-tagged-item";
-import { useHistoryStore } from "@/hooks/use-history-store";
 import { usePinStore } from "@/hooks/use-pin-store";
 
 export const ApiExplorerTag = ({
@@ -32,7 +31,6 @@ export const ApiExplorerTag = ({
   const [isCollapsed, setIsCollapsed] = useState(false);
   const togglePin = usePinStore((s) => s.togglePin);
   const specPins = usePinStore((s) => s.pins[specKey]);
-  const specHistory = useHistoryStore((s) => s.history[specKey]);
 
   // When search is active, force all tags expanded
   const effectiveCollapsed = forceExpanded ? false : isCollapsed;
@@ -85,7 +83,6 @@ export const ApiExplorerTag = ({
                 className="pl-5"
                 deprecated={o.deprecated}
                 isPinned={specPins?.includes(o.id) ?? false}
-                lastExecution={specHistory?.[o.id]}
                 method={o.method}
                 title={o.title}
                 onClick={() => focusOperation(o.id)}

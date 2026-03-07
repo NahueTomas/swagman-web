@@ -3,19 +3,12 @@ import { PinFilledIcon, PinIcon } from "@/shared/components/icons";
 import { Variant } from "@/shared/types/variant";
 import { cn } from "@/shared/utils/cn";
 
-interface HistoryEntry {
-  status: number;
-  duration: number;
-  timestamp: string;
-}
-
 export const ApiExplorerTaggedItem = ({
   title,
   method,
   active,
   deprecated,
   isPinned,
-  lastExecution,
   onClick,
   onTogglePin,
   className,
@@ -25,7 +18,6 @@ export const ApiExplorerTaggedItem = ({
   active: boolean;
   deprecated: boolean;
   isPinned?: boolean;
-  lastExecution?: HistoryEntry;
   onClick: () => void;
   onTogglePin?: () => void;
   className?: string;
@@ -115,25 +107,6 @@ export const ApiExplorerTaggedItem = ({
             >
               {title}
             </span>
-
-            {/* Last execution — inline dot + status */}
-            {lastExecution && (
-              <span className="flex items-center gap-1.5 ml-auto shrink-0">
-                <span
-                  className={cn(
-                    "w-1.5 h-1.5 rounded-full",
-                    lastExecution.status >= 200 && lastExecution.status < 300
-                      ? "bg-success-500"
-                      : lastExecution.status >= 400
-                        ? "bg-danger-500"
-                        : "bg-calm-500"
-                  )}
-                />
-                <span className="text-[9px] font-mono text-foreground-600">
-                  {lastExecution.status}
-                </span>
-              </span>
-            )}
           </div>
         </button>
 

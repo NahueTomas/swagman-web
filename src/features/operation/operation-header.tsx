@@ -3,7 +3,6 @@ import { observer } from "mobx-react-lite";
 
 import { useStore } from "@/hooks/use-store";
 import { useCacheStore } from "@/hooks/use-cache-store";
-import { useHistoryStore } from "@/hooks/use-history-store";
 import { LockIcon, ServerIcon, UnlockIcon } from "@/shared/components/icons";
 import { ServerModal } from "@/features/server/server-modal";
 import { AuthorizationModal } from "@/features/authorization/authorization-modal";
@@ -38,49 +37,13 @@ export const OperationHeader = observer(() => {
   };
 
   const handleExecute = async () => {
-    const startTime = Date.now();
-
     try {
       if (!spec) return;
       operation.setLoadingRequestResponse(true);
       const request = await spec.makeRequest(operation);
 
       operation.setRequestResponse(request);
-
-      // Record execution in history (including full response for persistence)
-      const duration = Date.now() - startTime;
-      const status = typeof request?.status === "number" ? request.status : 0;
-
-      useHistoryStore.getState().recordExecution(spec.specKey, operation.id, {
-        status,
-        duration,
-        timestamp: new Date().toISOString(),
-        response: {
-          data: request.data,
-          body: request.body,
-          headers: request.headers,
-          obj: request.obj,
-          ok: request.ok,
-          statusText: request.statusText,
-          url: request.url,
-        },
-      });
     } catch (error: unknown) {
-      // Record failed execution if we got a status
-      const duration = Date.now() - startTime;
-
-      if (
-        spec &&
-        error instanceof Object &&
-        "status" in error &&
-        typeof (error as Record<string, unknown>).status === "number"
-      ) {
-        useHistoryStore.getState().recordExecution(spec.specKey, operation.id, {
-          status: (error as Record<string, unknown>).status as number,
-          duration,
-          timestamp: new Date().toISOString(),
-        });
-      }
       // eslint-disable-next-line no-console
       console.log({
         title: "Request Failed",

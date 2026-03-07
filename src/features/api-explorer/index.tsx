@@ -22,7 +22,6 @@ import {
 import { Resizable } from "@/shared/components/resizable";
 import { useStore } from "@/hooks/use-store";
 import { useCacheStore } from "@/hooks/use-cache-store";
-import { useHistoryStore } from "@/hooks/use-history-store";
 import { usePinStore } from "@/hooks/use-pin-store";
 import { cn } from "@/shared/utils/cn";
 import { buildSharePayload, buildShareUrl } from "@/shared/utils/share-url";
@@ -312,7 +311,6 @@ const PinnedSection = ({
 }) => {
   const pins = usePinStore((s) => s.pins[specKey]);
   const togglePin = usePinStore((s) => s.togglePin);
-  const specHistory = useHistoryStore((s) => s.history[specKey]);
   const operations = useStore((s) => s.spec?.getOperations());
 
   if (!pins || pins.length === 0) return null;
@@ -337,7 +335,6 @@ const PinnedSection = ({
             className="pl-3 pr-3"
             deprecated={op!.deprecated}
             isPinned={true}
-            lastExecution={specHistory?.[op!.id]}
             method={op!.method}
             title={op!.summary || op!.path}
             onClick={() => focusOperation(op!.id)}
