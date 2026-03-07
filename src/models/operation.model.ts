@@ -42,6 +42,7 @@ export class OperationModel {
 
   public requestResponse: RequestResponseModel | null = null;
   public loadingRequestResponse: boolean = false;
+  public requestError: string | null = null;
 
   //private externalDocs: OpenAPIExternalDocumentation | null;
   //private callbacks: { [callbackName: string]: Referenced<OpenAPICallback> };
@@ -90,9 +91,11 @@ export class OperationModel {
       selectedServer: observable.ref,
       requestResponse: observable.ref,
       loadingRequestResponse: observable.ref,
+      requestError: observable.ref,
       security: observable.ref,
       setRequestResponse: action,
       setLoadingRequestResponse: action,
+      setRequestError: action,
       setSelectedServer: action,
     });
   }
@@ -324,6 +327,10 @@ export class OperationModel {
 
   public setLoadingRequestResponse(loading: boolean) {
     this.loadingRequestResponse = loading;
+  }
+
+  public setRequestError(error: string | null) {
+    this.requestError = error;
   }
 
   public async setRequestResponse(requestResponse: {

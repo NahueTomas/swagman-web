@@ -4,7 +4,11 @@ import { observer } from "mobx-react-lite";
 import { useStore } from "@/hooks/use-store";
 import { useDragResize } from "@/hooks/use-drag-resize";
 import { Code } from "@/shared/components/code";
-import { ChevronUp, ExecuteIcon } from "@/shared/components/icons";
+import {
+  AlertTriangleIcon,
+  ChevronUp,
+  ExecuteIcon,
+} from "@/shared/components/icons";
 import {
   RESPONSE_PANEL,
   HTTP_STATUS_RANGES,
@@ -167,11 +171,12 @@ export const OperationBottomBar = observer(() => {
   if (!operationFocused) return null;
 
   const isLoading = operationFocused.loadingRequestResponse;
+  const requestError = operationFocused.requestError;
 
   // Use the live in-memory response only — responses are no longer persisted
   const response = operationFocused.requestResponse;
 
-  if (isLoading && isCollapsed) toggleCollapse();
+  if ((isLoading || requestError) && isCollapsed) toggleCollapse();
 
   return (
     <div
@@ -232,7 +237,7 @@ export const OperationBottomBar = observer(() => {
           </button>
 
           <div className="flex items-center gap-2">
-            {!isLoading && response && (
+            {!isLoading && response && !requestError && (
               <div className="relative flex items-center justify-center">
                 <div
                   className={cn(
@@ -250,13 +255,16 @@ export const OperationBottomBar = observer(() => {
                 />
               </div>
             )}
+            {!isLoading && requestError && (
+              <div className="w-1.5 h-1.5 rounded-full bg-danger-500" />
+            )}
             <span className="text-xxs font-black uppercase tracking-[0.2em] text-foreground-500">
               Response
             </span>
           </div>
         </div>
 
-        {(response || isLoading) && (
+        {(response || isLoading || requestError) && (
           <div className="flex items-center gap-3">
             {isLoading ? (
               <Chip
@@ -264,6 +272,13 @@ export const OperationBottomBar = observer(() => {
                 radius="sm"
                 size="xs"
                 variant="ghost-primary"
+              />
+            ) : requestError ? (
+              <Chip
+                label="Error"
+                radius="sm"
+                size="xs"
+                variant="ghost-danger"
               />
             ) : response ? (
               <div className="flex items-center gap-2">
@@ -285,7 +300,41 @@ export const OperationBottomBar = observer(() => {
       {/* Content Area */}
       {!isCollapsed && (
         <div className="flex-1 overflow-hidden">
-          {response ? (
+          {requestError ? (
+            <div className="flex flex-col items-center justify-center gap-4 h-full px-6">
+              <div className="p-3.5 rounded-xl bg-danger-500/10 border border-danger-500/20">
+                <AlertTriangleIcon className="size-6 text-danger-500" />
+              </div>
+              <div className="space-y-2 text-center max-w-md">
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-danger-500">
+                  Request Failed
+                </p>
+                <p className="text-xs text-foreground-400 leading-relaxed">
+                  {requestError}
+                </p>
+                {requestError.includes("CORS") && (
+                  <div className="mt-3 rounded-lg border border-white/[0.07] bg-background-500/20 p-4 text-left space-y-2">
+                    <p className="text-[9px] font-black uppercase tracking-[0.2em] text-foreground-600">
+                      Possible fixes
+                    </p>
+                    <ul className="text-[11px] text-foreground-500 space-y-1.5 list-disc list-inside leading-relaxed">
+                      <li>
+                        Enable CORS on the target API server by adding{" "}
+                        <code className="text-primary-400 font-mono text-[10px]">
+                          Access-Control-Allow-Origin
+                        </code>{" "}
+                        headers
+                      </li>
+                      <li>Use a CORS proxy between the browser and the API</li>
+                      <li>
+                        Run the API on the same origin as this application
+                      </li>
+                    </ul>
+                  </div>
+                )}
+              </div>
+            </div>
+          ) : response ? (
             <ResponsePanel isLoading={isLoading} response={response} />
           ) : (
             <div className="flex flex-col items-center justify-center gap-4 h-full">

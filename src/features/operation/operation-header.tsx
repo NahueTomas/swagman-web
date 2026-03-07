@@ -39,20 +39,20 @@ export const OperationHeader = observer(() => {
   const handleExecute = async () => {
     try {
       if (!spec) return;
+      operation.setRequestError(null);
       operation.setLoadingRequestResponse(true);
       const request = await spec.makeRequest(operation);
 
       operation.setRequestResponse(request);
     } catch (error: unknown) {
-      // eslint-disable-next-line no-console
-      console.log({
-        title: "Request Failed",
-        description:
-          error instanceof Error
+      const message =
+        error instanceof TypeError && error.message === "Failed to fetch"
+          ? "Network error — this is likely a CORS issue. The target server does not allow requests from this origin."
+          : error instanceof Error
             ? error.message
-            : "An unexpected error occurred",
-        color: "danger",
-      });
+            : "An unexpected error occurred";
+
+      operation.setRequestError(message);
     } finally {
       operation.setLoadingRequestResponse(false);
     }
