@@ -3,7 +3,12 @@ import { observer } from "mobx-react-lite";
 
 import { useStore } from "@/hooks/use-store";
 import { useCacheStore } from "@/hooks/use-cache-store";
-import { LockIcon, ServerIcon, UnlockIcon } from "@/shared/components/icons";
+import {
+  LockIcon,
+  SendIcon,
+  ServerIcon,
+  UnlockIcon,
+} from "@/shared/components/icons";
 import { ServerModal } from "@/features/server/server-modal";
 import { AuthorizationModal } from "@/features/authorization/authorization-modal";
 import { OperationHeaderUrl } from "@/features/operation/operation-header-url";
@@ -98,30 +103,51 @@ export const OperationHeader = observer(() => {
           <div className="flex-shrink-0">
             <MainButton
               className={cn(
-                "relative h-10 w-32 text-sm uppercase font-bold tracking-[0.25em] text-background overflow-hidden",
-                "bg-primary-500 shadow-lg shadow-primary-500/10",
+                "group/btn relative h-10 px-5 gap-2.5 overflow-hidden",
+                "text-xs font-black uppercase tracking-[0.2em]",
+                "rounded-lg border",
                 "transition-all duration-300 ease-out",
-                // Idle hover
-                !operation.loadingRequestResponse &&
-                  "hover:bg-primary-400 hover:tracking-[0.1em] hover:shadow-xl hover:shadow-primary-500/25 hover:scale-[1.02] active:scale-[0.97] active:shadow-md active:shadow-primary-500/15",
+                // Idle — glass with gold accent
+                !operation.loadingRequestResponse && [
+                  "bg-primary-500/10 border-primary-500/25 text-primary-400",
+                  "shadow-[0_0_20px_-4px] shadow-primary-500/15",
+                  // Hover — intensify
+                  "hover:bg-primary-500/20 hover:border-primary-500/40 hover:text-primary-300",
+                  "hover:shadow-[0_0_30px_-4px] hover:shadow-primary-500/30",
+                  "hover:scale-[1.02]",
+                  // Active — press
+                  "active:scale-[0.97] active:bg-primary-500/25 active:shadow-none",
+                ],
                 // Loading state
-                operation.loadingRequestResponse &&
-                  "bg-primary-600 cursor-wait tracking-[0.15em]"
+                operation.loadingRequestResponse && [
+                  "bg-primary-500/15 border-primary-500/20 text-primary-500",
+                  "cursor-wait",
+                ]
               )}
               disabled={operation.loadingRequestResponse}
               onClick={handleExecute}
             >
-              {/* Shimmer sweep overlay — visible while loading */}
-              {operation.loadingRequestResponse && (
-                <span className="absolute inset-0 animate-execute-shimmer bg-gradient-to-r from-transparent via-white/15 to-transparent pointer-events-none" />
-              )}
-              {/* Ambient glow pulse — visible while loading */}
-              {operation.loadingRequestResponse && (
-                <span className="absolute -inset-1 rounded-md animate-execute-pulse bg-primary-500/30 blur-md pointer-events-none" />
-              )}
+              {/* Label */}
               <span className="relative z-10">
                 {operation.loadingRequestResponse ? "Executing" : "Execute"}
               </span>
+
+              {/* Shimmer sweep — loading */}
+              {operation.loadingRequestResponse && (
+                <span className="absolute inset-0 animate-execute-shimmer bg-gradient-to-r from-transparent via-primary-400/10 to-transparent pointer-events-none" />
+              )}
+              {/* Ambient glow pulse — loading */}
+              {operation.loadingRequestResponse && (
+                <span className="absolute -inset-2 rounded-xl animate-execute-pulse bg-primary-500/20 blur-xl pointer-events-none" />
+              )}
+              {/* Icon */}
+              <SendIcon
+                className={cn(
+                  "relative z-10 size-3.5 transition-transform duration-300",
+                  !operation.loadingRequestResponse &&
+                    "group-hover/btn:translate-x-0.5"
+                )}
+              />
             </MainButton>
           </div>
         </div>
