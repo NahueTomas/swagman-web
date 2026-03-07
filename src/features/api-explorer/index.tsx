@@ -5,6 +5,7 @@ import { ServerModal } from "../server/server-modal";
 import { AuthorizationModal } from "../authorization/authorization-modal";
 
 import { ApiExplorerTagList } from "./api-explorer-tag-list";
+import { ApiExplorerTaggedItem } from "./api-explorer-tagged-item";
 import { QuickNav } from "./quicknav";
 
 import { SectionTitle } from "@/shared/components/section-title";
@@ -13,6 +14,7 @@ import {
   InfoIcon,
   LockIcon,
   ResetIcon,
+  SearchIcon,
   ServerIcon,
   ShareIcon,
   UnlockIcon,
@@ -20,6 +22,8 @@ import {
 import { Resizable } from "@/shared/components/resizable";
 import { useStore } from "@/hooks/use-store";
 import { useCacheStore } from "@/hooks/use-cache-store";
+import { useHistoryStore } from "@/hooks/use-history-store";
+import { usePinStore } from "@/hooks/use-pin-store";
 import { cn } from "@/shared/utils/cn";
 import { buildSharePayload, buildShareUrl } from "@/shared/utils/share-url";
 
@@ -29,6 +33,7 @@ export const ApiExplorer = observer(() => {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
   const [isResetting, setIsResetting] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const resetTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -218,14 +223,51 @@ export const ApiExplorer = observer(() => {
               </button>
             </div>
 
+            {/* PINNED OPERATIONS */}
+            <PinnedSection
+              focusOperation={focusOperation}
+              operationFocusedId={operationFocused?.id || null}
+              specKey={spec.specKey}
+            />
+
             <div className="space-y-1.5 pb-4">
               <SectionTitle className="text-[9px] font-black tracking-[0.2em] text-foreground-600 px-0.5">
                 Tags & Operations
               </SectionTitle>
+              {/* SEARCH */}
+              <div className="relative">
+                <SearchIcon className="absolute left-2.5 top-1/2 -translate-y-1/2 size-3 text-foreground-600 pointer-events-none" />
+                <input
+                  className={cn(
+                    "w-full h-8 pl-8 pr-8 rounded-md text-xs transition-all duration-200 outline-none",
+                    "bg-background-500/20 text-foreground-200",
+                    "border border-white/[0.07] hover:border-white/[0.14]",
+                    "focus:border-primary-500/40 focus:ring-1 focus:ring-primary-500/15",
+                    "placeholder:text-foreground-600 placeholder:font-normal"
+                  )}
+                  placeholder="Search operations..."
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Escape") setSearchQuery("");
+                  }}
+                />
+                {searchQuery && (
+                  <button
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-foreground-600 hover:text-foreground-300 transition-colors"
+                    type="button"
+                    onClick={() => setSearchQuery("")}
+                  >
+                    <span className="text-xs font-bold">&times;</span>
+                  </button>
+                )}
+              </div>
               <ApiExplorerTagList
                 className="space-y-0.5"
                 focusOperation={focusOperation}
                 operationFocusedId={operationFocused?.id || null}
+                searchQuery={searchQuery}
               />
             </div>
           </div>
@@ -257,3 +299,52 @@ export const ApiExplorer = observer(() => {
     </aside>
   );
 });
+
+/** Renders the pinned operations section — only visible when there are pins. */
+const PinnedSection = ({
+  specKey,
+  operationFocusedId,
+  focusOperation,
+}: {
+  specKey: string;
+  operationFocusedId: string | null;
+  focusOperation: (operationId: string | null) => void;
+}) => {
+  const pins = usePinStore((s) => s.pins[specKey]);
+  const togglePin = usePinStore((s) => s.togglePin);
+  const specHistory = useHistoryStore((s) => s.history[specKey]);
+  const operations = useStore((s) => s.spec?.getOperations());
+
+  if (!pins || pins.length === 0) return null;
+
+  // Resolve pinned operation IDs to resume objects
+  const pinnedOps = pins
+    .map((id) => operations?.find((op) => op.id === id))
+    .filter(Boolean);
+
+  if (pinnedOps.length === 0) return null;
+
+  return (
+    <div className="space-y-1.5">
+      <SectionTitle className="text-[9px] font-black tracking-[0.2em] text-foreground-600 px-0.5">
+        Pinned
+      </SectionTitle>
+      <ul className="space-y-px">
+        {pinnedOps.map((op) => (
+          <ApiExplorerTaggedItem
+            key={op!.id}
+            active={op!.id === operationFocusedId}
+            className="pl-3 pr-3"
+            deprecated={op!.deprecated}
+            isPinned={true}
+            lastExecution={specHistory?.[op!.id]}
+            method={op!.method}
+            title={op!.summary || op!.path}
+            onClick={() => focusOperation(op!.id)}
+            onTogglePin={() => togglePin(specKey, op!.id)}
+          />
+        ))}
+      </ul>
+    </div>
+  );
+};

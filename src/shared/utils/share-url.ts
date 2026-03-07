@@ -2,6 +2,7 @@ import type { SpecModel } from "@/models/spec.model";
 import type { Value } from "@/shared/types/parameter-value";
 
 import { useCacheStore } from "@/hooks/use-cache-store";
+import { usePinStore } from "@/hooks/use-pin-store";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -29,6 +30,8 @@ export interface SharePayload {
   sv?: string;
   /** All operations' captured values, keyed by operationId */
   ops?: Record<string, OperationShareData>;
+  /** Pinned operation IDs */
+  pins?: string[];
 }
 
 // ---------------------------------------------------------------------------
@@ -154,6 +157,11 @@ export function buildSharePayload(
 
   if (hasEntries(ops)) payload.ops = ops;
 
+  // Pinned operations
+  const pins = usePinStore.getState().pins[spec.specKey];
+
+  if (pins && pins.length > 0) payload.pins = pins;
+
   return payload;
 }
 
@@ -176,6 +184,18 @@ export function applySharePayload(
 
   // Global server
   if (payload.sv) setGlobalServer(specKey, payload.sv);
+
+  // Pinned operations
+  if (payload.pins && payload.pins.length > 0) {
+    const pinStore = usePinStore.getState();
+
+    // Add each pin without removing existing ones
+    payload.pins.forEach((opId) => {
+      if (!pinStore.isPinned(specKey, opId)) {
+        pinStore.togglePin(specKey, opId);
+      }
+    });
+  }
 
   if (!payload.ops) return;
 

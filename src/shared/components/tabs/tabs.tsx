@@ -59,7 +59,6 @@ export const Tabs = ({
         onSelectionChange(firstTab.key.toString());
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedKey, children, onSelectionChange]);
 
   // Measure active tab and update indicator position
@@ -83,7 +82,6 @@ export const Tabs = ({
         });
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedKey, children]);
 
   const activeTab = tabs.find((tab) => tab.key?.toString() === selectedKey);

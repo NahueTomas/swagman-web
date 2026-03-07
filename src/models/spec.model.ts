@@ -9,6 +9,7 @@ import {
   OpenAPIOperation,
   OpenAPIPath,
   OpenAPIPaths,
+  OpenAPISchema,
   OpenAPISecurityRequirement,
   OpenAPIServer,
   OpenAPISpec,
@@ -320,6 +321,17 @@ export class SpecModel {
     }
 
     return this.tagList;
+  }
+
+  public getSchemas(): { name: string; schema: OpenAPISchema }[] {
+    const schemas = this.components?.schemas;
+
+    if (!schemas) return [];
+
+    return Object.entries(schemas).map(([name, schema]) => ({
+      name,
+      schema,
+    }));
   }
 
   public resetAll(): void {

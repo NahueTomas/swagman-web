@@ -1,6 +1,7 @@
 // TODO: Redoc file
 
 import type { Value } from "../types/parameter-value";
+import type { Variant } from "../types/variant";
 
 import { sample } from "openapi-sampler";
 
@@ -281,4 +282,55 @@ export function sanitizeSpecInput(spec: unknown): OpenAPISpec | null {
  */
 export function isValidContainer(container: unknown): container is HTMLElement {
   return container instanceof HTMLElement;
+}
+
+/**
+ * Resolve a human-readable type label for a schema.
+ * Handles compositions (oneOf/anyOf/allOf) and array item types.
+ */
+export function resolveTypeLabel(schema: OpenAPISchema): string {
+  if (schema.oneOf) return "oneOf";
+  if (schema.anyOf) return "anyOf";
+  if (schema.allOf) return "allOf";
+  if (Array.isArray(schema.type)) return schema.type.join(" | ");
+  if (schema.type === "array") {
+    const itemType =
+      schema.items &&
+      typeof schema.items === "object" &&
+      !Array.isArray(schema.items)
+        ? resolveTypeLabel(schema.items as OpenAPISchema)
+        : "item";
+
+    return `${itemType}[]`;
+  }
+
+  return schema.type ?? "object";
+}
+
+/**
+ * Map a schema type label to a Chip ghost variant.
+ *
+ * Uses `ghost-primary` (gold) for all concrete types so type badges
+ * never clash with HTTP method colours (green/amber/blue/purple/red).
+ * Compositions and unknown types fall back to `ghost-default` (grey).
+ */
+export function typeChipVariant(label: string): Variant {
+  if (
+    label === "object" ||
+    label === "string" ||
+    label === "integer" ||
+    label === "number" ||
+    label === "boolean" ||
+    label.includes("[]")
+  )
+    return "ghost-primary";
+
+  if (
+    label.startsWith("allOf") ||
+    label.startsWith("oneOf") ||
+    label.startsWith("anyOf")
+  )
+    return "ghost-default";
+
+  return "ghost-default";
 }

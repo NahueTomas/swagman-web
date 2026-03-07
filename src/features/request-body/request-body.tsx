@@ -4,7 +4,6 @@ import { RequestBodyMediaType } from "@/models/request-body-media-type";
 import { RequestBodyCode } from "@/features/request-body/request-body-code";
 import { CodeLanguage } from "@/shared/types";
 import { RequestBodyRow } from "@/features/request-body/request-body.row";
-import { Subtitle } from "@/shared/components/subtitle";
 import { useCacheStore } from "@/hooks/use-cache-store";
 import { useStore } from "@/hooks/use-store";
 
@@ -28,35 +27,43 @@ export const RequestBody = observer(({ bodyMediaType }: RequestBodyProps) => {
     // FORM LIKE (multipart/form-data, application/x-www-form-urlencoded)
     if (mediaTypeFormat === "form") {
       return (
-        <div className="border-b border-t border-divider">
-          <table className="w-full text-left border-collapse table-fixed">
+        <div className="rounded-lg border border-white/[0.07] overflow-x-auto overflow-y-hidden">
+          <table className="w-full text-left border-collapse table-fixed min-w-[360px]">
             <thead>
-              <tr className="border-b border-divider h-9">
-                {/* Set explicit widths for small columns, let others flex */}
-                <th className="w-10 px-3 py-1" />
+              <tr className="border-b border-white/[0.07] h-8 bg-background-500/20">
+                {/* Checkbox — always visible */}
+                <th className="px-2 w-8" />
 
-                <th className="w-1/5 max-w-24 px-3 py-1">
-                  <Subtitle size="xs">Field</Subtitle>
+                {/* Field name — always visible */}
+                <th className="px-2 w-1/5 max-w-24">
+                  <span className="text-[9px] font-black uppercase tracking-[0.2em] text-foreground-600">
+                    Field
+                  </span>
                 </th>
 
-                <th className="w-1/4 px-3 py-1">
-                  <Subtitle size="xs">Value</Subtitle>
+                {/* Value — always visible */}
+                <th className="pl-5 pr-2 w-1/4">
+                  <span className="text-[9px] font-black uppercase tracking-[0.2em] text-foreground-600">
+                    Value
+                  </span>
                 </th>
 
-                <th className="w-24 px-3 py-1">
-                  <Subtitle size="xs">Type</Subtitle>
+                {/* Type — hidden below md */}
+                <th className="px-2 hidden md:table-cell w-24 py-1">
+                  <span className="text-[9px] font-black uppercase tracking-[0.2em] text-foreground-600">
+                    Type
+                  </span>
                 </th>
 
-                <th className="w-24 px-3 py-1">
-                  <Subtitle size="xs">Format</Subtitle>
-                </th>
-
-                <th className="w-auto px-3 py-1">
-                  <Subtitle size="xs">Description</Subtitle>
+                {/* Description — hidden below lg */}
+                <th className="px-2 hidden lg:table-cell w-auto py-1">
+                  <span className="text-[9px] font-black uppercase tracking-[0.2em] text-foreground-600">
+                    Description
+                  </span>
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-divider/50">
+            <tbody>
               {bodyMediaType.fields &&
                 bodyMediaType.fields.map((field) => (
                   <RequestBodyRow

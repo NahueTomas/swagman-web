@@ -1,18 +1,268 @@
-import { useMemo } from "react";
+import type { OpenAPISchema } from "@/shared/types/openapi";
+
+import { useMemo, useState } from "react";
 
 import { useStore } from "@/hooks/use-store";
 import { SanitizedMarkdown } from "@/shared/components/sanitized-markdown";
+import { Collapse } from "@/shared/components/collapse";
+import { Code } from "@/shared/components/code";
 import {
   AnchorIcon,
+  ChevronDownIcon,
   EmailIcon,
   OperationsIcon,
   ScaleIcon,
+  SchemaIcon,
   UserIcon,
   ThunderIcon,
 } from "@/shared/components/icons";
 import { cn } from "@/shared/utils/cn";
 import { Chip } from "@/shared/components/chip";
 import { SectionTitle } from "@/shared/components/section-title";
+import {
+  getBodyExample,
+  resolveTypeLabel,
+  typeChipVariant,
+} from "@/shared/utils/openapi";
+
+/* ------------------------------------------------------------------ */
+/*  Property Row                                                      */
+/* ------------------------------------------------------------------ */
+
+const PropertyRow = ({
+  name,
+  schema,
+  required,
+}: {
+  name: string;
+  schema: OpenAPISchema;
+  required: boolean;
+}) => {
+  const typeLabel = resolveTypeLabel(schema);
+  const hasEnum = schema.enum && schema.enum.length > 0;
+
+  return (
+    <div className="flex items-start gap-3 px-3 py-2.5">
+      {/* Name + required */}
+      <div className="w-1/4 shrink-0 min-w-0">
+        <span className="font-mono text-[11px] font-bold text-foreground-200 break-all">
+          {name}
+        </span>
+        {required && (
+          <span className="ml-1.5 text-[8px] font-black uppercase tracking-wider text-danger-400 align-top">
+            *
+          </span>
+        )}
+      </div>
+
+      {/* Type chip */}
+      <div className="shrink-0">
+        <Chip
+          className="font-mono"
+          label={schema.format ? `${typeLabel}·${schema.format}` : typeLabel}
+          radius="sm"
+          size="xxs"
+          variant={typeChipVariant(typeLabel)}
+        />
+      </div>
+
+      {/* Description + enum */}
+      <div className="flex-1 min-w-0 space-y-1">
+        {schema.description && (
+          <p className="text-[11px] text-foreground-500 leading-relaxed">
+            {schema.description}
+          </p>
+        )}
+        {hasEnum && (
+          <div className="flex flex-wrap gap-1">
+            {schema.enum!.map((v, i) => (
+              <Chip
+                key={i}
+                className="font-mono"
+                label={String(v)}
+                radius="sm"
+                size="xxs"
+                variant="ghost-default"
+              />
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+/* ------------------------------------------------------------------ */
+/*  Schema Card                                                       */
+/* ------------------------------------------------------------------ */
+
+interface SchemaCardProps {
+  name: string;
+  schema: OpenAPISchema;
+}
+
+const SchemaCard = ({ name, schema }: SchemaCardProps) => {
+  const [open, setOpen] = useState(false);
+
+  const properties = schema.properties ? Object.entries(schema.properties) : [];
+  const requiredSet = useMemo(
+    () => new Set(schema.required ?? []),
+    [schema.required]
+  );
+
+  const example = useMemo(() => getBodyExample(schema, "json"), [schema]);
+
+  const typeLabel = resolveTypeLabel(schema);
+  const propCount = properties.length;
+
+  return (
+    <div className="rounded-lg border border-divider bg-background-500/10">
+      {/* Header */}
+      <button
+        className="w-full flex items-center gap-3 px-4 py-3 text-left"
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+      >
+        <ChevronDownIcon
+          className={cn(
+            "size-3 text-foreground-600 transition-transform duration-200 shrink-0",
+            open && "rotate-180"
+          )}
+        />
+
+        <span className="font-mono text-xs font-bold text-foreground-200 truncate">
+          {name}
+        </span>
+
+        {/* Inline meta badges */}
+        <Chip
+          className="font-mono shrink-0"
+          label={typeLabel}
+          radius="sm"
+          size="xxs"
+          variant={typeChipVariant(typeLabel)}
+        />
+
+        {propCount > 0 && (
+          <span className="text-[9px] font-mono text-foreground-600 shrink-0">
+            {propCount} prop{propCount !== 1 && "s"}
+          </span>
+        )}
+
+        {/* Description preview — right side */}
+        {schema.description && !open && (
+          <span className="ml-auto text-[10px] text-foreground-700 truncate max-w-[40%] hidden lg:block">
+            {schema.description}
+          </span>
+        )}
+      </button>
+
+      {/* Expanded body */}
+      <Collapse active={open}>
+        <div className="border-t border-white/[0.06]">
+          {/* Description */}
+          {schema.description && (
+            <div className="px-4 pt-4 pb-2">
+              <p className="text-xs text-foreground-500 leading-relaxed">
+                {schema.description}
+              </p>
+            </div>
+          )}
+
+          {/* Properties */}
+          {properties.length > 0 && (
+            <div className="px-4 pt-3 pb-1">
+              <span className="text-[9px] font-black uppercase tracking-[0.15em] text-foreground-600">
+                Properties ({propCount})
+              </span>
+              <div className="mt-2 divide-y divide-white/[0.04] rounded-md border border-white/[0.06] overflow-hidden bg-background-500/10">
+                {properties.map(([propName, propSchema]) => (
+                  <PropertyRow
+                    key={propName}
+                    name={propName}
+                    required={requiredSet.has(propName)}
+                    schema={propSchema}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* JSON Example */}
+          {example && (
+            <div className="px-4 pt-3 pb-4">
+              <span className="text-[9px] font-black uppercase tracking-[0.15em] text-foreground-600">
+                Example
+              </span>
+              <div className="mt-2">
+                <Code language="json" value={example} />
+              </div>
+            </div>
+          )}
+        </div>
+      </Collapse>
+    </div>
+  );
+};
+
+/* ------------------------------------------------------------------ */
+/*  Schemas Section                                                   */
+/* ------------------------------------------------------------------ */
+
+const SchemasSection = ({
+  schemas,
+  schemaCount,
+}: {
+  schemas: { name: string; schema: OpenAPISchema }[];
+  schemaCount: number;
+}) => {
+  const [filter, setFilter] = useState("");
+
+  const filtered = useMemo(() => {
+    if (!filter) return schemas;
+
+    const q = filter.toLowerCase();
+
+    return schemas.filter(
+      ({ name, schema }) =>
+        name.toLowerCase().includes(q) ||
+        (schema.description?.toLowerCase().includes(q) ?? false)
+    );
+  }, [schemas, filter]);
+
+  return (
+    <div className="px-6 py-10 border-t border-divider/50">
+      <div className="flex items-center justify-between gap-4 border-b border-divider/30 pb-3">
+        <SectionTitle>Schemas ({schemaCount})</SectionTitle>
+        {schemaCount > 6 && (
+          <input
+            className="w-48 h-7 px-3 rounded-md bg-background-500/30 text-xs text-foreground-300 placeholder:text-foreground-700 outline-none focus:border-primary-500/40 transition-colors"
+            placeholder="Filter schemas..."
+            type="text"
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
+          />
+        )}
+      </div>
+
+      {filtered.length === 0 ? (
+        <p className="mt-6 text-xs text-foreground-600">
+          No schemas match &quot;{filter}&quot;
+        </p>
+      ) : (
+        <div className="mt-4 space-y-2">
+          {filtered.map(({ name, schema }) => (
+            <SchemaCard key={name} name={name} schema={schema} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+/* ------------------------------------------------------------------ */
+/*  Info Page                                                         */
+/* ------------------------------------------------------------------ */
 
 export default function Info() {
   const { spec } = useStore();
@@ -22,6 +272,8 @@ export default function Info() {
     [spec]
   );
   const tagCount = useMemo(() => spec?.getTagList()?.length || 0, [spec]);
+  const schemas = useMemo(() => spec?.getSchemas() || [], [spec]);
+  const schemaCount = schemas.length;
 
   if (!spec?.info) return null;
   const { title, version, contact, license, description } = spec.info;
@@ -29,7 +281,7 @@ export default function Info() {
   return (
     <section className="h-full flex flex-col overflow-auto bg-background selection:bg-primary-500/30">
       {/* 1. Header Section - Dense & High Contrast */}
-      <header className="relative px-6 py-10 border-b border-divider/50 bg-background/50 overflow-hidden">
+      <header className="relative px-6 py-10 border-b border-divider/50 bg-background/50">
         {/* Ambient gradient mesh */}
         <div
           className="absolute inset-0 opacity-[0.04] pointer-events-none"
@@ -58,23 +310,36 @@ export default function Info() {
             </div>
 
             {/* Stats Grid */}
-            <div className="flex gap-4">
-              <div className="flex flex-col items-end px-4 border-r border-divider/50">
-                <span className="text-2xl font-mono font-bold text-foreground-100">
-                  {operationCount}
-                </span>
-                <span className="text-[9px] font-black uppercase tracking-widest text-foreground-500 flex items-center gap-1.5">
-                  <ThunderIcon className="size-3 text-primary-500" /> Operations
-                </span>
-              </div>
-              <div className="flex flex-col items-end px-4">
-                <span className="text-2xl font-mono font-bold text-foreground-100">
-                  {tagCount}
-                </span>
-                <span className="text-[9px] font-black uppercase tracking-widest text-foreground-500 flex items-center gap-1.5">
-                  <OperationsIcon className="size-3 text-primary-500" /> Tags
-                </span>
-              </div>
+            <div className="flex items-stretch rounded-lg border border-white/[0.07] bg-background-500/20 divide-x divide-white/[0.07] overflow-hidden">
+              {(
+                [
+                  {
+                    value: operationCount,
+                    label: "Operations",
+                    icon: ThunderIcon,
+                  },
+                  { value: tagCount, label: "Tags", icon: OperationsIcon },
+                  ...(schemaCount > 0
+                    ? [
+                        {
+                          value: schemaCount,
+                          label: "Schemas",
+                          icon: SchemaIcon,
+                        },
+                      ]
+                    : []),
+                ] as const
+              ).map(({ value, label, icon: Icon }) => (
+                <div key={label} className="flex items-center gap-3 px-5 py-3">
+                  <Icon className="size-3.5 text-primary-500/70" />
+                  <span className="text-lg font-mono font-bold text-foreground-100 tabular-nums">
+                    {value}
+                  </span>
+                  <span className="text-[9px] font-black uppercase tracking-[0.15em] text-foreground-600">
+                    {label}
+                  </span>
+                </div>
+              ))}
             </div>
           </div>
         </div>
@@ -170,6 +435,11 @@ export default function Info() {
           </aside>
         </div>
       </div>
+
+      {/* 3. Schemas Section */}
+      {schemas.length > 0 && (
+        <SchemasSection schemaCount={schemaCount} schemas={schemas} />
+      )}
     </section>
   );
 }

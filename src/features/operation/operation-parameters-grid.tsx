@@ -11,40 +11,45 @@ export const OperationParametersGrid = ({
         {title}
       </p>
 
-      <div className="border-b border-t border-divider">
-        <table className="w-full text-left border-collapse table-fixed">
+      <div className="rounded-lg border border-white/[0.07] overflow-x-auto overflow-y-hidden">
+        <table className="w-full text-left border-collapse table-fixed min-w-[360px]">
           <thead>
-            <tr className="border-b border-divider h-9">
-              {/* Set explicit widths for small columns, let others flex */}
-              <th className="w-10 px-3 py-1" />
-              <th className="w-1/5 max-w-24 px-3 py-1">
-                <span className="text-[9px] font-black uppercase tracking-[0.15em] text-foreground-600">
+            <tr className="border-b border-white/[0.07] h-8 bg-background-500/20">
+              {/* Checkbox — always visible */}
+              <th className="px-2 w-8" />
+              {/* Name — always visible */}
+              <th className="px-2 w-1/5 max-w-24">
+                <span className="text-[9px] font-black uppercase tracking-[0.2em] text-foreground-600">
                   Name
                 </span>
               </th>
-              <th className="w-1/4 px-3 py-1">
-                <span className="text-[9px] font-black uppercase tracking-[0.15em] text-foreground-600">
+              {/* Value — always visible */}
+              <th className="pl-5 pr-2 w-1/4">
+                <span className="text-[9px] font-black uppercase tracking-[0.2em] text-foreground-600">
                   Value
                 </span>
               </th>
-              <th className="w-24 px-3 py-1">
-                <span className="text-[9px] font-black uppercase tracking-[0.15em] text-foreground-600">
+              {/* Type — hidden below md */}
+              <th className="px-2 hidden md:table-cell w-24">
+                <span className="text-[9px] font-black uppercase tracking-[0.2em] text-foreground-600">
                   Type
                 </span>
               </th>
-              <th className="w-24 px-3 py-1">
-                <span className="text-[9px] font-black uppercase tracking-[0.15em] text-foreground-600">
+              {/* Explode — hidden below md */}
+              <th className="px-2 hidden md:table-cell w-24">
+                <span className="text-[9px] font-black uppercase tracking-[0.2em] text-foreground-600">
                   Explode
                 </span>
               </th>
-              <th className="w-auto px-3 py-1">
-                <span className="text-[9px] font-black uppercase tracking-[0.15em] text-foreground-600">
+              {/* Description — hidden below lg */}
+              <th className="px-2 hidden lg:table-cell w-auto">
+                <span className="text-[9px] font-black uppercase tracking-[0.2em] text-foreground-600">
                   Description
                 </span>
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-divider/50">{children}</tbody>
+          <tbody>{children}</tbody>
         </table>
       </div>
     </div>

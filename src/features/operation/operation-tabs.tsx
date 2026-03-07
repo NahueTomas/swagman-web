@@ -99,7 +99,7 @@ export const OperationTabs = observer(
           >
             <div className="pt-6 space-y-8 animate-in fade-in slide-in-from-top-1">
               {operation.getPathParameters().length > 0 && (
-                <OperationParametersGrid title="Path Variables">
+                <OperationParametersGrid title="Path Parameters">
                   {operation.getPathParameters().map((p) => (
                     <OperationParameter key={p.id} parameter={p} />
                   ))}
@@ -124,7 +124,7 @@ export const OperationTabs = observer(
               {/* Empty State */}
               {operation.getPathParameters().length === 0 &&
                 operation.getQueryParameters().length === 0 && (
-                  <div className="flex flex-col items-center justify-center gap-2 py-10 border border-dashed border-divider/30 rounded-lg">
+                  <div className="flex flex-col items-center justify-center gap-2 py-8 border border-dashed border-divider rounded-lg">
                     <ParametersIcon className="size-4 text-foreground-700" />
                     <p className="text-[11px] text-foreground-600 italic">
                       No parameters required for this endpoint.

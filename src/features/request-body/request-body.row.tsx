@@ -8,6 +8,7 @@ import { RequestBodyField } from "@/models/request-body-field";
 import { FormFieldCheckbox } from "@/shared/components/form-field-checkbox/form-field-checkbox";
 import { Chip } from "@/shared/components/chip";
 import { SanitizedMarkdown } from "@/shared/components/sanitized-markdown";
+import { resolveTypeLabel, typeChipVariant } from "@/shared/utils/openapi";
 import { useCacheStore } from "@/hooks/use-cache-store";
 import { useStore } from "@/hooks/use-store";
 
@@ -36,17 +37,27 @@ export const RequestBodyRow = observer(
       );
     };
 
-    const schemaType = requestBodyField.schema.type || "any";
+    const typeLabel = resolveTypeLabel(requestBodyField.schema);
     const schemaFormat = requestBodyField.schema.format;
+    const fullTypeLabel = schemaFormat
+      ? `${typeLabel}\u00B7${schemaFormat}`
+      : typeLabel;
 
     const FormFieldComponent = requestBodyField.schema
       ? getFormFieldComponent(requestBodyField.schema)
       : null;
 
     return (
-      <tr className="transition-colors h-9 border-b border-divider hover:bg-background-950/20 last:border-none">
+      <tr
+        className={cn(
+          "group/row transition-colors h-9 border-b border-white/[0.04] last:border-none",
+          requestBodyField.included
+            ? "hover:bg-white/[0.03]"
+            : "opacity-50 hover:opacity-75 hover:bg-white/[0.02]"
+        )}
+      >
         {/* 1. Inclusion Checkbox */}
-        <td className="px-3 py-0.5 align-middle">
+        <td className="px-2 text-center align-middle">
           <FormFieldCheckbox
             id={`body-${id}`}
             size="sm"
@@ -59,31 +70,40 @@ export const RequestBodyRow = observer(
         </td>
 
         {/* 2. Field Name & Required Indicator */}
-        <td className="px-3 py-0.5 align-middle">
-          <div className="flex items-center gap-2">
+        <td
+          className="px-2 align-middle"
+          title={[
+            `Type: ${fullTypeLabel}`,
+            requestBodyField.schema.description
+              ? `Description: ${requestBodyField.schema.description}`
+              : undefined,
+          ]
+            .filter(Boolean)
+            .join("\n")}
+        >
+          <div className="flex items-center gap-1.5 min-w-0">
             <span
               className={cn(
-                "text-xs font-mono transition-colors",
+                "text-xs font-mono font-medium truncate transition-colors",
                 requestBodyField.included
                   ? "text-foreground-200"
-                  : "text-foreground-500"
+                  : "text-foreground-200"
               )}
             >
               {requestBodyField.name}
             </span>
             {requestBodyField.required && (
-              <span
-                className="text-danger-500 text-[10px] font-bold"
-                title="Required"
-              >
-                *
-              </span>
+              <Chip label="*" radius="sm" size="sm" variant="nobg-danger" />
             )}
           </div>
+          {/* Inline type — visible only when Type column is hidden */}
+          <span className="md:hidden text-[10px] font-mono text-foreground-600">
+            {fullTypeLabel}
+          </span>
         </td>
 
         {/* 3. Dynamic Form Field (Value) */}
-        <td className="py-0.5 align-middle">
+        <td className="px-2 align-middle">
           {requestBodyField.included && FormFieldComponent ? (
             <div className="min-w-0">
               <FormFieldComponent
@@ -99,49 +119,28 @@ export const RequestBodyRow = observer(
               />
             </div>
           ) : (
-            <span className="text-xs italic font-bold text-foreground-500 px-3">
-              Disabled
+            <span className="text-[10px] italic text-foreground-700 px-3">
+              —
             </span>
           )}
         </td>
 
-        {/* 4. Schema Type Display */}
-        <td className="px-3 py-0.5 align-middle">
-          <div className="flex items-center">
-            <Chip
-              label={`${schemaType}${
-                requestBodyField.schema?.items &&
-                typeof requestBodyField.schema.items === "object" &&
-                "type" in requestBodyField.schema.items
-                  ? ` <${requestBodyField.schema.items.type}>`
-                  : ""
-              }`}
-              radius="sm"
-              size="xxs"
-              variant="ghost-default"
-            />
-          </div>
+        {/* 4. Schema Type Display — hidden below md */}
+        <td className="px-2 hidden md:table-cell align-middle">
+          <Chip
+            className="font-mono"
+            label={fullTypeLabel}
+            radius="sm"
+            size="xxs"
+            variant={typeChipVariant(typeLabel)}
+          />
         </td>
 
-        {/* 4. Schema Format Display */}
-        <td className="px-3 py-0.5 align-middle">
-          {schemaFormat ? (
-            <Chip
-              label={schemaFormat}
-              radius="sm"
-              size="xxs"
-              variant="ghost-default"
-            />
-          ) : (
-            <span className="text-foreground-700 text-xs">—</span>
-          )}
-        </td>
-
-        {/* 5. Description */}
-        <td className="py-0.5 pr-3 align-baseline max-w-xs">
+        {/* 5. Description — hidden below lg */}
+        <td className="px-2 hidden lg:table-cell align-baseline max-w-xs">
           {requestBodyField.schema.description ? (
             <SanitizedMarkdown
-              className="w-full h-full text-xs text-foreground-500 leading-relaxed px-3 py-1.5"
+              className="w-full h-full text-xs text-foreground-500 leading-relaxed py-1.5"
               content={requestBodyField.schema.description}
             />
           ) : (

@@ -58,7 +58,7 @@ export const FormFieldSelect = ({
 
   const sizeConfig = {
     normal: {
-      button: "px-3 py-1.5 text-xs h-8",
+      button: "px-3 py-1.5 text-xs",
       icon: "size-3.5",
       dropdownItem: "px-3 py-1.5 text-xs",
     },
@@ -138,7 +138,7 @@ export const FormFieldSelect = ({
         {/* Focus underline indicator (Matching FormFieldText) */}
         <div
           className={cn(
-            "absolute -bottom-px left-1/2 -translate-x-1/2 w-0 h-[1px] bg-primary-500 transition-all duration-300 opacity-50",
+            "absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-[1px] bg-primary-500 transition-all duration-300 opacity-50",
             open && "w-[90%]"
           )}
         />

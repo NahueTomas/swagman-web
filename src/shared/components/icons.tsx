@@ -461,3 +461,73 @@ export const ResetIcon = ({ className }: IconSvgProps) => (
     <path d="M3.51 15a9 9 0 1 0 .49-4.6" />
   </svg>
 );
+
+export const SearchIcon = (props: IconSvgProps) => (
+  <svg
+    className={props.className || "size-6"}
+    fill="none"
+    stroke="currentColor"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    strokeWidth="2"
+    viewBox="0 0 24 24"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <circle cx="11" cy="11" r="8" />
+    <path d="m21 21-4.35-4.35" />
+  </svg>
+);
+
+export const PinIcon = (props: IconSvgProps) => (
+  <svg
+    className={props.className || "size-6"}
+    fill="none"
+    stroke="currentColor"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    strokeWidth="2"
+    viewBox="0 0 24 24"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path d="M12 17v5" />
+    <path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V5a1 1 0 0 1 1-1h.5a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-9a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5H8a1 1 0 0 1 1 1z" />
+  </svg>
+);
+
+export const PinFilledIcon = (props: IconSvgProps) => (
+  <svg
+    className={props.className || "size-6"}
+    fill="currentColor"
+    stroke="currentColor"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    strokeWidth="2"
+    viewBox="0 0 24 24"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path d="M12 17v5" />
+    <path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V5a1 1 0 0 1 1-1h.5a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-9a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5H8a1 1 0 0 1 1 1z" />
+  </svg>
+);
+
+export const SchemaIcon = (props: IconSvgProps) => (
+  <svg
+    className={props.className || "size-6"}
+    fill="none"
+    stroke="currentColor"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    strokeWidth="2"
+    viewBox="0 0 24 24"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path d="M4 6V4a2 2 0 0 1 2-2h2" />
+    <path d="M14 2h2a2 2 0 0 1 2 2v2" />
+    <path d="M18 14v2a2 2 0 0 1-2 2h-2" />
+    <path d="M8 18H6a2 2 0 0 1-2-2v-2" />
+    <rect height="4" rx="1" width="4" x="10" y="2" />
+    <rect height="4" rx="1" width="4" x="2" y="10" />
+    <rect height="4" rx="1" width="4" x="18" y="10" />
+    <rect height="4" rx="1" width="4" x="10" y="18" />
+  </svg>
+);

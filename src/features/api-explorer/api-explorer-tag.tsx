@@ -4,11 +4,15 @@ import { Collapse } from "@/shared/components/collapse";
 import { ChevronDownIcon } from "@/shared/components/icons";
 import { cn } from "@/shared/utils/cn";
 import { ApiExplorerTaggedItem } from "@/features/api-explorer/api-explorer-tagged-item";
+import { useHistoryStore } from "@/hooks/use-history-store";
+import { usePinStore } from "@/hooks/use-pin-store";
 
 export const ApiExplorerTag = ({
   tag,
   focusOperation,
   operationFocusedId,
+  forceExpanded = false,
+  specKey = "",
 }: {
   tag: {
     title: string;
@@ -22,8 +26,16 @@ export const ApiExplorerTag = ({
   };
   focusOperation: (operationId: string | null) => void;
   operationFocusedId: string | null;
+  forceExpanded?: boolean;
+  specKey?: string;
 }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const togglePin = usePinStore((s) => s.togglePin);
+  const specPins = usePinStore((s) => s.pins[specKey]);
+  const specHistory = useHistoryStore((s) => s.history[specKey]);
+
+  // When search is active, force all tags expanded
+  const effectiveCollapsed = forceExpanded ? false : isCollapsed;
 
   return (
     <div>
@@ -31,15 +43,17 @@ export const ApiExplorerTag = ({
         className="w-full flex items-center gap-3 py-2 px-3 transition-colors rounded-md text-foreground-400 hover:text-foreground-100 hover:bg-white/5 active:scale-[0.99] group"
         type="button"
         onClick={() => {
-          setIsCollapsed(!isCollapsed);
-          if (isCollapsed && tag.operationsResume.length)
-            focusOperation(tag.operationsResume[0].id);
+          if (!forceExpanded) {
+            setIsCollapsed(!isCollapsed);
+            if (isCollapsed && tag.operationsResume.length)
+              focusOperation(tag.operationsResume[0].id);
+          }
         }}
       >
         <ChevronDownIcon
           className={cn(
             "size-3 shrink-0 transition-transform duration-200 group-hover:text-primary-400",
-            isCollapsed ? "-rotate-90" : "rotate-0"
+            effectiveCollapsed ? "-rotate-90" : "rotate-0"
           )}
         />
 
@@ -61,18 +75,23 @@ export const ApiExplorerTag = ({
         </div>
       </button>
 
-      <Collapse active={!isCollapsed} duration={100} variant="zoom">
+      <Collapse active={!effectiveCollapsed} duration={100} variant="zoom">
         <ul className="space-y-px mt-px">
           {tag.operationsResume.length ? (
             tag.operationsResume.map((o) => (
               <ApiExplorerTaggedItem
                 key={o.id}
                 active={o.id === operationFocusedId}
-                className="pl-[1.8rem] pr-3"
+                className="pl-5"
                 deprecated={o.deprecated}
+                isPinned={specPins?.includes(o.id) ?? false}
+                lastExecution={specHistory?.[o.id]}
                 method={o.method}
                 title={o.title}
                 onClick={() => focusOperation(o.id)}
+                onTogglePin={
+                  specKey ? () => togglePin(specKey, o.id) : undefined
+                }
               />
             ))
           ) : (
