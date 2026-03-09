@@ -104,7 +104,7 @@ export const OperationHeader = observer(() => {
           <div className="flex-shrink-0">
             <MainButton
               className={cn(
-                "group/btn relative h-9 px-4 gap-2 overflow-hidden",
+                "group/btn relative h-10 px-4 gap-2 overflow-hidden",
                 "text-[11px] font-bold uppercase tracking-[0.12em]",
                 "rounded-md border",
                 "transition-all duration-200 ease-out",
