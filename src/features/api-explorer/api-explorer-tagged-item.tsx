@@ -34,11 +34,11 @@ export const ApiExplorerTaggedItem = ({
 
   // Active background tint per method
   const methodActiveBg: Record<string, string> = {
-    GET: "bg-success-500/8",
-    POST: "bg-warning-500/8",
-    PUT: "bg-calm-500/8",
-    PATCH: "bg-alt-500/8",
-    DELETE: "bg-danger-500/8",
+    GET: "bg-success-500/[0.12]",
+    POST: "bg-warning-500/[0.12]",
+    PUT: "bg-calm-500/[0.12]",
+    PATCH: "bg-alt-500/[0.12]",
+    DELETE: "bg-danger-500/[0.12]",
     DEFAULT: "bg-primary-500/10",
   };
 

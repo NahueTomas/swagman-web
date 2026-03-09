@@ -1,4 +1,11 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
+import { createPortal } from "react-dom";
 
 import { FormFieldActionButton } from "../form-field-action-button";
 
@@ -8,6 +15,12 @@ import { FormFieldProps, Primitive } from "@/shared/types/form-field";
 
 export type SelectSize = "normal" | "small";
 type Option = Primitive;
+
+interface DropdownPosition {
+  top: number;
+  left: number;
+  width: number;
+}
 
 export const FormFieldSelect = ({
   id,
@@ -20,19 +33,59 @@ export const FormFieldSelect = ({
   placeholder = "Select an option",
 }: FormFieldProps & { size?: SelectSize; disabled?: boolean }) => {
   const [open, setOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement | null>(null);
+  const triggerRef = useRef<HTMLDivElement | null>(null);
+  const portalRef = useRef<HTMLDivElement | null>(null);
+  const [position, setPosition] = useState<DropdownPosition>({
+    top: 0,
+    left: 0,
+    width: 0,
+  });
 
   const selectedValue =
     typeof value === "string" || typeof value === "number"
       ? (value as Option)
       : undefined;
 
+  // Measure trigger position when opening
+  const updatePosition = useCallback(() => {
+    if (!triggerRef.current) return;
+
+    const rect = triggerRef.current.getBoundingClientRect();
+
+    setPosition({
+      top: rect.bottom + 4,
+      left: rect.left,
+      width: Math.max(rect.width, 140),
+    });
+  }, []);
+
+  useLayoutEffect(() => {
+    if (open) updatePosition();
+  }, [open, updatePosition]);
+
+  // Reposition on scroll/resize while open
+  useEffect(() => {
+    if (!open) return;
+
+    const handleReposition = () => updatePosition();
+
+    window.addEventListener("scroll", handleReposition, true);
+    window.addEventListener("resize", handleReposition);
+
+    return () => {
+      window.removeEventListener("scroll", handleReposition, true);
+      window.removeEventListener("resize", handleReposition);
+    };
+  }, [open, updatePosition]);
+
+  // Click-outside: check both trigger and portal
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
-      ) {
+      const target = event.target as Node;
+      const inTrigger = triggerRef.current?.contains(target);
+      const inPortal = portalRef.current?.contains(target);
+
+      if (!inTrigger && !inPortal) {
         setOpen(false);
       }
     };
@@ -71,7 +124,7 @@ export const FormFieldSelect = ({
 
   return (
     <div
-      ref={dropdownRef}
+      ref={triggerRef}
       className="relative w-full group/select text-foreground-200"
       id={id}
     >
@@ -82,17 +135,31 @@ export const FormFieldSelect = ({
         aria-expanded={open}
         aria-haspopup="listbox"
         className={cn(
-          "relative flex items-center justify-between w-full rounded-md transition-all duration-200 outline-none cursor-pointer",
+          "relative flex items-center justify-between w-full rounded-md outline-none cursor-pointer",
           sizeConfig[size].button,
 
+          // Base
           "bg-transparent border border-transparent font-mono",
-          "hover:bg-background-500",
-          !open && "hover:border-divider",
 
-          // 2. FOCUS & OPEN STATES
-          "focus-visible:border-primary-500 focus-visible:ring-1 focus-visible:ring-primary-500/20",
-          open && "border-primary-500 bg-background-500",
-          disabled && "opacity-50 cursor-not-allowed grayscale"
+          // Transitions
+          "transition-[border-color,background-color,box-shadow] duration-200 ease-out",
+
+          // Hover
+          !open && "hover:border-white/[0.08] hover:bg-white/[0.03]",
+
+          // Focus
+          "focus-visible:border-primary-500/40 focus-visible:bg-white/[0.03]",
+          "focus-visible:shadow-[0_0_0_3px_rgba(190,151,110,0.06)]",
+
+          // Open — active state with accent
+          open && [
+            "border-primary-500/40 bg-white/[0.03]",
+            "shadow-[0_0_0_3px_rgba(190,151,110,0.06),inset_0_1px_0_rgba(190,151,110,0.04)]",
+          ],
+
+          // Disabled
+          disabled &&
+            "opacity-40 cursor-not-allowed hover:border-transparent hover:bg-transparent"
         )}
         role="combobox"
         tabIndex={disabled ? -1 : 0}
@@ -108,8 +175,8 @@ export const FormFieldSelect = ({
       >
         <span
           className={cn(
-            "truncate text-left flex-1",
-            !selectedValue && "text-foreground-500 italic font-sans"
+            "truncate text-left flex-1 transition-colors duration-150",
+            !selectedValue && "text-foreground-600 italic font-sans"
           )}
         >
           {selectedValue !== undefined ? String(selectedValue) : placeholder}
@@ -125,68 +192,80 @@ export const FormFieldSelect = ({
             />
           )}
 
-          {/* Arrow Indicator - RE-ADDED */}
+          {/* Arrow Indicator */}
           <ChevronDownIcon
             className={cn(
-              "text-foreground-500 transition-transform duration-200",
+              "transition-[transform,color] duration-200 ease-out",
               sizeConfig[size].icon,
-              open && "rotate-180 text-primary-500"
+              open
+                ? "rotate-180 text-primary-500"
+                : "text-foreground-600 group-hover/select:text-foreground-400"
             )}
           />
         </div>
 
-        {/* Focus underline indicator (Matching FormFieldText) */}
+        {/* Focus underline — slides in from center */}
         <div
           className={cn(
-            "absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-[1px] bg-primary-500 transition-all duration-300 opacity-50",
-            open && "w-[90%]"
+            "absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-px bg-gradient-to-r from-transparent via-primary-500 to-transparent transition-[width] duration-300 ease-out opacity-60",
+            open && "w-4/5"
           )}
         />
       </div>
 
-      {/* Dropdown Menu (Listbox) */}
-      <div
-        className={cn(
-          "absolute z-50 mt-1 w-full min-w-[140px] overflow-hidden rounded-md border border-divider shadow-2xl transition-all duration-200 origin-top",
-          open
-            ? "opacity-100 scale-100 translate-y-0 visible"
-            : "opacity-0 scale-95 -translate-y-2 invisible pointer-events-none"
-        )}
-        id={`${id}-listbox`}
-        role="listbox"
-      >
-        <div className="max-h-60 overflow-y-auto custom-scrollbar p-1 bg-background-500">
-          {cleanOptions.length > 0 ? (
-            cleanOptions.map((opt) => (
-              <button
-                key={String(opt)}
-                aria-selected={selectedValue === opt}
-                className={cn(
-                  "w-full text-left transition-colors font-mono rounded-md",
-                  sizeConfig[size].dropdownItem,
-                  selectedValue === opt
-                    ? "bg-primary-800 text-primary-400 font-bold"
-                    : "text-foreground-300 hover:text-foreground-100"
-                )}
-                role="option"
-                type="button"
-                onClick={() => handleSelect(opt)}
-              >
-                {String(opt)}
-              </button>
-            ))
-          ) : (
-            <div
-              className={cn(
-                "text-foreground-500 italic text-center py-2",
-                sizeConfig[size].dropdownItem
-              )}
-            >
-              No options available
-            </div>
+      {/* Dropdown Menu — portaled to document.body to escape overflow containers */}
+      {createPortal(
+        <div
+          ref={portalRef}
+          className={cn(
+            "fixed z-[200] overflow-hidden rounded-md border border-white/[0.08] shadow-2xl shadow-black/50 transition-opacity duration-150",
+            open
+              ? "opacity-100 visible"
+              : "opacity-0 invisible pointer-events-none"
           )}
-        </div>
-      </div>
+          id={`${id}-listbox`}
+          role="listbox"
+          style={{
+            top: position.top,
+            left: position.left,
+            width: position.width,
+          }}
+        >
+          <div className="max-h-60 overflow-y-auto custom-scrollbar p-1 bg-background-500 backdrop-blur-xl">
+            {cleanOptions.length > 0 ? (
+              cleanOptions.map((opt) => (
+                <button
+                  key={String(opt)}
+                  aria-selected={selectedValue === opt}
+                  className={cn(
+                    "w-full text-left font-mono rounded-md",
+                    "transition-[background-color,color] duration-150 ease-out",
+                    sizeConfig[size].dropdownItem,
+                    selectedValue === opt
+                      ? "bg-primary-500/15 text-primary-400 font-semibold"
+                      : "text-foreground-400 hover:text-foreground-100 hover:bg-white/[0.06]"
+                  )}
+                  role="option"
+                  type="button"
+                  onClick={() => handleSelect(opt)}
+                >
+                  {String(opt)}
+                </button>
+              ))
+            ) : (
+              <div
+                className={cn(
+                  "text-foreground-600 italic text-center py-2",
+                  sizeConfig[size].dropdownItem
+                )}
+              >
+                No options available
+              </div>
+            )}
+          </div>
+        </div>,
+        document.body
+      )}
     </div>
   );
 };

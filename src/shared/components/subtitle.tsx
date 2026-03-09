@@ -1,34 +1,47 @@
+import type { ElementType, ReactNode } from "react";
+
 import { Size } from "@/shared/types/size";
 import { cn } from "@/shared/utils/cn";
 
+type ExtendedSize = Size | "micro";
+
 // Mapping sizes to Tailwind typography classes
-const sizeClasses: Record<Size, string> = {
-  xxs: "text-[10px] tracking-wider font-bold text-foreground-500",
-  xs: "text-xs tracking-wide font-semibold text-foreground-500",
-  sm: "text-sm font-semibold text-foreground-400",
-  md: "text-base font-medium text-foreground-300",
-  lg: "text-lg font-medium text-foreground-200",
-  xl: "text-xl font-medium text-foreground-100",
+const sizeClasses: Record<ExtendedSize, string> = {
+  micro:
+    "text-[9px] tracking-[0.12em] font-semibold text-foreground-600 uppercase",
+  xxs: "text-[10px] tracking-[0.12em] font-semibold text-foreground-600 uppercase",
+  xs: "text-xs tracking-[0.12em] font-semibold text-foreground-600 uppercase",
+  sm: "text-sm font-semibold text-foreground-600",
+  md: "text-base font-medium text-foreground-600",
+  lg: "text-lg font-medium text-foreground-600",
+  xl: "text-xl font-medium text-foreground-600",
 };
+
+interface SubtitleProps {
+  children: ReactNode;
+  size?: ExtendedSize;
+  as?: ElementType;
+  className?: string;
+  htmlFor?: string;
+}
 
 export const Subtitle = ({
   children,
   size = "md",
+  as: Tag = "h3",
   className,
-}: {
-  children: React.ReactNode;
-  size?: Size;
-  className?: string;
-}) => {
+  ...rest
+}: SubtitleProps) => {
   return (
-    <h3
+    <Tag
       className={cn(
         "leading-none transition-colors",
         sizeClasses[size],
         className
       )}
+      {...rest}
     >
       {children}
-    </h3>
+    </Tag>
   );
 };

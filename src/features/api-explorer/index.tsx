@@ -8,7 +8,7 @@ import { ApiExplorerTagList } from "./api-explorer-tag-list";
 import { ApiExplorerTaggedItem } from "./api-explorer-tagged-item";
 import { QuickNav } from "./quicknav";
 
-import { SectionTitle } from "@/shared/components/section-title";
+import { Subtitle } from "@/shared/components/subtitle";
 import {
   CheckIcon,
   InfoIcon,
@@ -44,12 +44,18 @@ export const ApiExplorer = observer(() => {
   const securitySchemes = spec.getGlobalSecurity();
 
   const handleShare = async () => {
-    const payload = buildSharePayload(spec, operationFocused?.id);
-    const url = buildShareUrl(payload);
+    try {
+      const payload = buildSharePayload(spec, operationFocused?.id);
+      const url = buildShareUrl(payload);
 
-    await navigator.clipboard.writeText(url);
-    setIsCopied(true);
-    setTimeout(() => setIsCopied(false), 2000);
+      await navigator.clipboard.writeText(url);
+      setIsCopied(true);
+      setTimeout(() => setIsCopied(false), 2000);
+    } catch {
+      // Clipboard API may fail in insecure contexts or when denied
+      // eslint-disable-next-line no-console
+      console.error("Failed to copy share link to clipboard");
+    }
   };
 
   const handleReset = () => {
@@ -70,21 +76,20 @@ export const ApiExplorer = observer(() => {
   return (
     <aside className="flex h-full w-auto text-foreground-400">
       <Resizable axis="x" defaultWidth={320}>
-        <div className="flex flex-col h-full w-full pt-4 px-4">
+        <div className="flex flex-col h-full w-full pt-5 px-4">
           {/* TOP FIXED HEADER */}
-          <div className="pb-4 border-b border-white/[0.06] mb-4">
-            <div className="flex flex-col gap-3">
+          <div className="pb-4 border-b border-white/[0.05] mb-5">
+            <div className="flex flex-col gap-4">
               {/* BRANDING + ACTIONS */}
               <div className="flex items-center justify-between px-0.5 select-none">
-                <span className="text-[10px] font-black tracking-[0.3em] text-foreground-600 uppercase">
-                  Swagman
-                </span>
+                <Subtitle as="h2">SWAGMAN</Subtitle>
 
                 <div className="flex items-center gap-0.5">
-                  {/* Share — active only when an operation is focused */}
+                  {/* Share */}
                   <button
-                    className="flex items-center gap-1 px-1.5 py-1 rounded transition-colors text-foreground-600 hover:text-primary-300 hover:bg-primary-500/10"
+                    className="flex items-center gap-1.5 px-2 py-1 rounded-md transition-all text-foreground-600 hover:text-primary-400 hover:bg-primary-500/8"
                     title="Copy shareable link with all current parameter values"
+                    type="button"
                     onClick={handleShare}
                   >
                     {isCopied ? (
@@ -92,26 +97,27 @@ export const ApiExplorer = observer(() => {
                     ) : (
                       <ShareIcon className="size-3" />
                     )}
-                    <span className="text-[8px] font-black uppercase tracking-[0.15em]">
+                    <Subtitle as="span" className="text-[8px]" size="micro">
                       {isCopied ? "Copied" : "Share"}
-                    </span>
+                    </Subtitle>
                   </button>
 
                   {/* Reset — two-click confirmation */}
                   <button
                     className={cn(
-                      "flex items-center gap-1 px-1.5 py-1 rounded transition-all",
+                      "flex items-center gap-1.5 px-2 py-1 rounded-md transition-all",
                       isResetting
                         ? "text-danger-400 bg-danger-500/10 hover:bg-danger-500/20"
                         : "text-foreground-600 hover:text-danger-400 hover:bg-danger-500/5"
                     )}
                     title="Reset all parameter values, authorization, and server selection"
+                    type="button"
                     onClick={handleReset}
                   >
                     <ResetIcon className="size-3" />
-                    <span className="text-[8px] font-black uppercase tracking-[0.15em]">
+                    <Subtitle as="span" className="text-[8px]" size="micro">
                       {isResetting ? "Confirm?" : "Reset"}
-                    </span>
+                    </Subtitle>
                   </button>
                 </div>
               </div>
@@ -126,15 +132,21 @@ export const ApiExplorer = observer(() => {
             <div className="flex flex-col gap-1.5">
               {/* SERVER STATUS */}
               <button
-                className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg border border-white/[0.07] bg-background-500/20 hover:bg-background-500/50 hover:border-white/[0.14] transition-all group text-left"
+                className={cn(
+                  "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all group text-left",
+                  "border border-white/[0.05] bg-white/[0.02]",
+                  "hover:bg-white/[0.04] hover:border-white/[0.1]"
+                )}
                 type="button"
                 onClick={() => setIsServerModalOpen(true)}
               >
-                <ServerIcon className="size-3.5 text-foreground-600 group-hover:text-primary-400 shrink-0 transition-colors" />
+                <div className="p-1.5 rounded-md bg-foreground-700/20 group-hover:bg-primary-500/10 transition-colors">
+                  <ServerIcon className="size-3 text-foreground-600 group-hover:text-primary-400 transition-colors" />
+                </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-[9px] font-black uppercase tracking-[0.15em] text-foreground-600 leading-none mb-1">
+                  <Subtitle as="p" className="leading-none mb-1" size="micro">
                     Server
-                  </p>
+                  </Subtitle>
                   <p className="text-[11px] font-mono text-foreground-500 truncate group-hover:text-foreground-300 transition-colors leading-none">
                     {selectedServer?.getUrl() || "No server selected"}
                   </p>
@@ -144,37 +156,46 @@ export const ApiExplorer = observer(() => {
               {/* AUTH STATUS */}
               <button
                 className={cn(
-                  "w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg border transition-all group text-left",
+                  "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all group text-left",
                   isSecuritySatisfied
-                    ? "border-success-500/25 bg-success-500/5 hover:bg-success-500/10 hover:border-success-500/40"
-                    : "border-white/[0.07] bg-background-500/20 hover:bg-background-500/50 hover:border-white/[0.14]"
+                    ? "border border-success-500/20 bg-success-500/[0.03] hover:bg-success-500/[0.06] hover:border-success-500/30"
+                    : "border border-white/[0.05] bg-white/[0.02] hover:bg-white/[0.04] hover:border-white/[0.1]"
                 )}
                 type="button"
                 onClick={() => setIsAuthModalOpen(true)}
               >
-                {isSecuritySatisfied ? (
-                  <UnlockIcon className="size-3.5 text-success-500 shrink-0" />
-                ) : (
-                  <LockIcon className="size-3.5 text-foreground-600 group-hover:text-primary-400 shrink-0 transition-colors" />
-                )}
+                <div
+                  className={cn(
+                    "p-1.5 rounded-md transition-colors",
+                    isSecuritySatisfied
+                      ? "bg-success-500/10"
+                      : "bg-foreground-700/20 group-hover:bg-primary-500/10"
+                  )}
+                >
+                  {isSecuritySatisfied ? (
+                    <UnlockIcon className="size-3 text-success-500" />
+                  ) : (
+                    <LockIcon className="size-3 text-foreground-600 group-hover:text-primary-400 transition-colors" />
+                  )}
+                </div>
                 <div className="flex-1 min-w-0">
-                  <p
+                  <Subtitle
+                    as="p"
                     className={cn(
-                      "text-[9px] font-black uppercase tracking-[0.15em] leading-none mb-1",
-                      isSecuritySatisfied
-                        ? "text-success-600"
-                        : "text-foreground-600"
+                      "leading-none mb-1",
+                      isSecuritySatisfied ? "text-success-600" : ""
                     )}
+                    size="micro"
                   >
                     Authorization
-                  </p>
+                  </Subtitle>
                   {securitySchemes.length > 0 ? (
                     <p className="text-[11px] font-mono text-foreground-500 group-hover:text-foreground-300 transition-colors leading-none">
                       {securitySchemes.filter((s) => s.logged).length} /{" "}
                       {securitySchemes.length} authorized
                     </p>
                   ) : (
-                    <p className="text-[11px] font-mono text-foreground-500 leading-none">
+                    <p className="text-[11px] font-mono text-foreground-600 leading-none">
                       No schemes
                     </p>
                   )}
@@ -185,10 +206,10 @@ export const ApiExplorer = observer(() => {
                       <div
                         key={security.getKey()}
                         className={cn(
-                          "w-1 h-3.5 rounded-full transition-colors",
+                          "w-1 h-3 rounded-full transition-colors",
                           security.logged
                             ? "bg-success-500"
-                            : "bg-foreground-700"
+                            : "bg-foreground-800"
                         )}
                         title={security.getKey()}
                       />
@@ -198,16 +219,16 @@ export const ApiExplorer = observer(() => {
               </button>
             </div>
 
-            <div className="space-y-1.5">
-              <SectionTitle className="text-[9px] font-black tracking-[0.2em] text-foreground-600 px-0.5">
+            <div className="space-y-1">
+              <Subtitle as="p" className="px-1" size="micro">
                 General
-              </SectionTitle>
+              </Subtitle>
               <button
                 className={cn(
-                  "w-full flex items-center gap-2.5 px-3 py-2 rounded-md text-xs font-medium transition-colors text-left",
+                  "w-full flex items-center gap-2.5 px-3 py-2 rounded-md text-xs font-medium transition-all text-left",
                   operationFocused === null
-                    ? "bg-primary-500/10 text-primary-400"
-                    : "text-foreground-400 hover:bg-white/5 hover:text-foreground-100"
+                    ? "bg-primary-500/10 text-primary-400 shadow-[inset_0_0_0_1px] shadow-primary-500/15"
+                    : "text-foreground-400 hover:bg-white/[0.04] hover:text-foreground-200"
                 )}
                 type="button"
                 onClick={() => focusOperation(null)}
@@ -215,7 +236,9 @@ export const ApiExplorer = observer(() => {
                 <InfoIcon
                   className={cn(
                     "size-3.5 shrink-0",
-                    operationFocused === null ? "text-primary-500" : ""
+                    operationFocused === null
+                      ? "text-primary-500"
+                      : "text-foreground-600"
                   )}
                 />
                 About
@@ -230,19 +253,20 @@ export const ApiExplorer = observer(() => {
             />
 
             <div className="space-y-1.5 pb-4">
-              <SectionTitle className="text-[9px] font-black tracking-[0.2em] text-foreground-600 px-0.5">
+              <Subtitle as="p" className="px-1" size="micro">
                 Tags & Operations
-              </SectionTitle>
+              </Subtitle>
               {/* SEARCH */}
-              <div className="relative">
-                <SearchIcon className="absolute left-2.5 top-1/2 -translate-y-1/2 size-3 text-foreground-600 pointer-events-none" />
+              <div className="relative group/search">
+                <SearchIcon className="absolute left-2.5 top-1/2 -translate-y-1/2 size-3 text-foreground-700 group-focus-within/search:text-primary-500 pointer-events-none transition-colors" />
                 <input
+                  aria-label="Search operations"
                   className={cn(
                     "w-full h-8 pl-8 pr-8 rounded-md text-xs transition-all duration-200 outline-none",
-                    "bg-background-500/20 text-foreground-200",
-                    "border border-white/[0.07] hover:border-white/[0.14]",
-                    "focus:border-primary-500/40 focus:ring-1 focus:ring-primary-500/15",
-                    "placeholder:text-foreground-600 placeholder:font-normal"
+                    "bg-white/[0.02] text-foreground-200",
+                    "border border-white/[0.05] hover:border-white/[0.1]",
+                    "focus:border-primary-500/30 focus:ring-1 focus:ring-primary-500/10 focus:bg-white/[0.03]",
+                    "placeholder:text-foreground-700 placeholder:font-normal"
                   )}
                   placeholder="Search operations..."
                   type="text"
@@ -254,6 +278,7 @@ export const ApiExplorer = observer(() => {
                 />
                 {searchQuery && (
                   <button
+                    aria-label="Clear search"
                     className="absolute right-2 top-1/2 -translate-y-1/2 text-foreground-600 hover:text-foreground-300 transition-colors"
                     type="button"
                     onClick={() => setSearchQuery("")}
@@ -318,27 +343,27 @@ const PinnedSection = ({
   // Resolve pinned operation IDs to resume objects
   const pinnedOps = pins
     .map((id) => operations?.find((op) => op.id === id))
-    .filter(Boolean);
+    .filter((op): op is NonNullable<typeof op> => Boolean(op));
 
   if (pinnedOps.length === 0) return null;
 
   return (
-    <div className="space-y-1.5">
-      <SectionTitle className="text-[9px] font-black tracking-[0.2em] text-foreground-600 px-0.5">
+    <div className="space-y-1">
+      <Subtitle as="p" className="px-1" size="micro">
         Pinned
-      </SectionTitle>
+      </Subtitle>
       <ul className="space-y-px">
         {pinnedOps.map((op) => (
           <ApiExplorerTaggedItem
-            key={op!.id}
-            active={op!.id === operationFocusedId}
+            key={op.id}
+            active={op.id === operationFocusedId}
             className="pl-3 pr-3"
-            deprecated={op!.deprecated}
+            deprecated={op.deprecated}
             isPinned={true}
-            method={op!.method}
-            title={op!.summary || op!.path}
-            onClick={() => focusOperation(op!.id)}
-            onTogglePin={() => togglePin(specKey, op!.id)}
+            method={op.method}
+            title={op.summary || op.path}
+            onClick={() => focusOperation(op.id)}
+            onTogglePin={() => togglePin(specKey, op.id)}
           />
         ))}
       </ul>

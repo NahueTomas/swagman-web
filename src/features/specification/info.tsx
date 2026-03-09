@@ -19,6 +19,7 @@ import {
 import { cn } from "@/shared/utils/cn";
 import { Chip } from "@/shared/components/chip";
 import { SectionTitle } from "@/shared/components/section-title";
+import { Subtitle } from "@/shared/components/subtitle";
 import {
   getBodyExample,
   resolveTypeLabel,
@@ -172,9 +173,9 @@ const SchemaCard = ({ name, schema }: SchemaCardProps) => {
           {/* Properties */}
           {properties.length > 0 && (
             <div className="px-4 pt-3 pb-1">
-              <span className="text-[9px] font-black uppercase tracking-[0.15em] text-foreground-600">
+              <Subtitle as="span" size="micro">
                 Properties ({propCount})
-              </span>
+              </Subtitle>
               <div className="mt-2 divide-y divide-white/[0.04] rounded-md border border-white/[0.06] overflow-hidden bg-background-500/10">
                 {properties.map(([propName, propSchema]) => (
                   <PropertyRow
@@ -191,9 +192,9 @@ const SchemaCard = ({ name, schema }: SchemaCardProps) => {
           {/* JSON Example */}
           {example && (
             <div className="px-4 pt-3 pb-4">
-              <span className="text-[9px] font-black uppercase tracking-[0.15em] text-foreground-600">
+              <Subtitle as="span" size="micro">
                 Example
-              </span>
+              </Subtitle>
               <div className="mt-2">
                 <Code language="json" value={example} />
               </div>
@@ -294,7 +295,7 @@ export default function Info() {
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
             <div className="space-y-2">
               <div className="flex items-center gap-3">
-                <h1 className="text-3xl font-black tracking-tight text-foreground-100 uppercase italic">
+                <h1 className="text-3xl font-bold text-foreground-100 tracking-tight">
                   {title}
                 </h1>
                 <Chip
@@ -304,13 +305,13 @@ export default function Info() {
                   variant="ghost-primary"
                 />
               </div>
-              <p className="text-[11px] font-black uppercase tracking-[0.3em] text-primary-500/80">
+              <Subtitle as="p" className="text-primary-600" size="xxs">
                 About this API
-              </p>
+              </Subtitle>
             </div>
 
             {/* Stats Grid */}
-            <div className="flex items-stretch rounded-lg border border-white/[0.07] bg-background-500/20 divide-x divide-white/[0.07] overflow-hidden">
+            <div className="flex items-stretch rounded-lg border border-white/[0.05] bg-white/[0.02] divide-x divide-white/[0.05] overflow-hidden">
               {(
                 [
                   {
@@ -331,13 +332,13 @@ export default function Info() {
                 ] as const
               ).map(({ value, label, icon: Icon }) => (
                 <div key={label} className="flex items-center gap-3 px-5 py-3">
-                  <Icon className="size-3.5 text-primary-500/70" />
-                  <span className="text-lg font-mono font-bold text-foreground-100 tabular-nums">
+                  <Icon className="size-3.5 text-primary-600" />
+                  <span className="text-lg font-mono font-bold text-foreground-200 tabular-nums">
                     {value}
                   </span>
-                  <span className="text-[9px] font-black uppercase tracking-[0.15em] text-foreground-600">
+                  <Subtitle as="span" size="micro">
                     {label}
-                  </span>
+                  </Subtitle>
                 </div>
               ))}
             </div>

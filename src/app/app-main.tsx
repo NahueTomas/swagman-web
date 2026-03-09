@@ -1,4 +1,4 @@
-import { Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
 
 import SpecificationLayout from "@/layouts/specification-layout";
 import SpecificationOperationsPage from "@/pages/specification-operations";
@@ -11,8 +11,9 @@ function AppMain() {
       <Routes>
         <Route element={<SpecificationLayout />} path={ROUTES.APP}>
           <Route index element={<SpecificationOperationsPage />} />
-          <Route index element={<SpecificationOperationsPage />} path=":url" />
+          <Route element={<SpecificationOperationsPage />} path=":url" />
         </Route>
+        <Route element={<Navigate replace to={ROUTES.APP} />} path="*" />
       </Routes>
     </ErrorBoundary>
   );

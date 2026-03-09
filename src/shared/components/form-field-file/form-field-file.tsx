@@ -61,11 +61,18 @@ export const FormFieldFile: React.FC<FormFieldProps & { name?: string }> = ({
       <div
         aria-label={fileName ? `File selected: ${fileName}` : "Upload file"}
         className={cn(
-          "relative flex items-center justify-between w-full px-3 py-1.5 rounded-md transition-all duration-200 cursor-pointer outline-none",
-          "bg-transparent border border-transparent font-mono text-xs h-8 hover:border-divider",
-          "hover:bg-background-500/50", // Added slight hover bg without border
-          "focus-visible:ring-1 focus-visible:ring-primary-500/30",
-          fileName && ""
+          "relative flex items-center justify-between w-full px-3 py-1.5 rounded-md cursor-pointer outline-none",
+          "bg-transparent border border-transparent font-mono text-xs h-8",
+
+          // Transitions
+          "transition-[border-color,background-color,box-shadow] duration-200 ease-out",
+
+          // Hover
+          "hover:border-white/[0.08] hover:bg-white/[0.03]",
+
+          // Focus — primary accent with soft glow
+          "focus-visible:border-primary-500/40 focus-visible:bg-white/[0.03]",
+          "focus-visible:shadow-[0_0_0_3px_rgba(190,151,110,0.06)]"
         )}
         role="button"
         tabIndex={0}
@@ -73,9 +80,23 @@ export const FormFieldFile: React.FC<FormFieldProps & { name?: string }> = ({
         onKeyDown={handleKeyDown}
       >
         <div className="flex items-center gap-2 truncate flex-1 pointer-events-none">
-          <DocumentTextIcon className={cn("size-3.5 shrink-0")} />
+          <DocumentTextIcon
+            className={cn(
+              "size-3.5 shrink-0 transition-colors duration-150",
+              fileName
+                ? "text-primary-500"
+                : "text-foreground-600 group-hover/file:text-foreground-400"
+            )}
+          />
 
-          <span className={cn("truncate", !fileName && "font-sans")}>
+          <span
+            className={cn(
+              "truncate transition-colors duration-150",
+              fileName
+                ? "text-foreground-200"
+                : "text-foreground-600 font-sans italic group-hover/file:text-foreground-400"
+            )}
+          >
             {fileName || placeholder || "Choose a file"}
           </span>
         </div>
@@ -88,12 +109,8 @@ export const FormFieldFile: React.FC<FormFieldProps & { name?: string }> = ({
           />
         )}
 
-        <div
-          className={cn(
-            "absolute bottom-0 left-1/2 -translate-x-1/2 h-[1px] bg-primary-500 transition-all duration-300 opacity-50 pointer-events-none",
-            "w-0 group-focus-within/file:w-[90%]"
-          )}
-        />
+        {/* Focus underline — slides in from center */}
+        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-px bg-gradient-to-r from-transparent via-primary-500 to-transparent transition-[width] duration-300 ease-out group-focus-within/file:w-4/5 opacity-60 pointer-events-none" />
       </div>
     </div>
   );

@@ -1,6 +1,4 @@
-/* eslint-disable jsx-a11y/no-static-element-interactions */
-/* eslint-disable jsx-a11y/click-events-have-key-events */
-import { ReactNode, useEffect } from "react";
+import { ReactNode, useCallback, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 
 import { cn } from "@/shared/utils/cn";
@@ -27,17 +25,51 @@ export const Modal = ({
   footer,
   className,
 }: ModalProps) => {
+  const modalRef = useRef<HTMLDivElement>(null);
+
+  // Focus trap + Escape handler
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        onClose();
+
+        return;
+      }
+
+      if (e.key === "Tab" && modalRef.current) {
+        const focusable = modalRef.current.querySelectorAll<HTMLElement>(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        );
+
+        if (focusable.length === 0) return;
+
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    },
+    [onClose]
+  );
+
   useEffect(() => {
     if (!isOpen) return;
 
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-    };
-
     document.addEventListener("keydown", handleKeyDown);
 
+    // Focus the modal on open
+    requestAnimationFrame(() => {
+      modalRef.current?.focus();
+    });
+
     return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [isOpen, onClose]);
+  }, [isOpen, handleKeyDown]);
 
   if (!isOpen) return null;
 
@@ -45,24 +77,31 @@ export const Modal = ({
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8">
       {/* Backdrop */}
       <div
+        aria-hidden="true"
         className="absolute inset-0 bg-background-950/90 backdrop-blur-md animate-modal-backdrop"
         onClick={onClose}
       />
 
       {/* Modal Container */}
       <div
+        ref={modalRef}
+        aria-label={typeof title === "string" ? title : undefined}
+        aria-modal="true"
         className={cn(
           "relative w-full max-w-xl",
           "bg-gradient-to-b from-background-600 to-background-700 rounded-xl",
-          "border border-white/[0.08] ring-1 ring-inset ring-white/[0.04]",
+          "border border-white/[0.05] ring-1 ring-inset ring-white/[0.04]",
           "shadow-2xl shadow-black/70",
           "flex flex-col max-h-[85vh]",
           "animate-modal-panel",
+          "outline-none",
           className
         )}
+        role="dialog"
+        tabIndex={-1}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.06] bg-background-600/40 rounded-t-xl">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.05] bg-background-600/40 rounded-t-xl">
           <div className="flex items-center gap-3">
             {icon && (
               <span className="flex items-center justify-center size-8 rounded-lg bg-primary-500/10 border border-primary-500/20 text-primary-400 shrink-0">
@@ -79,7 +118,8 @@ export const Modal = ({
             </div>
           </div>
           <button
-            className="p-2 -mr-1 rounded-lg text-foreground-600 hover:text-foreground-200 hover:bg-white/[0.06] transition-colors"
+            aria-label="Close"
+            className="p-2 -mr-1 rounded-lg text-foreground-600 hover:text-foreground-200 hover:bg-white/[0.05] transition-colors"
             type="button"
             onClick={onClose}
           >
@@ -94,7 +134,7 @@ export const Modal = ({
 
         {/* Footer */}
         {footer && (
-          <div className="px-5 py-4 border-t border-white/[0.06] flex justify-end gap-3">
+          <div className="px-5 py-4 border-t border-white/[0.05] flex justify-end gap-3">
             {footer}
           </div>
         )}

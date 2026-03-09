@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { observer } from "mobx-react-lite";
 
 import { useStore } from "@/hooks/use-store";
@@ -18,6 +18,7 @@ import { RequestResponseModel } from "@/models/request-response.model";
 import { Chip } from "@/shared/components/chip";
 import { cn } from "@/shared/utils/cn";
 import { Tab, Tabs } from "@/shared/components/tabs";
+import { Subtitle } from "@/shared/components/subtitle";
 import { Variant } from "@/shared/types/variant";
 
 // Custom Minimal Spinner
@@ -62,9 +63,9 @@ const ResponsePanel = ({ response, isLoading }: ResponsePanelProps) => {
       <div className="flex items-center justify-center h-full bg-background-700/40">
         <div className="flex flex-col items-center gap-3 px-8 py-6 rounded-xl bg-background-600/60 border border-white/[0.06]">
           <Spinner className="h-7 w-7" />
-          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-foreground-500">
+          <Subtitle as="p" size="xxs">
             Requesting...
-          </p>
+          </Subtitle>
         </div>
       </div>
     );
@@ -131,9 +132,9 @@ const ResponsePanel = ({ response, isLoading }: ResponsePanelProps) => {
               { label: "Success", value: response.getOK() ? "Yes" : "No" },
             ].map((item) => (
               <div key={item.label}>
-                <div className="text-[9px] font-black text-foreground-600 uppercase tracking-[0.2em] mb-1">
+                <Subtitle as="div" className="mb-1" size="micro">
                   {item.label}
-                </div>
+                </Subtitle>
                 <p
                   className={cn(
                     "text-xs text-foreground-200 break-all",
@@ -168,15 +169,18 @@ export const OperationBottomBar = observer(() => {
     maxHeightRatio: RESPONSE_PANEL.MAX_HEIGHT_RATIO,
   });
 
-  if (!operationFocused) return null;
-
-  const isLoading = operationFocused.loadingRequestResponse;
-  const requestError = operationFocused.requestError;
+  const isLoading = operationFocused?.loadingRequestResponse ?? false;
+  const requestError = operationFocused?.requestError ?? null;
 
   // Use the live in-memory response only — responses are no longer persisted
-  const response = operationFocused.requestResponse;
+  const response = operationFocused?.requestResponse ?? null;
 
-  if ((isLoading || requestError) && isCollapsed) toggleCollapse();
+  // Auto-expand panel when loading starts or error occurs
+  useEffect(() => {
+    if ((isLoading || requestError) && isCollapsed) toggleCollapse();
+  }, [isLoading, requestError, isCollapsed, toggleCollapse]);
+
+  if (!operationFocused) return null;
 
   return (
     <div
@@ -201,6 +205,9 @@ export const OperationBottomBar = observer(() => {
         <button
           ref={dragRef as unknown as React.RefObject<HTMLButtonElement>}
           aria-label="Resize response panel"
+          aria-valuemax={Math.round(
+            window.innerHeight * RESPONSE_PANEL.MAX_HEIGHT_RATIO
+          )}
           aria-valuemin={RESPONSE_PANEL.MIN_HEIGHT}
           aria-valuenow={Math.round(currentHeight)}
           className={cn(
@@ -224,6 +231,9 @@ export const OperationBottomBar = observer(() => {
       >
         <div className="flex items-center gap-3">
           <button
+            aria-label={
+              isCollapsed ? "Expand response panel" : "Collapse response panel"
+            }
             className="flex items-center justify-center size-6 hover:bg-white/[0.06] rounded transition-colors"
             type="button"
             onClick={toggleCollapse}
@@ -258,9 +268,9 @@ export const OperationBottomBar = observer(() => {
             {!isLoading && requestError && (
               <div className="w-1.5 h-1.5 rounded-full bg-danger-500" />
             )}
-            <span className="text-xxs font-black uppercase tracking-[0.2em] text-foreground-500">
+            <Subtitle as="span" size="xxs">
               Response
-            </span>
+            </Subtitle>
           </div>
         </div>
 
@@ -301,58 +311,58 @@ export const OperationBottomBar = observer(() => {
       {!isCollapsed && (
         <div className="flex-1 overflow-hidden">
           {requestError ? (
-            <div className="flex flex-col items-center justify-center gap-4 h-full px-6">
-              <div className="p-3.5 rounded-xl bg-danger-500/10 border border-danger-500/20">
-                <AlertTriangleIcon className="size-6 text-danger-500" />
-              </div>
-              <div className="space-y-2 text-center max-w-md">
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-danger-500">
-                  Request Failed
-                </p>
-                <p className="text-xs text-foreground-400 leading-relaxed">
-                  {requestError}
-                </p>
-                {requestError.includes("CORS") && (
-                  <div className="mt-3 rounded-lg border border-white/[0.07] bg-background-500/20 p-4 text-left space-y-2">
-                    <p className="text-[9px] font-black uppercase tracking-[0.2em] text-foreground-600">
-                      Possible fixes
-                    </p>
-                    <ul className="text-[11px] text-foreground-500 space-y-1.5 list-disc list-inside leading-relaxed">
-                      <li>
-                        Enable CORS on the target API server by adding{" "}
-                        <code className="text-primary-400 font-mono text-[10px]">
-                          Access-Control-Allow-Origin
-                        </code>{" "}
-                        headers
-                      </li>
-                      <li>Use a CORS proxy between the browser and the API</li>
-                      <li>
-                        Run the API on the same origin as this application
-                      </li>
-                    </ul>
-                  </div>
-                )}
+            <div className="h-full overflow-y-auto custom-scrollbar">
+              <div className="flex flex-col items-center gap-4 px-6 py-6 min-h-full justify-center">
+                <div className="p-3.5 rounded-xl bg-danger-500/10 border border-danger-500/20 shrink-0">
+                  <AlertTriangleIcon className="size-6 text-danger-500" />
+                </div>
+                <div className="space-y-2 text-center max-w-md">
+                  <Subtitle as="p" className="text-danger-500" size="xxs">
+                    Request Failed
+                  </Subtitle>
+                  <p className="text-xs text-foreground-400 leading-relaxed">
+                    {requestError}
+                  </p>
+                  {requestError.includes("CORS") && (
+                    <div className="mt-3 rounded-lg border border-white/[0.07] bg-background-500/20 p-4 text-left space-y-2">
+                      <Subtitle as="p" size="micro">
+                        Possible fixes
+                      </Subtitle>
+                      <ul className="text-[11px] text-foreground-500 space-y-1.5 list-disc list-inside leading-relaxed">
+                        <li>
+                          Enable CORS on the target API server by adding{" "}
+                          <code className="text-primary-400 font-mono text-[10px]">
+                            Access-Control-Allow-Origin
+                          </code>{" "}
+                          headers
+                        </li>
+                        <li>
+                          Use a CORS proxy between the browser and the API
+                        </li>
+                        <li>
+                          Run the API on the same origin as this application
+                        </li>
+                      </ul>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           ) : response ? (
             <ResponsePanel isLoading={isLoading} response={response} />
           ) : (
             <div className="flex flex-col items-center justify-center gap-4 h-full">
-              <div className="relative p-4 rounded-xl bg-background-500/30 border border-white/[0.06]">
-                <ExecuteIcon className="size-6 text-foreground-700" />
-                {/* Subtle ambient ring */}
-                <div className="absolute inset-0 rounded-xl border border-dashed border-foreground-800 animate-pulse" />
+              <div className="relative p-3.5 rounded-lg bg-white/[0.02] border border-white/[0.05]">
+                <ExecuteIcon className="size-5 text-foreground-800" />
               </div>
-              <div className="space-y-1.5 text-center">
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-foreground-600">
-                  Awaiting Execution
-                </p>
+              <div className="space-y-1 text-center">
+                <Subtitle as="p" className="text-foreground-700" size="xxs">
+                  No response yet
+                </Subtitle>
                 <p className="text-[11px] text-foreground-700 max-w-[200px] leading-relaxed">
                   Press{" "}
-                  <span className="font-semibold text-primary-600">
-                    Execute
-                  </span>{" "}
-                  above to send a request
+                  <span className="font-medium text-primary-600">Send</span> to
+                  make a request
                 </p>
               </div>
             </div>

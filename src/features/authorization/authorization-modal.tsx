@@ -1,4 +1,4 @@
-/* eslint-disable jsx-a11y/label-has-associated-control */ import { useState } from "react";
+import { useState } from "react";
 import { observer } from "mobx-react-lite";
 
 import { useStore } from "@/hooks/use-store";
@@ -8,6 +8,7 @@ import { LockIcon, KeyIcon, CheckIcon } from "@/shared/components/icons";
 import { cn } from "@/shared/utils/cn";
 import { Modal } from "@/shared/components/modal";
 import { Chip } from "@/shared/components/chip";
+import { Subtitle } from "@/shared/components/subtitle";
 
 // ─── Local custom input — visible border + filled bg for modal context ───────
 
@@ -163,9 +164,9 @@ const SecuritySchemeInput = observer(
 
           {type === "apiKey" ? (
             <div className="space-y-1.5">
-              <label className="text-[10px] font-black uppercase tracking-[0.2em] text-foreground-500">
+              <Subtitle as="label" size="xxs">
                 API Key
-              </label>
+              </Subtitle>
               <ModalTextInput
                 disabled={isLogged}
                 placeholder="Enter your API key"
@@ -212,7 +213,7 @@ const SecuritySchemeInput = observer(
               </button>
             ) : (
               <button
-                className="w-full flex items-center justify-center gap-2 h-10 bg-primary-500 hover:bg-primary-400 disabled:opacity-30 disabled:cursor-not-allowed text-background text-xs font-bold shadow-lg shadow-primary-500/20 hover:shadow-primary-500/30 transition-all"
+                className="w-full flex items-center justify-center gap-2 h-10 bg-primary-500 hover:bg-primary-400 disabled:opacity-30 disabled:cursor-not-allowed text-background-950 text-xs font-bold shadow-lg shadow-primary-500/20 hover:shadow-primary-500/30 transition-all"
                 disabled={!value.trim()}
                 type="button"
                 onClick={handleAuthorize}

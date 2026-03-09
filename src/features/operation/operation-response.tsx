@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 
 import { Subtitle } from "@/shared/components/subtitle";
 import { OperationModel } from "@/models/operation.model";
@@ -18,7 +18,10 @@ export const OperationResponse = ({
   // Get response data
   const responses = operation.getResponses();
   const hasResponses = responses.accepted.length > 0;
-  const responseStatusCodes = Object.keys(responses.responses || {});
+  const responseStatusCodes = useMemo(
+    () => Object.keys(responses.responses || {}),
+    [responses.responses]
+  );
 
   // Use state with a function to ensure it's only calculated once on mount
   const [selectedResponse, setSelectedResponse] = useState<string>("");
@@ -112,7 +115,11 @@ const ResponseContent = ({
 
   return (
     <>
-      <Subtitle size="sm">{response?.description || "Response"}</Subtitle>
+      {response?.description && (
+        <Subtitle as="p" size="micro">
+          {response.description}
+        </Subtitle>
+      )}
       <Code
         language={getLanguageFromMimeType(acceptHeader)}
         value={responseExample || "No schema defined for this response"}

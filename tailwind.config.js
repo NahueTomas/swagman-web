@@ -3,6 +3,7 @@ export default {
   darkMode: "class",
   content: [
     "./index.html",
+    "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/layouts/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/features/**/*.{js,ts,jsx,tsx,mdx}",
@@ -11,6 +12,11 @@ export default {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['"DM Sans"', "system-ui", "sans-serif"],
+        display: ['"Instrument Serif"', "Georgia", "serif"],
+        mono: ['"Geist Mono"', "ui-monospace", "monospace"],
+      },
       colors: {
         // 950 is your deep black, 500 is your main gray, 50 is lighter for highlights.
         background: {
@@ -181,6 +187,38 @@ export default {
           "0%, 100%": { opacity: "0.4" },
           "50%": { opacity: "0.8" },
         },
+        "fade-in-up": {
+          from: { opacity: "0", transform: "translateY(8px)" },
+          to: { opacity: "1", transform: "translateY(0)" },
+        },
+        "fade-in": {
+          from: { opacity: "0" },
+          to: { opacity: "1" },
+        },
+        "scale-in": {
+          from: { opacity: "0", transform: "scale(0.95)" },
+          to: { opacity: "1", transform: "scale(1)" },
+        },
+        "slide-in-left": {
+          from: { opacity: "0", transform: "translateX(-12px)" },
+          to: { opacity: "1", transform: "translateX(0)" },
+        },
+        "glow-pulse": {
+          "0%, 100%": { opacity: "0.4", transform: "scale(1)" },
+          "50%": { opacity: "0.7", transform: "scale(1.05)" },
+        },
+        "gradient-shift": {
+          "0%, 100%": { backgroundPosition: "0% 50%" },
+          "50%": { backgroundPosition: "100% 50%" },
+        },
+        "dot-bounce": {
+          "0%, 80%, 100%": { transform: "scale(0)" },
+          "40%": { transform: "scale(1)" },
+        },
+        sweep: {
+          from: { transform: "translateX(-100%) skewX(-15deg)" },
+          to: { transform: "translateX(300%) skewX(-15deg)" },
+        },
       },
       animation: {
         "modal-backdrop": "modal-backdrop 200ms ease forwards",
@@ -189,6 +227,15 @@ export default {
         "loading-wave": "loading-wave 1.5s ease-in-out infinite",
         "execute-shimmer": "execute-shimmer 1.8s ease-in-out infinite",
         "execute-pulse": "execute-pulse 1.8s ease-in-out infinite",
+        "fade-in-up": "fade-in-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards",
+        "fade-in": "fade-in 0.4s ease forwards",
+        "scale-in": "scale-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards",
+        "slide-in-left":
+          "slide-in-left 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards",
+        "glow-pulse": "glow-pulse 3s ease-in-out infinite",
+        "gradient-shift": "gradient-shift 8s ease infinite",
+        "dot-bounce": "dot-bounce 1.4s infinite ease-in-out both",
+        sweep: "sweep 2.5s ease-in-out infinite",
       },
     },
   },

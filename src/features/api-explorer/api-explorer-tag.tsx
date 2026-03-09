@@ -43,8 +43,6 @@ export const ApiExplorerTag = ({
         onClick={() => {
           if (!forceExpanded) {
             setIsCollapsed(!isCollapsed);
-            if (isCollapsed && tag.operationsResume.length)
-              focusOperation(tag.operationsResume[0].id);
           }
         }}
       >
@@ -60,7 +58,7 @@ export const ApiExplorerTag = ({
             <h4 className="text-sm font-semibold truncate group-hover:text-primary-50 transition-colors">
               {tag.title}
             </h4>
-            <span className="text-[10px] bg-background-400/30 px-1.5 py-0.5 rounded font-mono font-bold text-foreground-500 group-hover:bg-primary-500/20 group-hover:text-primary-400 transition-colors shrink-0">
+            <span className="text-[10px] bg-background-400/30 px-1.5 py-0.5 rounded font-mono font-semibold text-foreground-500 group-hover:bg-primary-500/20 group-hover:text-primary-400 transition-colors shrink-0">
               {tag.operationsResume.length}
             </span>
           </div>

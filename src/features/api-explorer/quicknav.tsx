@@ -1,12 +1,14 @@
 import { useId, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+import { Collapse } from "@/shared/components/collapse";
 import {
   ChevronDownIcon,
   DocumentTextIcon,
   SendIcon,
 } from "@/shared/components/icons";
 import { useStore } from "@/hooks/use-store";
+import { Subtitle } from "@/shared/components/subtitle";
 import { cn } from "@/shared/utils/cn";
 import { escapeUrl } from "@/shared/utils/helpers";
 import { ROUTES } from "@/shared/constants/constants";
@@ -57,14 +59,16 @@ export const QuickNav = () => {
           )}
         />
         <div className="flex-1 min-w-0">
-          <p
+          <Subtitle
+            as="p"
             className={cn(
-              "text-[9px] font-black uppercase tracking-[0.15em] leading-none mb-1",
-              isOpen ? "text-primary-600" : "text-foreground-600"
+              "leading-none mb-1",
+              isOpen ? "text-primary-600" : ""
             )}
+            size="micro"
           >
             Spec
-          </p>
+          </Subtitle>
           <p className="text-[11px] font-mono text-foreground-500 truncate group-hover:text-foreground-300 transition-colors leading-none">
             {spec?.info?.title || "No spec loaded"}
           </p>
@@ -80,7 +84,7 @@ export const QuickNav = () => {
       </button>
 
       {/* Inline expansion panel */}
-      {isOpen && (
+      <Collapse active={isOpen} duration={150}>
         <div className="mt-1.5 rounded-lg border border-white/[0.07] bg-background-500/10 overflow-hidden">
           <button
             className="w-full flex items-center px-3 py-2.5 text-xs font-medium text-foreground-400 hover:text-foreground-100 hover:bg-white/[0.05] transition-colors text-left border-b border-white/[0.05]"
@@ -91,12 +95,9 @@ export const QuickNav = () => {
           </button>
 
           <div className="flex flex-col gap-2 p-3">
-            <label
-              className="text-[9px] font-black uppercase tracking-[0.15em] text-foreground-600"
-              htmlFor={urlInputId}
-            >
+            <Subtitle as="label" htmlFor={urlInputId} size="micro">
               Load from URL
-            </label>
+            </Subtitle>
             <div className="flex gap-1.5">
               <input
                 className={cn(
@@ -114,6 +115,7 @@ export const QuickNav = () => {
                 onKeyDown={handleKeyDown}
               />
               <button
+                aria-label="Load spec from URL"
                 className="px-2.5 h-8 bg-primary-500/15 hover:bg-primary-500/25 border border-primary-500/25 hover:border-primary-500/50 text-primary-400 rounded-md transition-all shrink-0"
                 type="button"
                 onClick={handleGo}
@@ -123,7 +125,7 @@ export const QuickNav = () => {
             </div>
           </div>
         </div>
-      )}
+      </Collapse>
     </div>
   );
 };

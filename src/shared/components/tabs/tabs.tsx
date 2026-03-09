@@ -113,7 +113,7 @@ export const Tabs = ({
               aria-selected={isActive}
               className={cn(
                 "group relative h-10 px-6 flex items-center justify-center transition-colors duration-200 outline-none",
-                "text-xxs font-black uppercase tracking-[0.2em]",
+                "text-xxs font-semibold uppercase tracking-[0.12em]",
                 isActive
                   ? "text-primary-500"
                   : "text-foreground-500 hover:text-foreground-200",
@@ -123,10 +123,39 @@ export const Tabs = ({
               disabled={isDisabled}
               id={`${baseId}-tab-${tabKey}`}
               role="tab"
+              tabIndex={isActive ? 0 : -1}
               type="button"
               onClick={(e) => {
                 e.preventDefault();
                 onSelectionChange(tabKey);
+              }}
+              onKeyDown={(e) => {
+                const enabledTabs = tabs.filter((t) => !t.props.isDisabled);
+                const currentIdx = enabledTabs.findIndex(
+                  (t) => t.key?.toString() === tabKey
+                );
+
+                let targetIdx = -1;
+
+                if (e.key === "ArrowRight") {
+                  targetIdx = (currentIdx + 1) % enabledTabs.length;
+                } else if (e.key === "ArrowLeft") {
+                  targetIdx =
+                    (currentIdx - 1 + enabledTabs.length) % enabledTabs.length;
+                } else if (e.key === "Home") {
+                  targetIdx = 0;
+                } else if (e.key === "End") {
+                  targetIdx = enabledTabs.length - 1;
+                }
+
+                if (targetIdx >= 0) {
+                  e.preventDefault();
+                  const targetKey =
+                    enabledTabs[targetIdx].key?.toString() ?? "";
+
+                  onSelectionChange(targetKey);
+                  tabRefs.current.get(targetKey)?.focus();
+                }
               }}
             >
               {tab.props.title}

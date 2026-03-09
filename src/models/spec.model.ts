@@ -1,4 +1,4 @@
-// @ts-ignore
+// @ts-expect-error swagger-client has no type declarations
 import SwaggerClient from "swagger-client";
 import { action, makeObservable, observable } from "mobx";
 

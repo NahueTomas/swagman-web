@@ -11,13 +11,15 @@ export const OperationHeaderUrl = observer(
     );
     const [isFocused, setIsFocused] = useState(false);
 
-    if (!operationModel || !spec) return null;
-
-    const requestPreview = spec.buildRequest(operationModel);
-    const selectedServer =
-      operationModel.getSelectedServer() || spec.getSelectedServer();
+    const requestPreview =
+      operationModel && spec ? spec.buildRequest(operationModel) : null;
+    const selectedServer = operationModel
+      ? operationModel.getSelectedServer() || spec?.getSelectedServer()
+      : null;
 
     const segments = useMemo(() => {
+      if (!operationModel || !requestPreview) return [];
+
       const fullUrl = requestPreview.url;
       const serverUrl = selectedServer
         ? selectedServer.getUrlWithVariables()
@@ -50,7 +52,9 @@ export const OperationHeaderUrl = observer(
       }
 
       return items;
-    }, [requestPreview.url, selectedServer, url, operationModel]);
+    }, [requestPreview?.url, selectedServer, url, operationModel]);
+
+    if (!operationModel || !spec) return null;
 
     return (
       <div className={cn("relative w-full h-10", className)}>

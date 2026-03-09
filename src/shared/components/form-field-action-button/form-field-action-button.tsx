@@ -14,7 +14,12 @@ export const FormFieldActionButton = ({
   return (
     <button
       className={cn(
-        "p-0.5 text-foreground-500 transition-colors border border-foreground-700 rounded-full hover:text-primary-500 hover:border-primary-500 disabled:cursor-not-allowed",
+        "p-0.5 rounded-full border",
+        "text-foreground-600 border-white/[0.08]",
+        "transition-[color,border-color,transform,background-color] duration-150 ease-out",
+        "hover:text-primary-400 hover:border-primary-500/30 hover:bg-primary-500/[0.06] hover:scale-110",
+        "active:scale-95",
+        "disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:scale-100",
         props.className
       )}
       type="button"

@@ -92,14 +92,14 @@ export const useDragResize = ({
   }, [isDragging, handleMouseMove, handleMouseUp]);
 
   const toggleCollapse = useCallback(() => {
-    setIsCollapsed(!isCollapsed);
-    if (isMaximized) setIsMaximized(false);
-  }, [isCollapsed, isMaximized]);
+    setIsCollapsed((prev) => !prev);
+    setIsMaximized(false);
+  }, []);
 
   const toggleMaximize = useCallback(() => {
-    setIsMaximized(!isMaximized);
-    if (isCollapsed) setIsCollapsed(false);
-  }, [isCollapsed, isMaximized]);
+    setIsMaximized((prev) => !prev);
+    setIsCollapsed(false);
+  }, []);
 
   const currentHeight = isCollapsed ? 40 : isMaximized ? maxHeight : height;
 

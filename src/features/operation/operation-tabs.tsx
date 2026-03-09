@@ -20,6 +20,7 @@ import {
 } from "@/shared/components/icons";
 import { Tab, Tabs } from "@/shared/components/tabs";
 import { Chip } from "@/shared/components/chip";
+import { Subtitle } from "@/shared/components/subtitle";
 import { SanitizedMarkdown } from "@/shared/components/sanitized-markdown";
 
 export const OperationTabs = observer(
@@ -65,19 +66,20 @@ export const OperationTabs = observer(
       <div className="flex flex-col h-full p-6 gap-6 bg-background selection:bg-primary-500/30">
         {/* OPERATION SUMMARY & DESCRIPTION */}
         {(operation.summary || operation.description) && (
-          <div className="flex flex-col gap-3 max-w-4xl">
+          <div className="max-w-4xl space-y-2">
+            <Subtitle as="p" size="micro">
+              Overview
+            </Subtitle>
             {operation.summary && (
-              <h2 className="text-sm font-semibold text-foreground-400 italic">
+              <h2 className="text-sm font-medium text-foreground-300 leading-relaxed">
                 {operation.summary}
               </h2>
             )}
             {operation.description && (
-              <div className="relative before:absolute before:top-0 before:bottom-0 before:w-0.5 before:bg-primary-700/50">
-                <SanitizedMarkdown
-                  className="ml-4 text-xs text-foreground-500"
-                  content={operation.description}
-                />
-              </div>
+              <SanitizedMarkdown
+                className="text-xs text-foreground-500 leading-relaxed"
+                content={operation.description}
+              />
             )}
           </div>
         )}
@@ -124,10 +126,10 @@ export const OperationTabs = observer(
               {/* Empty State */}
               {operation.getPathParameters().length === 0 &&
                 operation.getQueryParameters().length === 0 && (
-                  <div className="flex flex-col items-center justify-center gap-2 py-8 border border-dashed border-divider rounded-lg">
-                    <ParametersIcon className="size-4 text-foreground-700" />
-                    <p className="text-[11px] text-foreground-600 italic">
-                      No parameters required for this endpoint.
+                  <div className="flex flex-col items-center justify-center gap-3 py-10 border border-dashed border-white/[0.06] rounded-lg">
+                    <ParametersIcon className="size-4 text-foreground-800" />
+                    <p className="text-[11px] text-foreground-700">
+                      No parameters required for this endpoint
                     </p>
                   </div>
                 )}
@@ -158,10 +160,10 @@ export const OperationTabs = observer(
                   ))}
                 </OperationParametersGrid>
               ) : (
-                <div className="flex flex-col items-center justify-center gap-2 py-10 border border-dashed border-divider/30 rounded-lg">
-                  <HeadersIcon className="size-4 text-foreground-700" />
-                  <p className="text-[11px] text-foreground-600 italic">
-                    No custom headers defined for this endpoint.
+                <div className="flex flex-col items-center justify-center gap-3 py-10 border border-dashed border-white/[0.06] rounded-lg">
+                  <HeadersIcon className="size-4 text-foreground-800" />
+                  <p className="text-[11px] text-foreground-700">
+                    No custom headers defined for this endpoint
                   </p>
                 </div>
               )}

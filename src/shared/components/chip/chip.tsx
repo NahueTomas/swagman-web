@@ -27,7 +27,7 @@ const variantClasses: Partial<Record<Variant, string>> = {
   primary: "bg-background-400 text-primary",
   danger: "bg-background-400 text-danger",
   warning: "bg-background-400 text-warning",
-  success: "bg-background-400 text-sucess",
+  success: "bg-background-400 text-success",
   calm: "bg-background-400 text-calm",
   alt: "bg-background-400 text-alt",
 
@@ -41,16 +41,16 @@ const variantClasses: Partial<Record<Variant, string>> = {
     "bg-warning-500/10 text-warning-400 border border-warning-500/20",
   "ghost-success":
     "bg-success-500/10 text-success-400 border border-success-500/20",
-  "ghost-calm": "bg-calm-500-500/10 text-calm-400 border border-calm-500/20",
+  "ghost-calm": "bg-calm-500/10 text-calm-400 border border-calm-500/20",
   "ghost-alt": "bg-alt-500/10 text-alt-400 border border-alt-500/20",
 
-  "nobg-default": "text-foreground font-bold",
-  "nobg-primary": "text-primary font-bold",
-  "nobg-danger": "text-danger font-bold",
-  "nobg-warning": "text-warning font-bold",
-  "nobg-success": "text-success font-bold",
-  "nobg-calm": "text-calm font-bold",
-  "nobg-alt": "text-alt font-bold",
+  "nobg-default": "text-foreground font-semibold",
+  "nobg-primary": "text-primary font-semibold",
+  "nobg-danger": "text-danger font-semibold",
+  "nobg-warning": "text-warning font-semibold",
+  "nobg-success": "text-success font-semibold",
+  "nobg-calm": "text-calm font-semibold",
+  "nobg-alt": "text-alt font-semibold",
 };
 
 const paddingsClasses: Record<Size, string> = {

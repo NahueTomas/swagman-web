@@ -130,8 +130,10 @@ export const Code = memo<CodeProps>(
 
       return cn(
         "w-full rounded-md",
-        readOnly ? "border border-divider" : "border border-primary/50",
-        !readOnly && "bg-primary/5 hover:shadow-md"
+        readOnly
+          ? "border border-divider bg-background-600/30"
+          : "border border-primary-500/50",
+        !readOnly && "bg-primary-500/5 hover:shadow-md"
       );
     };
 

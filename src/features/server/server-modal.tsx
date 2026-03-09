@@ -6,6 +6,7 @@ import { FormFieldText } from "@/shared/components/form-field-text";
 import { ChevronDownIcon, ServerIcon } from "@/shared/components/icons";
 import { ServerModel } from "@/models/server.model";
 import { Modal } from "@/shared/components/modal";
+import { Subtitle } from "@/shared/components/subtitle";
 
 // ─── Local custom select — visible border + filled bg for modal context ───────
 
@@ -82,7 +83,7 @@ const ModalSelect = ({
           "bg-background-800 border-white/[0.08]",
           open
             ? "opacity-100 scale-100 translate-y-0 pointer-events-auto"
-            : "opacity-0 scale-95 -translate-y-1 pointer-events-none invisible"
+            : "opacity-0 scale-95 -translate-y-1 pointer-events-none"
         )}
       >
         <div className="max-h-56 overflow-y-auto custom-scrollbar p-1">
@@ -117,8 +118,8 @@ interface ServerProps {
   selectedServer: ServerModel;
   setSelectedServer: (url: string) => void;
   servers: ServerModel[];
-  subtitle: string;
-  description: string;
+  subtitle?: string;
+  description?: string;
   onClose: () => void;
 }
 
@@ -148,9 +149,9 @@ export const ServerModal = observer(
         <div className="space-y-6">
           {/* Server Selection */}
           <div className="space-y-2">
-            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-foreground-500">
+            <Subtitle as="p" size="xxs">
               Environment
-            </p>
+            </Subtitle>
             <ModalSelect
               options={servers?.map((server) => server.getUrl())}
               placeholder="Select server"
@@ -168,9 +169,9 @@ export const ServerModal = observer(
           {currentServer?.getVariables() &&
             Object.keys(currentServer.getVariables() || {}).length > 0 && (
               <div className="space-y-3">
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-foreground-500">
+                <Subtitle as="p" size="xxs">
                   Variables
-                </p>
+                </Subtitle>
                 <div className="space-y-3">
                   {Object.entries(currentServer.getVariables() || {}).map(
                     ([key, variable]) => (
@@ -212,9 +213,9 @@ export const ServerModal = observer(
           {/* Preview */}
           <div className="border-t border-white/[0.05]">
             <div className="mt-5 space-y-1.5">
-              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-foreground-500">
+              <Subtitle as="p" size="xxs">
                 Preview
-              </p>
+              </Subtitle>
               <div className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-lg bg-background-900/60 border border-white/[0.06]">
                 <div
                   className={cn(

@@ -64,10 +64,7 @@ export function SanitizedMarkdown({
       });
     } catch {
       // eslint-disable-next-line no-console
-      console.log({
-        description: "Error to create description",
-        color: "danger",
-      });
+      console.error("Failed to parse markdown content");
 
       return "";
     }

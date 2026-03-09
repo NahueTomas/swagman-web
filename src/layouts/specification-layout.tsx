@@ -76,11 +76,10 @@ export default function SpecificationLayout() {
       return window.LOCAL_SPEC;
     } catch (err: unknown) {
       // eslint-disable-next-line no-console
-      console.log({
-        title: "Error loading local spec",
-        description: err instanceof Error ? err.message : "Unknown error",
-        color: "danger",
-      });
+      console.error(
+        "Error loading local spec:",
+        err instanceof Error ? err.message : "Unknown error"
+      );
     }
   }, []);
 
@@ -107,7 +106,7 @@ export default function SpecificationLayout() {
       payload.spec === "local" ? "/" : `/${escapeUrl(payload.spec)}`;
 
     navigate(route, { replace: true });
-  }, []);
+  }, [navigate]);
 
   // Mount-only: handle legacy ?url= query param redirect.
 
@@ -122,7 +121,7 @@ export default function SpecificationLayout() {
     if (urlParam) {
       navigate(`/${escapeUrl(urlParam)}`, { replace: true });
     }
-  }, []);
+  }, [navigate]);
 
   // Main load effect.
   // Uses a stale flag so StrictMode's double-mount only applies the last result.
@@ -194,7 +193,7 @@ export default function SpecificationLayout() {
   return (
     <div className="flex h-dvh w-full bg-background text-foreground-300 overflow-hidden">
       {!error && !isLoading && (
-        <div className="border-r border-divider/40 bg-background-600/30 flex-shrink-0 z-10 w-fit h-full">
+        <div className="border-r border-white/[0.05] bg-background-700/50 backdrop-blur-sm flex-shrink-0 z-10 w-fit h-full">
           <ApiExplorer />
         </div>
       )}

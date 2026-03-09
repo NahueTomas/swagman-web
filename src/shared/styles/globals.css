@@ -35,7 +35,7 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-background-500 rounded-full transition-colors hover:bg-background-400;
+  @apply bg-background-300 rounded-full transition-colors hover:bg-background-200;
 }
 
 /* Firefox scrollbar styles */
@@ -46,6 +46,9 @@
 
 body {
   @apply bg-background text-foreground antialiased selection:bg-primary-500/30 selection:text-primary-50;
+  font-feature-settings: "ss01", "ss02", "cv01";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* ─────────────────────────────────────────────────────────────────────────

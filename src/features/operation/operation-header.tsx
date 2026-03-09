@@ -14,6 +14,7 @@ import { AuthorizationModal } from "@/features/authorization/authorization-modal
 import { OperationHeaderUrl } from "@/features/operation/operation-header-url";
 import { Chip } from "@/shared/components/chip/chip";
 import { MainButton } from "@/shared/components/main-button";
+import { Subtitle } from "@/shared/components/subtitle";
 import { cn } from "@/shared/utils/cn";
 
 export const OperationHeader = observer(() => {
@@ -88,7 +89,7 @@ export const OperationHeader = observer(() => {
           <div className="flex-shrink-0">
             <h2
               className={cn(
-                "font-mono w-20 font-black text-xl tracking-tighter text-center",
+                "font-mono w-20 font-black text-lg text-center",
                 methodStyles[methodUpper] || methodStyles.DEFAULT
               )}
             >
@@ -103,24 +104,22 @@ export const OperationHeader = observer(() => {
           <div className="flex-shrink-0">
             <MainButton
               className={cn(
-                "group/btn relative h-10 px-5 gap-2.5 overflow-hidden",
-                "text-xs font-black uppercase tracking-[0.2em]",
-                "rounded-lg border",
-                "transition-all duration-300 ease-out",
-                // Idle — glass with gold accent
+                "group/btn relative h-9 px-4 gap-2 overflow-hidden",
+                "text-[11px] font-bold uppercase tracking-[0.12em]",
+                "rounded-md border",
+                "transition-all duration-200 ease-out",
+                // Idle
                 !operation.loadingRequestResponse && [
-                  "bg-primary-500/10 border-primary-500/25 text-primary-400",
-                  "shadow-[0_0_20px_-4px] shadow-primary-500/15",
-                  // Hover — intensify
-                  "hover:bg-primary-500/20 hover:border-primary-500/40 hover:text-primary-300",
-                  "hover:shadow-[0_0_30px_-4px] hover:shadow-primary-500/30",
-                  "hover:scale-[1.02]",
-                  // Active — press
-                  "active:scale-[0.97] active:bg-primary-500/25 active:shadow-none",
+                  "bg-primary-500/10 border-primary-500/20 text-primary-400",
+                  // Hover
+                  "hover:bg-primary-500/[0.18] hover:border-primary-500/35 hover:text-primary-300",
+                  "hover:shadow-[0_0_24px_-6px] hover:shadow-primary-500/25",
+                  // Active
+                  "active:scale-[0.98] active:bg-primary-500/25",
                 ],
                 // Loading state
                 operation.loadingRequestResponse && [
-                  "bg-primary-500/15 border-primary-500/20 text-primary-500",
+                  "bg-primary-500/[0.12] border-primary-500/15 text-primary-500",
                   "cursor-wait",
                 ]
               )}
@@ -129,21 +128,17 @@ export const OperationHeader = observer(() => {
             >
               {/* Label */}
               <span className="relative z-10">
-                {operation.loadingRequestResponse ? "Executing" : "Execute"}
+                {operation.loadingRequestResponse ? "Sending" : "Send"}
               </span>
 
               {/* Shimmer sweep — loading */}
               {operation.loadingRequestResponse && (
-                <span className="absolute inset-0 animate-execute-shimmer bg-gradient-to-r from-transparent via-primary-400/10 to-transparent pointer-events-none" />
-              )}
-              {/* Ambient glow pulse — loading */}
-              {operation.loadingRequestResponse && (
-                <span className="absolute -inset-2 rounded-xl animate-execute-pulse bg-primary-500/20 blur-xl pointer-events-none" />
+                <span className="absolute inset-0 animate-sweep bg-gradient-to-r from-transparent via-primary-400/[0.08] to-transparent pointer-events-none" />
               )}
               {/* Icon */}
               <SendIcon
                 className={cn(
-                  "relative z-10 size-3.5 transition-transform duration-300",
+                  "relative z-10 size-3 transition-transform duration-200",
                   !operation.loadingRequestResponse &&
                     "group-hover/btn:translate-x-0.5"
                 )}
@@ -152,73 +147,87 @@ export const OperationHeader = observer(() => {
           </div>
         </div>
 
-        {/* Action Status Bar */}
-        <div className="flex items-center justify-between px-4 h-9 bg-background-500/20 border-t border-divider/20">
-          <div className="flex items-center gap-4">
-            {/* Operation-specific server — only shown when defined in the spec */}
-            {hasOwnServers && operationServer && (
-              <button
-                className="flex items-center gap-2 group transition-colors px-1 rounded"
-                onClick={() => setIsServerModalOpen(true)}
-              >
-                <ServerIcon className="size-3.5 text-foreground-500 group-hover:text-primary-500 shrink-0" />
-                <div className="flex flex-col items-start">
-                  <span className="text-[8px] font-black uppercase tracking-[0.15em] text-foreground-600 leading-none mb-0.5">
-                    Operation server
-                  </span>
-                  <span className="text-[10px] font-mono text-foreground-400 group-hover:text-foreground-200 transition-colors leading-none">
-                    {operationServer.getUrl()}
-                  </span>
-                </div>
-              </button>
-            )}
-
-            {hasOwnServers &&
-              operationServer &&
-              operation.security.length > 0 && (
-                <div className="h-3 w-px bg-divider/50" />
+        {/* Action Status Bar — only rendered when there's content to show */}
+        {(hasOwnServers ||
+          operation.security.length > 0 ||
+          operation.deprecated) && (
+          <div className="flex items-center justify-between px-4 h-9 bg-background-600/40 border-t border-white/[0.04]">
+            <div className="flex items-center gap-4">
+              {/* Operation-specific server — only shown when defined in the spec */}
+              {hasOwnServers && operationServer && (
+                <button
+                  className="flex items-center gap-2 group transition-colors px-1 rounded"
+                  type="button"
+                  onClick={() => setIsServerModalOpen(true)}
+                >
+                  <ServerIcon className="size-3.5 text-foreground-500 group-hover:text-primary-500 shrink-0" />
+                  <div className="flex flex-col items-start">
+                    <Subtitle
+                      as="span"
+                      className="text-[8px] leading-none mb-0.5"
+                      size="micro"
+                    >
+                      Operation server
+                    </Subtitle>
+                    <span className="text-[10px] font-mono text-foreground-400 group-hover:text-foreground-200 transition-colors leading-none">
+                      {operationServer.getUrl()}
+                    </span>
+                  </div>
+                </button>
               )}
 
-            {/* Authorization Button */}
-            {operation.security.length > 0 && (
-              <button
-                className="flex items-center gap-2 group transition-colors px-1 rounded"
-                onClick={() => setIsAuthModalOpen(true)}
-              >
-                {isAuthSatisfied ? (
-                  <UnlockIcon className="size-3.5 text-success-500 shrink-0" />
-                ) : (
-                  <LockIcon className="size-3.5 text-foreground-500 group-hover:text-primary-500 shrink-0" />
+              {hasOwnServers &&
+                operationServer &&
+                operation.security.length > 0 && (
+                  <div className="h-3 w-px bg-divider/50" />
                 )}
-                <div className="flex flex-col items-start">
-                  <span className="text-[8px] font-black uppercase tracking-[0.15em] text-foreground-600 leading-none mb-0.5">
-                    Authorization
-                  </span>
-                  <span
-                    className={cn(
-                      "text-[10px] font-mono leading-none transition-colors",
-                      isAuthSatisfied
-                        ? "text-success-500"
-                        : "text-foreground-400 group-hover:text-foreground-200"
-                    )}
-                  >
-                    {isAuthSatisfied ? "Authorized" : "Auth Required"}
-                  </span>
-                </div>
-              </button>
+
+              {/* Authorization Button */}
+              {operation.security.length > 0 && (
+                <button
+                  className="flex items-center gap-2 group transition-colors px-1 rounded"
+                  type="button"
+                  onClick={() => setIsAuthModalOpen(true)}
+                >
+                  {isAuthSatisfied ? (
+                    <UnlockIcon className="size-3.5 text-success-500 shrink-0" />
+                  ) : (
+                    <LockIcon className="size-3.5 text-foreground-500 group-hover:text-primary-500 shrink-0" />
+                  )}
+                  <div className="flex flex-col items-start">
+                    <Subtitle
+                      as="span"
+                      className="text-[8px] leading-none mb-0.5"
+                      size="micro"
+                    >
+                      Authorization
+                    </Subtitle>
+                    <span
+                      className={cn(
+                        "text-[10px] font-mono leading-none transition-colors",
+                        isAuthSatisfied
+                          ? "text-success-500"
+                          : "text-foreground-400 group-hover:text-foreground-200"
+                      )}
+                    >
+                      {isAuthSatisfied ? "Authorized" : "Auth Required"}
+                    </span>
+                  </div>
+                </button>
+              )}
+            </div>
+
+            {/* Metadata Chips */}
+            {operation.deprecated && (
+              <Chip
+                label="Deprecated"
+                radius="sm"
+                size="xs"
+                variant="ghost-warning"
+              />
             )}
           </div>
-
-          {/* Metadata Chips */}
-          {operation.deprecated && (
-            <Chip
-              label="Deprecated"
-              radius="sm"
-              size="xs"
-              variant="ghost-warning"
-            />
-          )}
-        </div>
+        )}
       </div>
 
       {/* Operation-specific server modal */}

@@ -63,7 +63,7 @@ export const FormFieldCheckbox = ({
         aria-checked={checked}
         aria-required={required}
         className={cn(
-          "relative flex items-center justify-center border border-primary-500 transition-colors duration-200 rounded-full",
+          "relative flex items-center justify-center border border-primary-500 transition-colors duration-200 rounded-sm",
           sizeClasses.checkBox[size],
           // Disabled State
           (disabled || required) && "cursor-not-allowed",

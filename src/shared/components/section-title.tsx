@@ -15,7 +15,7 @@ export const SectionTitle = ({
   return (
     <h3
       className={cn(
-        "text-xs font-semibold text-foreground-500 uppercase tracking-wide",
+        "text-xs font-semibold text-foreground-500 uppercase tracking-[0.12em]",
         className
       )}
       {...props}

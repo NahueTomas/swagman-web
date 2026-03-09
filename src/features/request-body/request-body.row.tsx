@@ -82,14 +82,7 @@ export const RequestBodyRow = observer(
             .join("\n")}
         >
           <div className="flex items-center gap-1.5 min-w-0">
-            <span
-              className={cn(
-                "text-xs font-mono font-medium truncate transition-colors",
-                requestBodyField.included
-                  ? "text-foreground-200"
-                  : "text-foreground-200"
-              )}
-            >
+            <span className="text-xs font-mono font-medium truncate transition-colors text-foreground-200">
               {requestBodyField.name}
             </span>
             {requestBodyField.required && (

@@ -17,7 +17,7 @@ const variantStyles = {
     text-foreground-500
     border-divider
     hover:text-foreground-200
-    hover:border-white/[0.14]
+    hover:border-white/[0.08]
     hover:bg-white/5
   `,
 };

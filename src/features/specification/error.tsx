@@ -9,6 +9,8 @@ import {
 } from "@/shared/components/icons";
 import { escapeUrl } from "@/shared/utils/helpers";
 import { ROUTES } from "@/shared/constants/constants";
+import { Subtitle } from "@/shared/components/subtitle";
+import { cn } from "@/shared/utils/cn";
 
 interface ErrorStateProps {
   message?: string;
@@ -33,81 +35,75 @@ export const Error = ({
   };
 
   return (
-    <div className="flex flex-col items-center justify-center h-full w-full p-6 text-center">
-      <div className="max-w-sm w-full space-y-6">
-        {/* Branding */}
-        <div className="flex flex-col items-center space-y-3">
-          <img
-            alt="Swagman"
-            className="size-16 rounded-xl"
-            src="/swagman-logo.png"
-          />
-          <div className="space-y-1">
-            <h1 className="text-foreground-100 font-black text-2xl tracking-tight">
-              Swagman
-            </h1>
-            <p className="text-xs text-foreground-600">
-              OpenAPI Explorer & API Workbench
-            </p>
+    <div className="relative flex flex-col items-center justify-center h-full w-full p-6 text-center overflow-hidden">
+      <div className="relative max-w-sm w-full space-y-8 animate-fade-in-up">
+        {/* Brand + Error */}
+        <div className="flex flex-col items-center space-y-5">
+          <Subtitle as="h1">SWAGMAN</Subtitle>
+
+          <div className="flex flex-col items-center gap-3">
+            <div className="p-3 rounded-xl bg-danger-500/10 border border-danger-500/15">
+              <AlertTriangleIcon className="size-5 text-danger-400" />
+            </div>
+            <div className="space-y-1.5">
+              <h3 className="text-foreground-200 font-semibold text-sm">
+                Specification Error
+              </h3>
+              <p className="text-xs text-foreground-500 max-w-[280px] leading-relaxed">
+                {message}
+              </p>
+            </div>
           </div>
         </div>
 
-        {/* Error Icon & Message */}
-        <div className="flex flex-col items-center space-y-3">
-          <div className="p-3 rounded-full bg-danger-500/10 border border-danger-500/20">
-            <AlertTriangleIcon className="size-6 text-danger-500" />
-          </div>
-          <div className="space-y-1">
-            <h3 className="text-foreground-100 font-bold text-sm">
-              Specification Error
-            </h3>
-            <p className="text-xs text-foreground-500">{message}</p>
-          </div>
-        </div>
+        {/* Divider */}
+        <div className="h-px w-full bg-gradient-to-r from-transparent via-white/[0.06] to-transparent" />
 
-        <div className="space-y-2">
+        {/* Navigation options */}
+        <div className="space-y-2.5">
           {/* Go to Local Button */}
           <button
-            className="w-full flex items-center justify-between px-4 py-3 rounded-lg
-                       bg-background-500/20 border border-white/[0.07]
-                       hover:border-primary-500/30 hover:bg-primary-500/5 transition-all group"
+            className={cn(
+              "w-full flex items-center justify-between px-4 py-3.5 rounded-lg",
+              "bg-background-600/40 border border-white/[0.06]",
+              "hover:border-primary-500/25 hover:bg-primary-500/5 transition-all group"
+            )}
             type="button"
             onClick={handleLocal}
           >
             <div className="flex items-center gap-3">
-              <div className="p-1.5 rounded-md bg-primary-500/10">
+              <div className="p-1.5 rounded-md bg-primary-500/10 border border-primary-500/15">
                 <LaptopIcon className="size-4 text-primary-400" />
               </div>
               <div className="flex flex-col items-start text-left">
-                <span className="text-[9px] font-black uppercase tracking-[0.15em] text-foreground-600">
+                <Subtitle as="span" size="micro">
                   Local
-                </span>
-                <span className="text-xs font-semibold text-foreground-200">
+                </Subtitle>
+                <span className="text-xs font-medium text-foreground-300 group-hover:text-foreground-100 transition-colors">
                   Open local file
                 </span>
               </div>
             </div>
-            <SendIcon className="size-3.5 text-foreground-600 opacity-0 group-hover:opacity-100 transition-opacity" />
+            <SendIcon className="size-3.5 text-foreground-700 group-hover:text-primary-400 group-hover:translate-x-0.5 transition-all" />
           </button>
 
           {/* Manual URL Input Section */}
-          <div className="p-4 rounded-lg bg-background-500/20 border border-white/[0.07] space-y-3">
+          <div className="p-4 rounded-lg bg-background-600/40 border border-white/[0.06] space-y-3">
             <div className="flex items-center gap-2">
               <GlobeIcon className="size-3.5 text-foreground-600" />
-              <label
-                className="text-[9px] font-black uppercase tracking-[0.15em] text-foreground-600"
-                htmlFor={urlInputId}
-              >
+              <Subtitle as="label" htmlFor={urlInputId} size="micro">
                 Load from URL
-              </label>
+              </Subtitle>
             </div>
 
             <div className="flex gap-2">
               <input
-                className="flex-1 bg-background-900/50 border border-white/[0.1] rounded-md px-3 py-2
-                           text-xs font-mono focus:outline-none focus:border-primary-500/60
-                           focus:ring-1 focus:ring-primary-500/20
-                           text-foreground-200 placeholder:text-foreground-700"
+                className={cn(
+                  "flex-1 bg-background-800/60 border border-white/[0.08] rounded-md px-3 py-2",
+                  "text-xs font-mono focus:outline-none focus:border-primary-500/50",
+                  "focus:ring-1 focus:ring-primary-500/15",
+                  "text-foreground-200 placeholder:text-foreground-700"
+                )}
                 id={urlInputId}
                 placeholder="https://api.example.com/openapi.json"
                 value={url}
@@ -115,9 +111,13 @@ export const Error = ({
                 onKeyDown={(e) => e.key === "Enter" && handleGo()}
               />
               <button
-                className="px-3 py-2 bg-primary-500/15 hover:bg-primary-500/25
-                           border border-primary-500/30 hover:border-primary-500/50
-                           text-primary-300 text-xs font-black rounded-md transition-all"
+                aria-label="Load specification from URL"
+                className={cn(
+                  "px-3 py-2 rounded-md transition-all text-xs font-semibold",
+                  "bg-primary-500/10 hover:bg-primary-500/20",
+                  "border border-primary-500/20 hover:border-primary-500/40",
+                  "text-primary-400 hover:text-primary-300"
+                )}
                 type="button"
                 onClick={handleGo}
               >

@@ -1,3 +1,5 @@
+import { Subtitle } from "@/shared/components/subtitle";
+
 export const OperationParametersGrid = ({
   children,
   title,
@@ -7,45 +9,45 @@ export const OperationParametersGrid = ({
 }) => {
   return (
     <div className="space-y-2">
-      <p className="text-[9px] font-black uppercase tracking-[0.15em] text-foreground-600">
+      <Subtitle as="p" size="micro">
         {title}
-      </p>
+      </Subtitle>
 
-      <div className="rounded-lg border border-white/[0.07] overflow-x-auto overflow-y-hidden">
+      <div className="rounded-lg border border-white/[0.05] overflow-x-auto overflow-y-hidden">
         <table className="w-full text-left border-collapse table-fixed min-w-[360px]">
           <thead>
-            <tr className="border-b border-white/[0.07] h-8 bg-background-500/20">
+            <tr className="border-b border-white/[0.05] h-8 bg-white/[0.02]">
               {/* Checkbox — always visible */}
-              <th className="px-2 w-8" />
+              <th className="px-2 w-8" scope="col" />
               {/* Name — always visible */}
-              <th className="px-2 w-1/5 max-w-24">
-                <span className="text-[9px] font-black uppercase tracking-[0.2em] text-foreground-600">
+              <th className="px-2 w-1/5 max-w-24" scope="col">
+                <Subtitle as="span" size="micro">
                   Name
-                </span>
+                </Subtitle>
               </th>
               {/* Value — always visible */}
-              <th className="pl-5 pr-2 w-1/4">
-                <span className="text-[9px] font-black uppercase tracking-[0.2em] text-foreground-600">
+              <th className="pl-5 pr-2 w-1/4" scope="col">
+                <Subtitle as="span" size="micro">
                   Value
-                </span>
+                </Subtitle>
               </th>
               {/* Type — hidden below md */}
-              <th className="px-2 hidden md:table-cell w-24">
-                <span className="text-[9px] font-black uppercase tracking-[0.2em] text-foreground-600">
+              <th className="px-2 hidden md:table-cell w-24" scope="col">
+                <Subtitle as="span" size="micro">
                   Type
-                </span>
+                </Subtitle>
               </th>
               {/* Explode — hidden below md */}
-              <th className="px-2 hidden md:table-cell w-24">
-                <span className="text-[9px] font-black uppercase tracking-[0.2em] text-foreground-600">
+              <th className="px-2 hidden md:table-cell w-24" scope="col">
+                <Subtitle as="span" size="micro">
                   Explode
-                </span>
+                </Subtitle>
               </th>
               {/* Description — hidden below lg */}
-              <th className="px-2 hidden lg:table-cell w-auto">
-                <span className="text-[9px] font-black uppercase tracking-[0.2em] text-foreground-600">
+              <th className="px-2 hidden lg:table-cell w-auto" scope="col">
+                <Subtitle as="span" size="micro">
                   Description
-                </span>
+                </Subtitle>
               </th>
             </tr>
           </thead>
