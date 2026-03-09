@@ -32,13 +32,13 @@ export const OperationParametersGrid = ({
                 </Subtitle>
               </th>
               {/* Type — hidden below md */}
-              <th className="px-2 hidden md:table-cell w-24" scope="col">
+              <th className="px-2 hidden md:table-cell w-28" scope="col">
                 <Subtitle as="span" size="micro">
                   Type
                 </Subtitle>
               </th>
               {/* Explode — hidden below md */}
-              <th className="px-2 hidden md:table-cell w-24" scope="col">
+              <th className="px-2 hidden md:table-cell w-28" scope="col">
                 <Subtitle as="span" size="micro">
                   Explode
                 </Subtitle>
