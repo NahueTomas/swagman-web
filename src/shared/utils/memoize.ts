@@ -30,36 +30,3 @@ export function memoize<TArgs extends unknown[], TReturn>(
     return result;
   };
 }
-
-/**
- * Debounce utility to limit function execution frequency
- */
-export function debounce<TArgs extends unknown[]>(
-  fn: (...args: TArgs) => void,
-  delay: number
-): (...args: TArgs) => void {
-  let timeoutId: NodeJS.Timeout | undefined;
-
-  return (...args: TArgs) => {
-    clearTimeout(timeoutId);
-    timeoutId = setTimeout(() => fn(...args), delay);
-  };
-}
-
-/**
- * Throttle utility to limit function execution rate
- */
-export function throttle<TArgs extends unknown[]>(
-  fn: (...args: TArgs) => void,
-  limit: number
-): (...args: TArgs) => void {
-  let inThrottle: boolean;
-
-  return (...args: TArgs) => {
-    if (!inThrottle) {
-      fn(...args);
-      inThrottle = true;
-      setTimeout(() => (inThrottle = false), limit);
-    }
-  };
-}

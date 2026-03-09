@@ -1,27 +1,63 @@
-import { useEffect, useState, useCallback } from "react";
-import {
-  Outlet,
-  useParams,
-  Link,
-  useSearchParams,
-  useNavigate,
-} from "react-router-dom";
-import { addToast } from "@heroui/toast";
+import { useEffect, useState, useCallback, useRef } from "react";
+import { Outlet, useParams, useNavigate } from "react-router-dom";
 
 import { ApiExplorer } from "@/features/api-explorer";
 import { SpecModel } from "@/models/spec.model";
 import { useStore } from "@/hooks/use-store";
-import { Error as ErrorComponent } from "@/shared/components/ui/error";
 import { Loading } from "@/features/specification/loading";
-import { ROUTES } from "@/shared/constants/constants";
 import { escapeUrl } from "@/shared/utils/helpers";
+import { applySharePayload, decodeShare } from "@/shared/utils/share-url";
+// Rename the import to avoid conflict with native 'Error'
+import { Error as SpecError } from "@/features/specification/error";
+
+// ---------------------------------------------------------------------------
+// Hash URL helpers — manipulate ?op= inside the hash without triggering
+// react-router re-renders (uses replaceState directly).
+// ---------------------------------------------------------------------------
+function getHashOpParam(): string | null {
+  const hash = window.location.hash.slice(1); // strip "#"
+  const qIdx = hash.indexOf("?");
+
+  if (qIdx === -1) return null;
+
+  return new URLSearchParams(hash.slice(qIdx + 1)).get("op");
+}
+
+function setHashOpParam(opId: string | null): void {
+  const hash = window.location.hash.slice(1);
+  const qIdx = hash.indexOf("?");
+  const path = qIdx === -1 ? hash : hash.slice(0, qIdx);
+  const params = new URLSearchParams(qIdx === -1 ? "" : hash.slice(qIdx + 1));
+
+  if (opId) {
+    params.set("op", opId);
+  } else {
+    params.delete("op");
+  }
+
+  const search = params.toString();
+  const newHash = search ? `${path}?${search}` : path;
+
+  window.history.replaceState(null, "", `#${newHash}`);
+}
 
 export default function SpecificationLayout() {
-  const { setSpec } = useStore();
+  const { setSpec, focusOperation, spec, operationFocused } = useStore(
+    (state) => state
+  );
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const [searchParams] = useSearchParams();
+  /** operationId to auto-focus once the spec finishes loading.
+   *  Eagerly read from hash ?op= so it's captured before any effect runs. */
+  const pendingOpIdRef = useRef<string | null>(getHashOpParam());
+  /** Prevents the main load effect from firing while a share redirect is pending */
+  const pendingShareRef = useRef(false);
+  /** True once the first spec load has completed.
+   *  The sync effect is suppressed until this is true so that mount-time
+   *  renders (where operationFocused is null) don't wipe ?op= from the URL. */
+  const readyRef = useRef(false);
+
   const navigate = useNavigate();
 
   const params = useParams();
@@ -29,81 +65,142 @@ export default function SpecificationLayout() {
 
   const loadLocalSpec = useCallback((): object | undefined => {
     try {
-      // Check if window.LOCAL_SPEC exists
       if (!window.LOCAL_SPEC) {
-        throw new Error(
-          "No local spec found. Define window.LOCAL_SPEC with your OpenAPI specification."
-        );
+        throw new Error("No local spec found. Define window.LOCAL_SPEC.");
       }
 
-      // Verificar que sea un objeto válido
       if (typeof window.LOCAL_SPEC !== "object" || window.LOCAL_SPEC === null) {
-        throw new Error(
-          "window.LOCAL_SPEC is not a valid object with the OpenAPI specification."
-        );
+        throw new Error("window.LOCAL_SPEC is not a valid object.");
       }
 
       return window.LOCAL_SPEC;
-    } catch (error) {
-      // Use toast to show error
-      addToast({
-        title: "Error loading local spec",
-        description: error instanceof Error ? error.message : "Unknown error",
-        color: "danger",
-      });
+    } catch (err: unknown) {
+      // eslint-disable-next-line no-console
+      console.error(
+        "Error loading local spec:",
+        err instanceof Error ? err.message : "Unknown error"
+      );
     }
   }, []);
 
-  const loadSpec = useCallback(
-    async (url: string | undefined) => {
+  // Mount-only effect: handle a base URL ?share=<token> link.
+  // Apply cache values first, then redirect to the spec's hash route.
+
+  useEffect(() => {
+    const baseParams = new URLSearchParams(window.location.search);
+    const shareToken = baseParams.get("share");
+
+    if (!shareToken) return;
+
+    const payload = decodeShare(shareToken);
+
+    if (!payload?.spec) return;
+
+    applySharePayload(payload.spec, payload);
+    pendingOpIdRef.current = payload.op ?? null;
+    pendingShareRef.current = true;
+
+    window.history.replaceState(null, "", window.location.pathname);
+
+    const route =
+      payload.spec === "local" ? "/" : `/${escapeUrl(payload.spec)}`;
+
+    navigate(route, { replace: true });
+  }, [navigate]);
+
+  // Mount-only: handle legacy ?url= query param redirect.
+
+  useEffect(() => {
+    const hash = window.location.hash.slice(1); // strip "#"
+    const qIdx = hash.indexOf("?");
+
+    if (qIdx === -1) return;
+
+    const urlParam = new URLSearchParams(hash.slice(qIdx + 1)).get("url");
+
+    if (urlParam) {
+      navigate(`/${escapeUrl(urlParam)}`, { replace: true });
+    }
+  }, [navigate]);
+
+  // Main load effect.
+  // Uses a stale flag so StrictMode's double-mount only applies the last result.
+  useEffect(() => {
+    if (pendingShareRef.current) {
+      pendingShareRef.current = false;
+
+      return;
+    }
+
+    let stale = false;
+
+    const load = async () => {
       setIsLoading(true);
       setError(null);
 
       try {
-        const spec = new SpecModel();
+        const newSpec = new SpecModel();
 
-        if (!url) {
+        if (!specUrl) {
           const localSpec = loadLocalSpec();
 
-          if (localSpec) await spec.processSpec(localSpec);
+          if (localSpec) await newSpec.processSpec(localSpec);
         } else {
-          await spec.processSpec(url);
+          await newSpec.processSpec(specUrl);
         }
 
-        setSpec(spec);
-      } catch (err: any) {
-        setError(err.message || "Failed to load or process the specification.");
+        if (!stale) setSpec(newSpec);
+      } catch (err: unknown) {
+        if (!stale)
+          setError(
+            err instanceof Error ? err.message : "Failed to load specification."
+          );
       } finally {
-        setIsLoading(false);
+        if (!stale) setIsLoading(false);
       }
-    },
-    [setSpec, loadLocalSpec]
-  );
+    };
 
+    load();
+
+    return () => {
+      stale = true;
+    };
+  }, [specUrl, setSpec, loadLocalSpec]);
+
+  // Once the spec has loaded, focus the pending operation (from share link or URL ?op=).
   useEffect(() => {
-    const urlParam = searchParams.get("url");
+    if (!spec) return;
 
-    if (urlParam) {
-      navigate(`/${escapeUrl(urlParam)}`, { replace: true });
-    } else {
-      loadSpec(specUrl);
+    const opId = pendingOpIdRef.current;
+
+    pendingOpIdRef.current = null;
+    readyRef.current = true;
+
+    if (opId) {
+      focusOperation(opId);
     }
-  }, [specUrl, loadSpec]);
+  }, [spec, focusOperation]);
+
+  // Sync store → URL: update ?op= whenever the focused operation changes.
+  // Suppressed until the first spec load completes (readyRef) so that
+  // mount-time null values don't wipe the URL.
+  useEffect(() => {
+    if (!readyRef.current) return;
+
+    setHashOpParam(operationFocused?.id ?? null);
+  }, [operationFocused]);
 
   return (
-    <div className="flex h-dvh w-full">
-      {!error && !isLoading && <ApiExplorer />}
+    <div className="flex h-dvh w-full bg-background text-foreground-300 overflow-hidden">
+      {!error && !isLoading && (
+        <div className="border-r border-white/[0.05] bg-background-700/50 backdrop-blur-sm flex-shrink-0 z-10 w-fit h-full">
+          <ApiExplorer />
+        </div>
+      )}
 
-      <main className="flex-1 w-full items-center justify-center overflow-hidden bg-content1 mt-4 mb-2 border border-divider border-r-0 rounded-l-lg">
+      <main className="flex-1 w-full bg-background relative flex flex-col h-full overflow-hidden">
         {error ? (
-          <ErrorComponent message={error} title="Error to get specification">
-            <Link
-              className="mt-10 underline text-primary"
-              to={ROUTES.SPECIFICATION_SELECTOR}
-            >
-              Go to select another specification
-            </Link>
-          </ErrorComponent>
+          <SpecError message={error} />
         ) : isLoading ? (
           <Loading />
         ) : (

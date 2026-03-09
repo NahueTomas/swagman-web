@@ -1,9 +1,9 @@
 export class RequestResponseModel {
   constructor(
     private data: string,
-    private body: { [key: string]: any } | string,
-    private headers: { [key: string]: string | string[] },
-    private obj: { [key: string]: any } | string,
+    private body: Record<string, unknown> | string,
+    private headers: Record<string, string | string[]>,
+    private obj: Record<string, unknown> | string,
     private ok: boolean,
     private status: number,
     private statusText: string,

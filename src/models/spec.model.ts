@@ -1,4 +1,4 @@
-// @ts-ignore
+// @ts-expect-error swagger-client has no type declarations
 import SwaggerClient from "swagger-client";
 import { action, makeObservable, observable } from "mobx";
 
@@ -9,6 +9,7 @@ import {
   OpenAPIOperation,
   OpenAPIPath,
   OpenAPIPaths,
+  OpenAPISchema,
   OpenAPISecurityRequirement,
   OpenAPIServer,
   OpenAPISpec,
@@ -25,10 +26,27 @@ import { SwaggerConverter } from "@/lib/swagger-converter";
 import { ServerModel } from "@/models/server.model";
 import { getStatusCodeName } from "@/shared/utils/helpers";
 import { Value } from "@/shared/types/parameter-value";
+import { useCacheStore } from "@/hooks/use-cache-store";
+
+interface OperationResume {
+  id: string;
+  title: string;
+  method: string;
+  deprecated: boolean;
+}
+
+interface TagGroup {
+  title: string;
+  description?: string;
+  operationsResume: OperationResume[];
+}
 
 export class SpecModel {
   public processed: boolean;
   public openapi: string;
+  /** Stable key used as the top-level cache bucket. URL string for remote specs,
+   *  "local" for inline/embedded specs. */
+  public specKey: string = "local";
   public info: OpenAPIInfo;
   public paths: OpenAPIPaths;
   public components: OpenAPIComponents;
@@ -44,16 +62,7 @@ export class SpecModel {
 
   // Cache for expensive operations
   private operations: Array<OperationModel>;
-  private tagList: Array<{
-    title: string;
-    description?: string;
-    operationsResume: {
-      id: string;
-      title: string;
-      method: string;
-      deprecated: boolean;
-    }[];
-  }>;
+  private tagList: TagGroup[];
 
   // Flags to know if they have been generated (memoization)
   private _operationsGenerated: boolean = false;
@@ -86,6 +95,8 @@ export class SpecModel {
   }
 
   public async processSpec(config: string | object) {
+    this.specKey = typeof config === "string" ? config : "local";
+
     const obj: { url?: string; spec?: object } = {};
 
     if (typeof config === "string") obj.url = config;
@@ -112,6 +123,11 @@ export class SpecModel {
     this.servers = this.generateServers(spec.servers || []);
     this.globalSecurity = this.generateGlobalSecurity();
     this.selectedServer = this.servers[0];
+
+    // Restore persisted server selection, if any
+    const cachedServerUrl = useCacheStore.getState().servers[this.specKey];
+
+    if (cachedServerUrl) this.setSelectedServer(cachedServerUrl);
 
     // Reset cache flags when processing new spec
     this._operationsGenerated = false;
@@ -183,9 +199,9 @@ export class SpecModel {
     name: string,
     credentials: SecurityCredentials
   ): void {
-    this.globalSecurity.find((gs) => {
-      if (gs.getKey() === name) gs.setCredentials(credentials);
-    });
+    const scheme = this.globalSecurity.find((gs) => gs.getKey() === name);
+
+    if (scheme) scheme.setCredentials(credentials);
   }
 
   public isSecuritySatisfied(): boolean {
@@ -215,6 +231,7 @@ export class SpecModel {
   private generateOperations() {
     if (!this.processed) throw new Error("Spec not processed");
 
+    const { getOperation } = useCacheStore.getState();
     const operations: Array<OperationModel> = [];
     const operationList: string[] = [];
 
@@ -223,10 +240,13 @@ export class SpecModel {
 
       for (const method in pathItem) {
         const operation = pathItem[method as keyof OpenAPIPath];
+        const operationId = OperationModel.buildId(path, method);
+        const cachedValues = getOperation(this.specKey, operationId);
         const operationModel = new OperationModel(
           path,
           method,
-          operation as OpenAPIOperation
+          operation as OpenAPIOperation,
+          cachedValues
         );
 
         if (operationList.includes(operationModel.id)) continue;
@@ -247,19 +267,9 @@ export class SpecModel {
       this._operationsGenerated = true;
     }
 
-    const tagsObj: {
-      [title: string]: {
-        title: string;
-        description?: string;
-        operationsResume: {
-          id: string;
-          title: string;
-          method: string;
-          deprecated: boolean;
-        }[];
-      };
-    } = {};
+    const tagsObj: Record<string, TagGroup> = {};
 
+    // Seed entries from spec-level tag definitions (preserves descriptions)
     for (const tag of this.tags) {
       tagsObj[tag.name] = {
         title: tag.name,
@@ -268,22 +278,12 @@ export class SpecModel {
       };
     }
 
-    const tagsFromOperations = this.operations
-      .map((operation) => operation.tags)
-      .flat()
-      .map((tagName) => tagName);
-
-    for (const tag of tagsFromOperations) {
-      if (!tagsObj[tag]) {
-        tagsObj[tag] = {
-          title: tag,
-          operationsResume: [],
-        };
-      }
-    }
-
     for (const operation of this.operations) {
-      for (const tag of operation.tags) {
+      // Operations with no tags are assigned to the implicit "default" group,
+      // matching Swagger UI behaviour.
+      const tags = operation.tags.length > 0 ? operation.tags : ["default"];
+
+      for (const tag of tags) {
         if (!tagsObj[tag]) {
           tagsObj[tag] = {
             title: tag,
@@ -323,6 +323,31 @@ export class SpecModel {
     return this.tagList;
   }
 
+  public getSchemas(): { name: string; schema: OpenAPISchema }[] {
+    const schemas = this.components?.schemas;
+
+    if (!schemas) return [];
+
+    return Object.entries(schemas).map(([name, schema]) => ({
+      name,
+      schema,
+    }));
+  }
+
+  public resetAll(): void {
+    // Clear security credentials for all schemes
+    this.globalSecurity.forEach((sec) => sec.setCredentials(undefined));
+
+    // Reset server to first
+    if (this.servers.length > 0) {
+      this.setSelectedServer(this.servers[0].getUrl());
+    }
+
+    // Allow operations + tag list to be regenerated fresh
+    this._operationsGenerated = false;
+    this._tagListGenerated = false;
+  }
+
   public getVersion(): string {
     return this.openapi;
   }
@@ -357,11 +382,11 @@ export class SpecModel {
 
     if (
       requestBodyMediaType &&
-      !Array.isArray(requestBodyMediaType.fields) &&
-      (requestBodyMediaType as any).value
+      requestBodyMediaType.getMediaTypeFormat() === "text" &&
+      requestBodyMediaType.value != null
     ) {
       // Caso text/plain, application/json simple, etc
-      requestBodyFormatted = (requestBodyMediaType as any).value;
+      requestBodyFormatted = requestBodyMediaType.value;
     } else if (requestBodyMediaType?.fields?.length) {
       // Caso form-data o json con propiedades
       const obj: { [key: string]: Value | Value[] } = {};
@@ -383,10 +408,10 @@ export class SpecModel {
     };
   }
 
-  private buildAuthorizations(): Record<string, any> {
+  private buildAuthorizations(): Record<string, { value: string }> {
     if (!this.processed) throw new Error("Spec not processed");
 
-    const auths: Record<string, any> = {};
+    const auths: Record<string, { value: string }> = {};
 
     this.globalSecurity.forEach((security) => {
       const creds = security.credentials;
@@ -429,7 +454,13 @@ export class SpecModel {
       responseContentType: operation?.getAccept()?.value,
       mediaType: contentType?.value,
       securities: { authorized: authorizations },
-      responseInterceptor: (res: any) => {
+      responseInterceptor: (
+        res: Record<string, unknown> & {
+          status: number;
+          date?: string;
+          statusText?: string;
+        }
+      ) => {
         res.date = new Date().toLocaleString();
         res.statusText = getStatusCodeName(res.status);
 
@@ -437,6 +468,18 @@ export class SpecModel {
       },
       baseURL: server.getUrlWithVariables(),
     });
+
+    // SwaggerClient converts form bodies into FormData (for multipart) or
+    // url-encoded strings (for x-www-form-urlencoded). Both are opaque to
+    // OperationCodePreview, which needs a plain JS object to enumerate fields.
+    // Restore the plain body we computed so the code preview always has
+    // serialisable data.
+    if (
+      request.body instanceof FormData ||
+      request.formdata instanceof FormData
+    ) {
+      request.body = body;
+    }
 
     return request;
   }
@@ -466,7 +509,13 @@ export class SpecModel {
         responseContentType: operation?.getAccept()?.value,
         mediaType: contentType?.value,
         securities: { authorized: authorizations },
-        responseInterceptor: (res: any) => {
+        responseInterceptor: (
+          res: Record<string, unknown> & {
+            status: number;
+            date?: string;
+            statusText?: string;
+          }
+        ) => {
           res.date = new Date().toLocaleString();
           res.statusText = getStatusCodeName(res.status);
 
@@ -476,8 +525,11 @@ export class SpecModel {
       });
 
       return request;
-    } catch (error: any) {
-      if (error.response) return error.response;
+    } catch (error: unknown) {
+      if (error instanceof Object && "response" in error && error.response) {
+        return error.response;
+      }
+
       throw error;
     }
   }

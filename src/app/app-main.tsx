@@ -1,23 +1,19 @@
-import { Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
 
 import SpecificationLayout from "@/layouts/specification-layout";
-import SpecificationSelectorPage from "@/pages/specification-selector";
 import SpecificationOperationsPage from "@/pages/specification-operations";
-import { ErrorBoundary } from "@/shared/components/ui/error-boundary";
+import { ErrorBoundary } from "@/shared/components/error-boundary";
 import { ROUTES } from "@/shared/constants/constants";
 
 function AppMain() {
   return (
     <ErrorBoundary>
       <Routes>
-        <Route
-          element={<SpecificationSelectorPage />}
-          path={ROUTES.SPECIFICATION_SELECTOR}
-        />
         <Route element={<SpecificationLayout />} path={ROUTES.APP}>
           <Route index element={<SpecificationOperationsPage />} />
-          <Route index element={<SpecificationOperationsPage />} path=":url" />
+          <Route element={<SpecificationOperationsPage />} path=":url" />
         </Route>
+        <Route element={<Navigate replace to={ROUTES.APP} />} path="*" />
       </Routes>
     </ErrorBoundary>
   );

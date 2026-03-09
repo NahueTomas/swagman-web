@@ -1,5 +1,6 @@
+import type { Value } from "./parameter-value";
+
 export type Primitive = string | number;
-export type Value = string | number | File | object | undefined;
 
 export interface FormFieldProps {
   id?: string;

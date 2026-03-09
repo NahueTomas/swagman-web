@@ -17,22 +17,15 @@ export class ServerModel {
     }
   ) {
     if (variables) {
-      const fVariables: {
-        [key: string]: Variable;
-      } = {};
-
-      const nameVariables = Object.keys(variables);
-
-      nameVariables.forEach((nV) => {
-        const variable: Variable = {
-          ...variables[nV],
-          value: variables[nV].default || "",
-        };
-
-        fVariables[nV] = variable;
-      });
-      this.variables = fVariables;
-    } else this.variables = {};
+      this.variables = Object.fromEntries(
+        Object.entries(variables).map(([key, v]) => [
+          key,
+          { ...v, value: v.default || "" },
+        ])
+      );
+    } else {
+      this.variables = {};
+    }
 
     makeObservable(this, {
       variables: observable,
@@ -73,8 +66,9 @@ export class ServerModel {
   public getUrlWithVariables() {
     if (!this.variables) return this.url;
 
-    return Object.entries(this.variables).reduce((acc, [key]) => {
-      return acc.replace(`{${key}}`, this.variables[key].value);
-    }, this.url);
+    return Object.entries(this.variables).reduce(
+      (acc, [key, variable]) => acc.replace(`{${key}}`, variable.value),
+      this.url
+    );
   }
 }

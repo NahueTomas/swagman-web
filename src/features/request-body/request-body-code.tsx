@@ -1,4 +1,4 @@
-import { Code } from "@/shared/components/ui/code";
+import { Code } from "@/shared/components/code";
 import { CodeLanguage } from "@/shared/types";
 
 export const RequestBodyCode = ({

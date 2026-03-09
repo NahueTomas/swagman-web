@@ -15,10 +15,8 @@ export class ResponsesModel {
 
     for (const [, value] of Object.entries(this.responses)) {
       if (value.content) {
-        const mimeTypes = Object.keys(value.content);
-
-        if (mimeTypes.length) {
-          mimeTypes.forEach((type) => accepted.add(type));
+        for (const type of Object.keys(value.content)) {
+          accepted.add(type);
         }
       }
     }

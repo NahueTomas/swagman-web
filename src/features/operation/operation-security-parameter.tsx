@@ -1,61 +1,84 @@
-import { Chip } from "@heroui/chip";
-import { Tooltip } from "@heroui/tooltip";
+import { observer } from "mobx-react-lite";
 
+import { Chip } from "@/shared/components/chip";
 import { SecurityModel } from "@/models/security.model";
-import { FormFieldText } from "@/shared/components/ui/form-fields/form-field-text";
-import { InfoIcon } from "@/shared/components/ui/icons";
-import { MESSAGES } from "@/shared/constants/mesagges";
-import { SanitizedMarkdown } from "@/shared/components/ui/sanitized-markdown";
+import { FormFieldText } from "@/shared/components/form-field-text";
+import { InfoIcon } from "@/shared/components/icons";
+import { SanitizedMarkdown } from "@/shared/components/sanitized-markdown";
 
-export const OperationSecurityParameter = ({
-  security,
-}: {
-  security: SecurityModel;
-}) => {
-  const description = security.getDescription();
+export const OperationSecurityParameter = observer(
+  ({ security }: { security: SecurityModel }) => {
+    const description = security.getDescription();
+    const schema = security.getSecuritySchema();
+    const typeLabel = `apiKey<${security.getKey()}>`;
 
-  return (
-    <div
-      key={security.getSecuritySchema().name || ""}
-      className="grid grid-cols-1 sm:grid-cols-[2rem_1fr_1fr] xl:grid-cols-[2rem_1fr_1fr_0.9fr] xl:gap-5 gap-3 p-3 border-b border-divider last:border-b-0 transition-colors items-center bg-success/5"
-    >
-      {/* Empty column */}
-      <Tooltip content={MESSAGES.operationSecurityParameter}>
-        <div>
-          <InfoIcon className="size-5 text-primary" />
-        </div>
-      </Tooltip>
+    return (
+      <tr className="group/row transition-colors h-9 border-b border-white/[0.04] bg-success-500/[0.04] hover:bg-success-500/[0.08] last:border-none">
+        {/* 1. Icon Column */}
+        <td className="text-center align-middle px-2">
+          <InfoIcon className="size-4 text-success-500 opacity-60 group-hover/row:opacity-100 transition-opacity" />
+        </td>
 
-      {/* Parameter info */}
-      <div className="flex flex-col">
-        <div className="flex items-center gap-2">
-          <span className="font-medium text-sm">
-            {security.getSecuritySchema().name || ""}
+        {/* 2. Security Field Name */}
+        <td
+          className="pl-2 align-middle"
+          title={[
+            `Type: ${typeLabel}`,
+            description ? `Description: ${description}` : undefined,
+          ]
+            .filter(Boolean)
+            .join("\n")}
+        >
+          <div className="flex items-center gap-1.5 min-w-0">
+            <span className="text-xs font-mono font-medium text-foreground-200 truncate">
+              {schema.name || "auth"}
+            </span>
+            <Chip label="*" radius="sm" size="sm" variant="nobg-danger" />
+          </div>
+          {/* Inline type — visible only when Type column is hidden */}
+          <span className="md:hidden text-[10px] font-mono text-success-500/70">
+            {typeLabel}
           </span>
-          <Chip color="success" radius="sm" size="sm" variant="flat">
-            {`apiKey<${security.getKey()}>`}
-          </Chip>
-        </div>
+        </td>
 
-        {description ? (
-          <SanitizedMarkdown
-            className="xl:hidden text-xs marked-xs mt-4"
-            content={description}
+        {/* 3. Masked Value Field */}
+        <td className="px-2 align-middle">
+          <FormFieldText
+            disabled
+            placeholder="Security Token"
+            value="••••••••••••"
+            onChange={() => null}
           />
-        ) : null}
-      </div>
+        </td>
 
-      {/* Value display */}
-      <FormFieldText disabled value="•••••••" onChange={() => null} />
-
-      <div className="hidden h-full xl:flex xl:items-center">
-        {description && (
-          <SanitizedMarkdown
-            className="text-xs marked-xs"
-            content={description}
+        {/* 4. Type Display — hidden below md */}
+        <td className="px-2 hidden md:table-cell align-middle">
+          <Chip
+            className="font-mono"
+            label={typeLabel}
+            radius="sm"
+            size="xxs"
+            variant="ghost-default"
           />
-        )}
-      </div>
-    </div>
-  );
-};
+        </td>
+
+        {/* 5. Explode (empty) — hidden below md */}
+        <td className="px-2 hidden md:table-cell align-middle">
+          <span className="text-foreground-700 text-xs">—</span>
+        </td>
+
+        {/* 6. Description — hidden below lg */}
+        <td className="px-2 hidden lg:table-cell align-middle max-w-xs">
+          {description ? (
+            <SanitizedMarkdown
+              className="w-full h-full text-xs text-foreground-500 leading-relaxed py-1.5"
+              content={description}
+            />
+          ) : (
+            <span className="text-foreground-700 text-xs">—</span>
+          )}
+        </td>
+      </tr>
+    );
+  }
+);

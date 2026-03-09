@@ -31,7 +31,6 @@ You can select any specification but we recommend to use only 3.x.x `openapi` ve
 ## 🛠️ Tech Stack
 
 - **Frontend**: React 18, TypeScript, Vite
-- **UI Library**: HeroUI (NextUI successor)
 - **Styling**: Tailwind CSS, Framer Motion
 - **State Management**: Zustand
 - **Editor**: Monaco Editor
@@ -184,7 +183,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🙏 Acknowledgments
 
-- [HeroUI](https://github.com/heroui-inc/heroui) for the amazing component library
 - [Monaco Editor](https://microsoft.github.io/monaco-editor/) for the code editor
 - [OpenAPI Initiative](https://www.openapis.org/) for the OpenAPI specification
 - [Swagger](https://swagger.io/) for API development tools

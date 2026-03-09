@@ -1,14 +1,14 @@
-import { useEffect, useState, useMemo } from "react";
-import { Tabs, Tab } from "@heroui/tabs";
+import { useEffect, useState } from "react";
 import { observer } from "mobx-react-lite";
 
-import { OperationParameter } from "./operation-parameter";
+// Components
 import { OperationResponse } from "./operation-response";
 import { OperationCode } from "./operation-code";
 import { OperationBody } from "./operation-body";
+import { OperationParameter } from "./operation-parameter";
+import { OperationParametersGrid } from "./operation-parameters-grid";
 import { OperationSecurityParameter } from "./operation-security-parameter";
 
-import { Subtitle } from "@/shared/components/ui/subtitle";
 import { OperationModel } from "@/models/operation.model";
 import { useStore } from "@/hooks/use-store";
 import {
@@ -17,138 +17,121 @@ import {
   DocumentTextIcon,
   HeadersIcon,
   ParametersIcon,
-} from "@/shared/components/ui/icons";
+} from "@/shared/components/icons";
+import { Tab, Tabs } from "@/shared/components/tabs";
+import { Chip } from "@/shared/components/chip";
+import { Subtitle } from "@/shared/components/subtitle";
+import { SanitizedMarkdown } from "@/shared/components/sanitized-markdown";
 
-export const OperationTabs = observer(function OperationTabs({
-  operation,
-}: {
-  operation: OperationModel;
-}) {
-  const [selectedTab, setSelectedTab] = useState("parameters");
-  const [selectedResponseTab, setSelectedResponseTab] = useState("responses");
+export const OperationTabs = observer(
+  ({ operation }: { operation: OperationModel }) => {
+    const [selectedTab, setSelectedTab] = useState("parameters");
+    const [selectedResponseTab, setSelectedResponseTab] = useState("responses");
 
-  const operationFocused = useStore((state) => state.operationFocused);
-  const spec = useStore((state) => state.spec);
+    const { operationFocused, spec } = useStore();
 
-  // Get operation data - observer will track all observable accesses
-  const body = operation.getRequestBody();
-  const globalSecurity = spec?.getGlobalSecurity() || [];
+    const body = operation.getRequestBody();
+    const globalSecurity = spec?.getGlobalSecurity() || [];
 
-  // Get authorized API keys for this operation
-  const apiKeySecurities = globalSecurity.filter((sec) => {
-    const securities = operation.security.length
-      ? operation.security
-      : spec?.security;
+    const apiKeySecurities = globalSecurity.filter((sec) => {
+      const securities = operation.security.length
+        ? operation.security
+        : spec?.security;
+      const isUsed = securities?.some((req) =>
+        Object.keys(req).includes(sec.getKey())
+      );
 
-    const isUsedByOperation = securities?.some((req) =>
-      Object.keys(req).includes(sec.getKey())
+      return (
+        sec.getType() === "apiKey" &&
+        sec.logged &&
+        (securities?.length ? isUsed : true)
+      );
+    });
+
+    const querySecurities = apiKeySecurities.filter(
+      (s) => s.getIn() === "query"
     );
+    const headerSecurities = apiKeySecurities.filter(
+      (s) => s.getIn() === "header"
+    );
+
+    useEffect(() => {
+      if (!body) setSelectedTab("parameters");
+      setSelectedResponseTab("responses");
+    }, [operation.id, body]);
+
+    if (!operationFocused) return null;
 
     return (
-      sec.getType() === "apiKey" &&
-      sec.logged &&
-      (securities?.length ? isUsedByOperation : true)
-    );
-  });
+      <div className="flex flex-col h-full p-6 gap-6 bg-background selection:bg-primary-500/30">
+        {/* OPERATION SUMMARY & DESCRIPTION */}
+        {(operation.summary || operation.description) && (
+          <div className="max-w-4xl space-y-2">
+            <Subtitle as="p" size="micro">
+              Overview
+            </Subtitle>
+            {operation.summary && (
+              <h2 className="text-sm font-medium text-foreground-300 leading-relaxed">
+                {operation.summary}
+              </h2>
+            )}
+            {operation.description && (
+              <SanitizedMarkdown
+                className="text-xs text-foreground-500 leading-relaxed"
+                content={operation.description}
+              />
+            )}
+          </div>
+        )}
 
-  // Separate API keys by location (query, header)
-  const apiKeyQueryParams = apiKeySecurities.filter(
-    (sec) => sec.getIn() === "query"
-  );
-  const apiKeyHeaderParams = apiKeySecurities.filter(
-    (sec) => sec.getIn() === "header"
-  );
-
-  const operationData = {
-    body,
-    isBodyRequired: body?.required || false,
-    bodyMimeTypes: body?.getMimeTypes() || [],
-    queryParams: operation.getQueryParameters(),
-    pathParams: operation.getPathParameters(),
-    headerParams: operation.getHeaderParameters(),
-    apiKeyQueryParams,
-    apiKeyHeaderParams,
-  };
-
-  // Memoize the request preview
-  const requestPreview = useMemo(() => {
-    if (!operationFocused || !spec) return null;
-
-    return spec.buildRequest(operationFocused);
-  }, [operationFocused, spec]);
-
-  // Optimized effect to reset tabs
-  useEffect(() => {
-    if (!operationData.body) {
-      setSelectedTab("parameters");
-    }
-    setSelectedResponseTab("responses");
-  }, [operation.id, operationData.body]);
-
-  if (!operationFocused) return null;
-
-  return (
-    <div className="grid grid-cols-1 2xl:grid-cols-2 gap-8">
-      <div className="flex flex-col gap-4">
+        {/* SECTION 1: REQUEST CONFIGURATION */}
         <Tabs
-          aria-label="Parameters, Headers and Body"
-          classNames={{
-            tabList:
-              "gap-6 w-full relative rounded-none p-0 border-b border-divider",
-            panel: "p-0",
-            cursor: "w-full",
-            tab: "max-w-fit px-0 h-12",
-          }}
-          color="default"
+          aria-label="Request configuration"
           selectedKey={selectedTab}
-          size="lg"
-          variant="underlined"
           onSelectionChange={(key) => setSelectedTab(key.toString())}
         >
           <Tab
             key="parameters"
             title={
               <div className="flex items-center gap-2">
-                <ParametersIcon className="size-4" />
-                Parameters
+                <ParametersIcon className="size-3" />
+                <span>Params</span>
               </div>
             }
           >
-            <div className="flex flex-col space-y-4">
-              {operationData.pathParams.length > 0 && (
-                <div className="space-y-2">
-                  <Subtitle>Path Parameters</Subtitle>
-
-                  <div className="border border-divider rounded-lg">
-                    {operationData.pathParams.map((param) => (
-                      <OperationParameter key={param.id} parameter={param} />
-                    ))}
-                  </div>
-                </div>
+            <div className="pt-6 space-y-8 animate-in fade-in slide-in-from-top-1">
+              {operation.getPathParameters().length > 0 && (
+                <OperationParametersGrid title="Path Parameters">
+                  {operation.getPathParameters().map((p) => (
+                    <OperationParameter key={p.id} parameter={p} />
+                  ))}
+                </OperationParametersGrid>
               )}
-              {(operationData.queryParams.length > 0 ||
-                operationData.apiKeyQueryParams.length > 0) && (
-                <div className="space-y-2">
-                  <Subtitle>Query Parameters</Subtitle>
 
-                  <div className="border border-divider rounded-lg">
-                    {operationData.apiKeyQueryParams.map((sec) => (
-                      <OperationSecurityParameter
-                        key={sec.getKey()}
-                        security={sec}
-                      />
-                    ))}
-                    {operationData.queryParams.map((param) => (
-                      <OperationParameter key={param.id} parameter={param} />
-                    ))}
-                  </div>
-                </div>
+              {(operation.getQueryParameters().length > 0 ||
+                querySecurities.length > 0) && (
+                <OperationParametersGrid title="Query Parameters">
+                  {querySecurities.map((sec) => (
+                    <OperationSecurityParameter
+                      key={sec.getKey()}
+                      security={sec}
+                    />
+                  ))}
+                  {operation.getQueryParameters().map((p) => (
+                    <OperationParameter key={p.id} parameter={p} />
+                  ))}
+                </OperationParametersGrid>
               )}
-              {operationData.pathParams.length === 0 &&
-                operationData.queryParams.length === 0 &&
-                operationData.apiKeyQueryParams.length === 0 && (
-                  <div className="p-3 text-sm text-center border border-divider rounded-lg">
-                    No parameters defined for this operation
+
+              {/* Empty State */}
+              {operation.getPathParameters().length === 0 &&
+                operation.getQueryParameters().length === 0 &&
+                querySecurities.length === 0 && (
+                  <div className="flex flex-col items-center justify-center gap-3 py-10 border border-dashed border-white/[0.06] rounded-lg">
+                    <ParametersIcon className="size-4 text-foreground-800" />
+                    <p className="text-[11px] text-foreground-700">
+                      No parameters required for this endpoint
+                    </p>
                   </div>
                 )}
             </div>
@@ -158,110 +141,97 @@ export const OperationTabs = observer(function OperationTabs({
             key="headers"
             title={
               <div className="flex items-center gap-2">
-                <HeadersIcon className="size-4" />
-                Headers
+                <HeadersIcon className="size-3" />
+                <span>Headers</span>
               </div>
             }
           >
-            <div className="flex flex-col space-y-4">
-              {(operationData.headerParams.length > 0 ||
-                operationData.apiKeyHeaderParams.length > 0) && (
-                <div className="space-y-2">
-                  <Subtitle>Header Parameters</Subtitle>
-
-                  <div className="border border-divider rounded-lg">
-                    {operationData.apiKeyHeaderParams.map((sec) => (
-                      <OperationSecurityParameter
-                        key={sec.getKey()}
-                        security={sec}
-                      />
-                    ))}
-                    {operationData.headerParams.map((param) => (
-                      <OperationParameter key={param.id} parameter={param} />
-                    ))}
-                  </div>
+            <div className="pt-6 space-y-6 animate-in fade-in slide-in-from-top-1">
+              {headerSecurities.length > 0 ||
+              operation.getHeaderParameters().length > 0 ? (
+                <OperationParametersGrid title="Request Headers">
+                  {headerSecurities.map((sec) => (
+                    <OperationSecurityParameter
+                      key={sec.getKey()}
+                      security={sec}
+                    />
+                  ))}
+                  {operation.getHeaderParameters().map((p) => (
+                    <OperationParameter key={p.id} parameter={p} />
+                  ))}
+                </OperationParametersGrid>
+              ) : (
+                <div className="flex flex-col items-center justify-center gap-3 py-10 border border-dashed border-white/[0.06] rounded-lg">
+                  <HeadersIcon className="size-4 text-foreground-800" />
+                  <p className="text-[11px] text-foreground-700">
+                    No custom headers defined for this endpoint
+                  </p>
                 </div>
               )}
-              {operationData.headerParams.length === 0 &&
-                operationData.apiKeyHeaderParams.length === 0 && (
-                  <div className="p-3 text-sm text-center border border-divider rounded-lg">
-                    No headers defined for this operation
-                  </div>
-                )}
             </div>
           </Tab>
 
-          <Tab
-            key="body"
-            isDisabled={!operationData.body}
-            title={
-              <div className="flex items-center gap-2">
-                <BodyIcon className="size-4" />
-                Body
+          {body && (
+            <Tab
+              key="body"
+              title={
+                <div className="flex items-center gap-2">
+                  <BodyIcon className="size-3" />
+                  <span>Body</span>
+                  {body.required && <Chip label="*" variant="nobg-danger" />}
+                </div>
+              }
+            >
+              <div className="pt-6">
+                <OperationBody
+                  body={operation.getRequestBody()}
+                  contentTypeParameter={operation.getContentType()}
+                />
               </div>
-            }
-          >
-            <OperationBody
-              body={operation.getRequestBody()}
-              contentTypeParameter={operation.getContentType()}
-            />
-          </Tab>
+            </Tab>
+          )}
         </Tabs>
-      </div>
 
-      <div className="flex flex-col gap-4">
+        {/* SECTION 2: RESPONSE */}
         <Tabs
           aria-label="Responses and Code"
-          classNames={{
-            tabList:
-              "gap-6 w-full relative rounded-none p-0 border-b border-divider",
-            panel: "p-0",
-            cursor: "w-full",
-            tab: "max-w-fit px-0 h-12",
-          }}
-          color="default"
           selectedKey={selectedResponseTab}
-          size="lg"
-          variant="underlined"
           onSelectionChange={(key) => setSelectedResponseTab(key.toString())}
         >
           <Tab
             key="responses"
             title={
               <div className="flex items-center gap-2">
-                <DocumentTextIcon className="size-4" />
-                Responses
+                <DocumentTextIcon className="size-3" />
+                <span>Responses</span>
               </div>
             }
           >
-            <OperationResponse
-              acceptHeader={(operation.getAccept()?.value as string) || ""}
-              operation={operation}
-            />
+            <div className="mt-6 flex-1 h-full overflow-hidden rounded-md">
+              <OperationResponse
+                acceptHeader={(operation.getAccept()?.value as string) || ""}
+                operation={operation}
+              />
+            </div>
           </Tab>
 
           <Tab
-            key="code"
+            key="snippet"
             title={
               <div className="flex items-center gap-2">
-                <CodeIcon className="size-4" />
-                Code
+                <CodeIcon className="size-3" />
+                <span>Snippet</span>
               </div>
             }
           >
-            <OperationCode
-              requestPreview={{
-                url: requestPreview.url,
-                method: requestPreview.method,
-                headers: requestPreview.headers,
-                body: requestPreview.body,
-              }}
-            />
+            <div className="mt-6 h-full rounded-md overflow-hidden">
+              <OperationCode operation={operation} />
+            </div>
           </Tab>
         </Tabs>
       </div>
-    </div>
-  );
-});
+    );
+  }
+);
 
 OperationTabs.displayName = "OperationTabs";

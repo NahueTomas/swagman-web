@@ -1,16 +1,36 @@
-import { Chip } from "@heroui/chip";
+import type { Value } from "@/shared/types/parameter-value";
+
 import { observer } from "mobx-react-lite";
 
 import { ParameterModel } from "@/models/parameter.model";
 import { getFormFieldComponent } from "@/features/operation/utils/get-form-field-component";
-import { FormFieldCheckbox } from "@/shared/components/ui/form-fields/form-field-checkbox";
 import { isArray } from "@/shared/utils/helpers";
 import { Primitive } from "@/shared/types/form-field";
-import { MESSAGES } from "@/shared/constants/mesagges";
-import { SanitizedMarkdown } from "@/shared/components/ui/sanitized-markdown";
+import { SanitizedMarkdown } from "@/shared/components/sanitized-markdown";
+import { Chip } from "@/shared/components/chip/chip";
+import { FormFieldCheckbox } from "@/shared/components/form-field-checkbox/form-field-checkbox";
+import { cn } from "@/shared/utils/cn";
+import { resolveTypeLabel, typeChipVariant } from "@/shared/utils/openapi";
+import { useCacheStore } from "@/hooks/use-cache-store";
+import { useStore } from "@/hooks/use-store";
 
 export const OperationParameter = observer(
   ({ parameter }: { parameter: ParameterModel }) => {
+    const { spec } = useStore();
+    const setParam = useCacheStore((s) => s.setParam);
+
+    const writeCache = (value: Value | Value[], included: boolean) => {
+      if (!spec?.specKey) return;
+      setParam(
+        spec.specKey,
+        parameter.operationId,
+        parameter.getIn(),
+        parameter.name,
+        value,
+        included
+      );
+    };
+
     const FormFieldComponent = parameter.schema
       ? getFormFieldComponent(parameter.schema)
       : null;
@@ -21,102 +41,128 @@ export const OperationParameter = observer(
         ? ["true", "false"]
         : [];
 
+    const included = parameter.included || parameter.required;
+    const typeLabel = parameter.schema
+      ? resolveTypeLabel(parameter.schema)
+      : "any";
+
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-[2rem_1fr_1fr] xl:grid-cols-[2rem_1fr_1fr_0.9fr] xl:gap-5 gap-3 p-3 border-b border-divider last:border-b-0 transition-colors items-center">
-        {/* Included checkbox */}
-        <div className="flex items-center">
+      <tr
+        className={cn(
+          "group/row transition-colors h-9 border-b border-white/[0.04] last:border-none",
+          included
+            ? "hover:bg-white/[0.03]"
+            : "opacity-50 hover:opacity-75 hover:bg-white/[0.02]"
+        )}
+      >
+        {/* 1. Included Checkbox */}
+        <td className="text-center align-middle px-2">
           <FormFieldCheckbox
             id={`param-${parameter.id}`}
             required={parameter.required}
-            value={parameter.included || parameter.required}
-            onChange={(val) => parameter.setIncluded(val)}
+            size="sm"
+            value={included}
+            onChange={(val) => {
+              parameter.setIncluded(val);
+              writeCache(parameter.value, val);
+            }}
           />
-        </div>
+        </td>
 
-        {/* Parameter info */}
-        <div className="flex flex-col">
-          <div className="flex items-center gap-2">
+        {/* 2. Parameter Name & Required Indicator */}
+        <td
+          className="px-2 align-middle"
+          title={[
+            `Type: ${typeLabel}`,
+            parameter.description
+              ? `Description: ${parameter.description}`
+              : undefined,
+          ]
+            .filter(Boolean)
+            .join("\n")}
+        >
+          <div className="flex items-center gap-1.5 min-w-0">
             <span
-              className={`font-medium text-sm ${
-                parameter.deprecated ? "line-through" : ""
-              }`}
+              className={cn(
+                "font-mono text-xs font-medium truncate",
+                parameter.deprecated
+                  ? "line-through text-foreground-600"
+                  : "text-foreground-200"
+              )}
             >
               {parameter.name}
             </span>
             {parameter.required && (
-              <Chip color="danger" radius="sm" size="sm" variant="flat">
-                required
-              </Chip>
-            )}
-            {parameter.deprecated && (
-              <Chip color="warning" radius="sm" size="sm" variant="flat">
-                Deprecated
-              </Chip>
+              <Chip label="*" radius="sm" size="sm" variant="nobg-danger" />
             )}
           </div>
+          {/* Inline type — visible only when Type column is hidden */}
+          <span className="md:hidden text-[10px] font-mono text-foreground-600">
+            {typeLabel}
+          </span>
+        </td>
 
-          <div className="flex flex-wrap gap-2 mt-1.5">
-            <Chip radius="sm" size="sm" variant="flat">
-              {parameter.getType() || "any"}
-              {parameter.schema?.items &&
-                typeof parameter.schema.items === "object" &&
-                "type" in parameter.schema.items &&
-                `<${parameter.schema.items.type}>`}
-              {parameter.schema?.format && `(${parameter.schema.format})`}
-            </Chip>
+        {/* 3. Dynamic Field (Value Input) */}
+        <td className="px-2 align-middle">
+          {included && FormFieldComponent ? (
+            <div className="min-w-[120px]">
+              <FormFieldComponent
+                id={parameter.id}
+                options={options}
+                placeholder={parameter.name || "Value"}
+                required={parameter.required}
+                value={parameter.value}
+                onChange={(val) => {
+                  parameter.setValue(val);
+                  writeCache(val, parameter.included);
+                }}
+              />
+            </div>
+          ) : (
+            <span className="text-[10px] italic text-foreground-700 px-3">
+              —
+            </span>
+          )}
+        </td>
 
-            {(isArray(parameter.getFirstType()) ||
-              parameter.getFirstType() === "object") && (
-              <Chip radius="sm" size="sm" variant="flat">
-                Explode {`<${String(parameter.explode)}:${parameter.style}>`}
-              </Chip>
-            )}
+        {/* 4. Type Info — hidden below md */}
+        <td className="px-2 hidden md:table-cell align-middle">
+          <Chip
+            className="font-mono"
+            label={typeLabel}
+            radius="sm"
+            size="xxs"
+            variant={typeChipVariant(typeLabel)}
+          />
+        </td>
 
-            {parameter.deprecated && (
-              <Chip
-                className="mt-4"
-                color="warning"
-                radius="sm"
-                size="sm"
-                title={MESSAGES.deprecatedParameter}
-                variant="flat"
-              >
-                Deprecated
-              </Chip>
-            )}
-          </div>
+        {/* 5. Explode/Style Info — hidden below md */}
+        <td className="px-2 hidden md:table-cell align-middle">
+          {isArray(parameter.getFirstType()) ||
+          parameter.getFirstType() === "object" ? (
+            <Chip
+              label={`${parameter.style || "default"} ${String(parameter.explode)}`}
+              radius="sm"
+              size="xxs"
+              variant="ghost-default"
+            />
+          ) : (
+            <span className="text-foreground-700 text-xs">—</span>
+          )}
+        </td>
 
-          {parameter.description && (
+        {/* 6. Description — hidden below lg */}
+        <td className="px-2 hidden lg:table-cell align-baseline max-w-xs">
+          {parameter.description ? (
             <SanitizedMarkdown
-              className="xl:hidden text-xs marked-xs mt-4"
+              className="w-full h-full text-xs text-foreground-500 leading-relaxed py-1.5"
               content={parameter.description}
             />
+          ) : (
+            <span className="text-foreground-700 text-xs">—</span>
           )}
-        </div>
-
-        {/* Dynamic field */}
-        <div>
-          {parameter.included && FormFieldComponent && (
-            <FormFieldComponent
-              id={parameter.id}
-              options={options}
-              placeholder={parameter.name || "Parameter"}
-              required={parameter.required}
-              value={parameter.value}
-              onChange={(val) => parameter.setValue(val)}
-            />
-          )}
-        </div>
-
-        <div className="hidden h-full xl:flex xl:items-center">
-          {parameter.description && (
-            <SanitizedMarkdown
-              className="text-xs marked-xs"
-              content={parameter.description}
-            />
-          )}
-        </div>
-      </div>
+        </td>
+      </tr>
     );
   }
 );

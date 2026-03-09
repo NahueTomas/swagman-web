@@ -1,3 +1,6 @@
+// For more info, see https://github.com/storybookjs/eslint-plugin-storybook#configuration-flat-config-format
+import storybook from "eslint-plugin-storybook";
+
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -100,13 +103,7 @@ export default defineConfig([
       "react-hooks/exhaustive-deps": "off",
       "jsx-a11y/click-events-have-key-events": "warn",
       "jsx-a11y/interactive-supports-focus": "warn",
-      "prettier/prettier": [
-        "warn",
-        {
-          endOfLine: "auto",
-          trailingComma: "es5",
-        },
-      ],
+      "prettier/prettier": "warn",
       "no-unused-vars": "off",
       "unused-imports/no-unused-vars": "off",
       "unused-imports/no-unused-imports": "warn",

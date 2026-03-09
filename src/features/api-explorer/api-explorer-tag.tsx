@@ -1,14 +1,17 @@
 import { useState } from "react";
-import { Chip } from "@heroui/chip";
-import clsx from "clsx";
 
-import { Collapse } from "@/shared/components/ui/collapse";
+import { Collapse } from "@/shared/components/collapse";
+import { ChevronDownIcon } from "@/shared/components/icons";
+import { cn } from "@/shared/utils/cn";
 import { ApiExplorerTaggedItem } from "@/features/api-explorer/api-explorer-tagged-item";
+import { usePinStore } from "@/hooks/use-pin-store";
 
 export const ApiExplorerTag = ({
   tag,
   focusOperation,
   operationFocusedId,
+  forceExpanded = false,
+  specKey = "",
 }: {
   tag: {
     title: string;
@@ -22,73 +25,74 @@ export const ApiExplorerTag = ({
   };
   focusOperation: (operationId: string | null) => void;
   operationFocusedId: string | null;
+  forceExpanded?: boolean;
+  specKey?: string;
 }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const togglePin = usePinStore((s) => s.togglePin);
+  const specPins = usePinStore((s) => s.pins[specKey]);
+
+  // When search is active, force all tags expanded
+  const effectiveCollapsed = forceExpanded ? false : isCollapsed;
 
   return (
-    <div className="mb-1">
+    <div>
       <button
-        className="w-full py-3 px-3 flex items-center gap-3 transition-all hover:bg-default-50 rounded-lg group"
-        onClick={() => setIsCollapsed(!isCollapsed)}
+        className="w-full flex items-center gap-3 py-2 px-3 transition-colors rounded-md text-foreground-400 hover:text-foreground-100 hover:bg-white/5 active:scale-[0.99] group"
+        type="button"
+        onClick={() => {
+          if (!forceExpanded) {
+            setIsCollapsed(!isCollapsed);
+          }
+        }}
       >
-        <div className="w-4 h-4 shrink-0">
-          <svg
-            className={clsx(
-              "w-4 h-4 transform transition-transform duration-200 text-default-500 group-hover:text-default-700",
-              isCollapsed ? "rotate-0" : "rotate-90"
-            )}
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            viewBox="0 0 24 24"
-          >
-            <path
-              d="M8.25 4.5l7.5 7.5-7.5 7.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </div>
+        <ChevronDownIcon
+          className={cn(
+            "size-3 shrink-0 transition-transform duration-200 group-hover:text-primary-400",
+            effectiveCollapsed ? "-rotate-90" : "rotate-0"
+          )}
+        />
 
-        <div className="flex-1 text-left overflow-hidden">
-          <div className="flex items-center gap-3 mb-1">
-            <h4 className="text-sm font-semibold text-default-900 truncate">
+        <div className="flex-1 min-w-0 text-left overflow-hidden">
+          <div className="flex items-center justify-between gap-2">
+            <h4 className="text-sm font-semibold truncate group-hover:text-primary-50 transition-colors">
               {tag.title}
             </h4>
-            <Chip
-              className="text-[10px] h-5 px-1"
-              color="default"
-              size="sm"
-              variant="flat"
-            >
+            <span className="text-[10px] bg-background-400/30 px-1.5 py-0.5 rounded font-mono font-semibold text-foreground-500 group-hover:bg-primary-500/20 group-hover:text-primary-400 transition-colors shrink-0">
               {tag.operationsResume.length}
-            </Chip>
+            </span>
           </div>
+
           {tag.description && (
-            <p className="text-xs text-default-500 truncate">
+            <p className="mt-0.5 text-xxs truncate text-foreground-600">
               {tag.description}
             </p>
           )}
         </div>
       </button>
 
-      <Collapse active={!isCollapsed} duration={200} variant="zoom">
-        <ul className="space-y-1 p-1">
+      <Collapse active={!effectiveCollapsed} duration={100} variant="zoom">
+        <ul className="space-y-px mt-px">
           {tag.operationsResume.length ? (
             tag.operationsResume.map((o) => (
               <ApiExplorerTaggedItem
                 key={o.id}
-                active={o.id === operationFocusedId || false}
+                active={o.id === operationFocusedId}
+                className="pl-5"
                 deprecated={o.deprecated}
+                isPinned={specPins?.includes(o.id) ?? false}
                 method={o.method}
                 title={o.title}
                 onClick={() => focusOperation(o.id)}
+                onTogglePin={
+                  specKey ? () => togglePin(specKey, o.id) : undefined
+                }
               />
             ))
           ) : (
-            <li className="px-6 py-3 text-xs italic text-default-400">
+            <p className="px-6 py-3 text-xxs text-foreground-600">
               No operations available
-            </li>
+            </p>
           )}
         </ul>
       </Collapse>
