@@ -235,7 +235,7 @@ const SchemasSection = ({
     <div className="px-6 py-10 border-t border-divider/50">
       <div className="flex items-center justify-between gap-4 border-b border-divider/30 pb-3">
         <SectionTitle>Schemas ({schemaCount})</SectionTitle>
-        {schemaCount > 6 && (
+        {schemaCount > 0 && (
           <input
             className="w-48 h-7 px-3 rounded-md bg-background-500/30 text-xs text-foreground-300 placeholder:text-foreground-700 outline-none focus:border-primary-500/40 transition-colors"
             placeholder="Filter schemas..."
