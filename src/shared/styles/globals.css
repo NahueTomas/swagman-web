@@ -52,155 +52,230 @@ body {
 }
 
 /* ─────────────────────────────────────────────────────────────────────────
-   MARKDOWN RENDERING  (.marked-xxs / .marked-xs / .marked-sm / .marked-lg)
-   Structural & color styles are shared; font sizes are per-variant.
+   MARKDOWN RENDERING
+   Variants: .marked-xxs / .marked-xs / .marked-sm / .marked-md / .marked-lg
+   Glass-aesthetic styles matching the Swagman design system.
    ───────────────────────────────────────────────────────────────────────── */
 
-/* ── Inline: strong ─────────────────────────────────────────────────── */
+/* ── Strong ─────────────────────────────────────────────────────────── */
 .marked-lg strong,
+.marked-md strong,
 .marked-sm strong,
 .marked-xs strong,
 .marked-xxs strong {
-  @apply font-bold text-foreground-200;
+  @apply font-semibold text-foreground-200;
+}
+
+/* ── Emphasis ───────────────────────────────────────────────────────── */
+.marked-lg em,
+.marked-md em,
+.marked-sm em,
+.marked-xs em,
+.marked-xxs em {
+  @apply italic text-foreground-400;
 }
 
 /* ── Links ──────────────────────────────────────────────────────────── */
 .marked-lg a,
+.marked-md a,
 .marked-sm a,
 .marked-xs a,
 .marked-xxs a {
   @apply text-primary-400 font-medium underline;
-  text-underline-offset: 2px;
-  text-decoration-color: theme("colors.primary.700");
+  text-underline-offset: 3px;
+  text-decoration-color: rgb(190 151 110 / 0.35);
+  transition:
+    color 0.15s ease-out,
+    text-decoration-color 0.15s ease-out;
 }
 
 .marked-lg a:hover,
+.marked-md a:hover,
 .marked-sm a:hover,
 .marked-xs a:hover,
 .marked-xxs a:hover {
   @apply text-primary-300;
-  text-decoration-color: theme("colors.primary.500");
+  text-decoration-color: rgb(190 151 110 / 0.7);
 }
 
 /* ── Inline code ────────────────────────────────────────────────────── */
 .marked-lg code,
+.marked-md code,
 .marked-sm code,
 .marked-xs code,
 .marked-xxs code {
-  @apply font-mono not-italic text-foreground-300 bg-background-800 rounded px-1;
-  border: 1px solid rgb(255 255 255 / 0.08);
+  @apply font-mono not-italic text-foreground-300 rounded px-1.5 py-0.5;
+  background: rgb(255 255 255 / 0.04);
+  border: 1px solid rgb(255 255 255 / 0.05);
 }
 
 /* ── Code blocks ────────────────────────────────────────────────────── */
 .marked-lg pre,
+.marked-md pre,
 .marked-sm pre,
 .marked-xs pre,
 .marked-xxs pre {
-  @apply bg-background-800 rounded-md px-4 py-3 overflow-x-auto my-3;
-  border: 1px solid rgb(255 255 255 / 0.08);
+  @apply rounded-lg px-4 py-3 overflow-x-auto my-3;
+  background: rgb(255 255 255 / 0.02);
+  border: 1px solid rgb(255 255 255 / 0.05);
 }
 
-/* Reset inline code styles inside a pre block */
+/* Reset inline-code styles inside a pre block */
 .marked-lg pre code,
+.marked-md pre code,
 .marked-sm pre code,
 .marked-xs pre code,
 .marked-xxs pre code {
-  @apply bg-transparent p-0 text-foreground-300;
+  @apply bg-transparent p-0 text-foreground-400;
   border: none;
 }
 
 /* ── Blockquote ─────────────────────────────────────────────────────── */
 .marked-lg blockquote,
+.marked-md blockquote,
 .marked-sm blockquote,
 .marked-xs blockquote,
 .marked-xxs blockquote {
-  @apply pl-3 italic text-foreground-600 my-3;
-  border-left: 2px solid theme("colors.primary.700");
+  @apply pl-4 my-3 text-foreground-500;
+  border-left: 2px solid rgb(255 255 255 / 0.08);
 }
 
 /* ── Horizontal rule ────────────────────────────────────────────────── */
 .marked-lg hr,
+.marked-md hr,
 .marked-sm hr,
 .marked-xs hr,
 .marked-xxs hr {
-  @apply my-4;
+  @apply my-5;
   border: none;
-  border-top: 1px solid theme("colors.divider.DEFAULT");
-  opacity: 0.4;
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    rgb(255 255 255 / 0.06),
+    transparent
+  );
 }
 
 /* ── Lists ──────────────────────────────────────────────────────────── */
 .marked-lg ul,
+.marked-md ul,
 .marked-sm ul,
 .marked-xs ul,
 .marked-xxs ul {
-  @apply list-disc pl-5;
+  @apply list-disc pl-5 my-2;
 }
 
 .marked-lg ol,
+.marked-md ol,
 .marked-sm ol,
 .marked-xs ol,
 .marked-xxs ol {
-  @apply list-decimal pl-5;
+  @apply list-decimal pl-5 my-2;
+}
+
+.marked-lg li,
+.marked-md li,
+.marked-sm li,
+.marked-xs li,
+.marked-xxs li {
+  @apply text-foreground-500;
 }
 
 .marked-lg li + li,
+.marked-md li + li,
 .marked-sm li + li,
 .marked-xs li + li,
 .marked-xxs li + li {
   @apply mt-1;
 }
 
+.marked-lg li::marker,
+.marked-md li::marker,
+.marked-sm li::marker,
+.marked-xs li::marker,
+.marked-xxs li::marker {
+  @apply text-foreground-700;
+}
+
 /* ── Tables ─────────────────────────────────────────────────────────── */
 .marked-lg table,
+.marked-md table,
 .marked-sm table,
 .marked-xs table,
 .marked-xxs table {
-  @apply w-full border-collapse my-3;
+  @apply w-full border-collapse my-3 rounded-lg overflow-hidden;
+  border: 1px solid rgb(255 255 255 / 0.05);
 }
 
 .marked-lg th,
+.marked-md th,
 .marked-sm th,
 .marked-xs th,
 .marked-xxs th {
-  @apply px-3 py-1.5 text-left font-bold text-foreground-300;
-  border: 1px solid theme("colors.divider.DEFAULT");
-  background: rgb(20 20 21 / 0.6);
+  @apply px-3 py-2 text-left font-semibold text-foreground-400;
+  background: rgb(255 255 255 / 0.02);
+  border-bottom: 1px solid rgb(255 255 255 / 0.05);
 }
 
 .marked-lg td,
+.marked-md td,
 .marked-sm td,
 .marked-xs td,
 .marked-xxs td {
-  @apply px-3 py-1.5 text-foreground-500;
-  border: 1px solid theme("colors.divider.DEFAULT");
+  @apply px-3 py-2 text-foreground-500;
+  border-bottom: 1px solid rgb(255 255 255 / 0.03);
+}
+
+.marked-lg tr:last-child td,
+.marked-md tr:last-child td,
+.marked-sm tr:last-child td,
+.marked-xs tr:last-child td,
+.marked-xxs tr:last-child td {
+  border-bottom: none;
+}
+
+/* ── Images ─────────────────────────────────────────────────────────── */
+.marked-lg img,
+.marked-md img,
+.marked-sm img,
+.marked-xs img,
+.marked-xxs img {
+  @apply rounded-lg my-3 max-w-full;
+  border: 1px solid rgb(255 255 255 / 0.05);
 }
 
 /* ── Heading colors ─────────────────────────────────────────────────── */
 .marked-lg h1,
+.marked-md h1,
 .marked-sm h1,
 .marked-xs h1,
 .marked-xxs h1 {
-  @apply font-black text-foreground-100;
+  @apply font-bold text-foreground-100;
 }
 
 .marked-lg h2,
+.marked-md h2,
 .marked-sm h2,
 .marked-xs h2,
 .marked-xxs h2 {
-  @apply font-bold text-foreground-200;
+  @apply font-semibold text-foreground-200;
 }
 
 .marked-lg h3,
+.marked-md h3,
 .marked-sm h3,
 .marked-xs h3,
 .marked-xxs h3 {
-  @apply font-bold text-foreground-300;
+  @apply font-semibold text-foreground-300;
 }
 
 .marked-lg h4,
 .marked-lg h5,
 .marked-lg h6,
+.marked-md h4,
+.marked-md h5,
+.marked-md h6,
 .marked-sm h4,
 .marked-sm h5,
 .marked-sm h6,
@@ -210,7 +285,7 @@ body {
 .marked-xxs h4,
 .marked-xxs h5,
 .marked-xxs h6 {
-  @apply font-semibold text-foreground-400;
+  @apply font-medium text-foreground-400;
 }
 
 /* ── Heading spacing ────────────────────────────────────────────────── */
@@ -220,6 +295,15 @@ body {
 .marked-lg h4,
 .marked-lg h5,
 .marked-lg h6 {
+  @apply mt-6 mb-2;
+}
+
+.marked-md h1,
+.marked-md h2,
+.marked-md h3,
+.marked-md h4,
+.marked-md h5,
+.marked-md h6 {
   @apply mt-5 mb-2;
 }
 
@@ -229,7 +313,7 @@ body {
 .marked-sm h4,
 .marked-sm h5,
 .marked-sm h6 {
-  @apply mt-4 mb-1;
+  @apply mt-4 mb-1.5;
 }
 
 .marked-xs h1,
@@ -244,26 +328,39 @@ body {
 .marked-xxs h4,
 .marked-xxs h5,
 .marked-xxs h6 {
-  @apply mt-2 mb-0.5;
+  @apply mt-3 mb-1;
+}
+
+/* First child in container — no top margin */
+.marked-lg > :first-child,
+.marked-md > :first-child,
+.marked-sm > :first-child,
+.marked-xs > :first-child,
+.marked-xxs > :first-child {
+  @apply mt-0;
 }
 
 /* ── Paragraph spacing ──────────────────────────────────────────────── */
 .marked-lg p,
+.marked-md p,
 .marked-sm p,
 .marked-xs p,
 .marked-xxs p {
-  @apply leading-relaxed;
+  @apply leading-relaxed text-foreground-500;
 }
 
 .marked-lg p + p {
   @apply mt-3;
+}
+.marked-md p + p {
+  @apply mt-2.5;
 }
 .marked-sm p + p {
   @apply mt-2;
 }
 .marked-xs p + p,
 .marked-xxs p + p {
-  @apply mt-1;
+  @apply mt-1.5;
 }
 
 /* ─────────────────────────────────────────────────────────────────────────
@@ -271,39 +368,66 @@ body {
    ───────────────────────────────────────────────────────────────────────── */
 
 /* marked-lg ────────────────────────────────────────────────────────── */
-.marked-lg a {
+.marked-lg {
   @apply text-base;
 }
 .marked-lg code {
-  @apply text-sm;
+  @apply text-[13px];
 }
 .marked-lg pre {
   @apply text-sm;
 }
 .marked-lg h1 {
-  @apply text-2xl;
-}
-.marked-lg h2 {
   @apply text-xl;
 }
-.marked-lg h3 {
+.marked-lg h2 {
   @apply text-lg;
+}
+.marked-lg h3 {
+  @apply text-base;
 }
 .marked-lg h4,
 .marked-lg h5,
 .marked-lg h6 {
+  @apply text-sm;
+}
+.marked-lg th,
+.marked-lg td {
+  @apply text-sm;
+}
+
+/* marked-md ────────────────────────────────────────────────────────── */
+.marked-md {
+  @apply text-sm;
+}
+.marked-md code {
+  @apply text-xs;
+}
+.marked-md pre {
+  @apply text-xs;
+}
+.marked-md h1 {
+  @apply text-lg;
+}
+.marked-md h2 {
   @apply text-base;
 }
-.marked-lg p {
-  @apply text-base;
+.marked-md h3 {
+  @apply text-sm;
 }
-.marked-lg li {
-  @apply text-base;
+.marked-md h4,
+.marked-md h5,
+.marked-md h6 {
+  @apply text-sm;
+}
+.marked-md th,
+.marked-md td {
+  @apply text-xs;
 }
 
 /* marked-sm ────────────────────────────────────────────────────────── */
-.marked-sm a {
-  @apply text-sm;
+.marked-sm {
+  @apply text-[13px];
 }
 .marked-sm code {
   @apply text-xs;
@@ -312,59 +436,49 @@ body {
   @apply text-xs;
 }
 .marked-sm h1 {
-  @apply text-lg;
-}
-.marked-sm h2 {
   @apply text-base;
 }
-.marked-sm h3 {
+.marked-sm h2 {
   @apply text-sm;
 }
+.marked-sm h3,
 .marked-sm h4,
 .marked-sm h5,
 .marked-sm h6 {
-  @apply text-sm;
+  @apply text-[13px];
 }
-.marked-sm p {
-  @apply text-sm;
-}
-.marked-sm li {
-  @apply text-sm;
+.marked-sm th,
+.marked-sm td {
+  @apply text-xs;
 }
 
 /* marked-xs ────────────────────────────────────────────────────────── */
-.marked-xs a {
+.marked-xs {
   @apply text-xs;
 }
 .marked-xs code {
-  @apply text-xxs;
+  @apply text-[10px];
 }
 .marked-xs pre {
-  @apply text-xxs;
+  @apply text-[11px];
 }
 .marked-xs h1 {
-  @apply text-base;
-}
-.marked-xs h2 {
   @apply text-sm;
 }
-.marked-xs h3 {
-  @apply text-xs;
-}
+.marked-xs h2,
+.marked-xs h3,
 .marked-xs h4,
 .marked-xs h5,
 .marked-xs h6 {
   @apply text-xs;
 }
-.marked-xs p {
-  @apply text-xs;
-}
-.marked-xs li {
-  @apply text-xs;
+.marked-xs th,
+.marked-xs td {
+  @apply text-[11px];
 }
 
 /* marked-xxs ───────────────────────────────────────────────────────── */
-.marked-xxs a {
+.marked-xxs {
   @apply text-xxs;
 }
 .marked-xxs code {
@@ -374,22 +488,16 @@ body {
   @apply text-xxs;
 }
 .marked-xxs h1 {
-  @apply text-sm;
-}
-.marked-xxs h2 {
   @apply text-xs;
 }
-.marked-xxs h3 {
-  @apply text-xxs;
-}
+.marked-xxs h2,
+.marked-xxs h3,
 .marked-xxs h4,
 .marked-xxs h5,
 .marked-xxs h6 {
   @apply text-xxs;
 }
-.marked-xxs p {
-  @apply text-xxs;
-}
-.marked-xxs li {
+.marked-xxs th,
+.marked-xxs td {
   @apply text-xxs;
 }

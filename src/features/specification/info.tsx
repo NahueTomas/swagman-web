@@ -357,7 +357,7 @@ export default function Info() {
               Documentation
             </SectionTitle>
             <SanitizedMarkdown
-              className="marked-lg text-foreground-500"
+              className="marked-md text-foreground-500"
               content={description || ""}
             />
           </main>
