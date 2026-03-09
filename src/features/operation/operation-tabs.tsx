@@ -125,7 +125,8 @@ export const OperationTabs = observer(
 
               {/* Empty State */}
               {operation.getPathParameters().length === 0 &&
-                operation.getQueryParameters().length === 0 && (
+                operation.getQueryParameters().length === 0 &&
+                querySecurities.length === 0 && (
                   <div className="flex flex-col items-center justify-center gap-3 py-10 border border-dashed border-white/[0.06] rounded-lg">
                     <ParametersIcon className="size-4 text-foreground-800" />
                     <p className="text-[11px] text-foreground-700">
