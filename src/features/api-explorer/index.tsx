@@ -362,7 +362,7 @@ const PinnedSection = ({
             deprecated={op.deprecated}
             isPinned={true}
             method={op.method}
-            title={op.summary || op.path}
+            title={op.operationId || op.path}
             onClick={() => focusOperation(op.id)}
             onTogglePin={() => togglePin(specKey, op.id)}
           />
