@@ -69,6 +69,7 @@ export const ApiExplorer = observer(() => {
     if (resetTimeoutRef.current) clearTimeout(resetTimeoutRef.current);
     setIsResetting(false);
     useCacheStore.getState().clearSpec(spec.specKey);
+    usePinStore.getState().clearPins(spec.specKey);
     spec.resetAll();
     setSpec(spec);
   };
