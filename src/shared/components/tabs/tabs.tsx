@@ -1,5 +1,6 @@
 import React, {
   useId,
+  useMemo,
   useEffect,
   useRef,
   useLayoutEffect,
@@ -41,6 +42,10 @@ export const Tabs = ({
   const tabs = React.Children.toArray(
     children
   ) as React.ReactElement<TabProps>[];
+
+  // React.Children.toArray prefixes keys with ".$", strip it for clean matching
+  const normalizeKey = (key: string | null | undefined) =>
+    key?.replace(/^\.\$/, "") ?? "";
   const baseId = useId();
 
   // Refs for measuring tab positions
@@ -49,21 +54,29 @@ export const Tabs = ({
   const [indicator, setIndicator] = useState({ left: 0, width: 0 });
   const hasAnimated = useRef(false);
 
-  useEffect(() => {
-    const validKeys = tabs.map((t) => t.key?.toString());
+  // Compute effective key synchronously so the first tab is selected on initial render
+  const effectiveKey = useMemo(() => {
+    const validKeys = tabs.map((t) => normalizeKey(t.key));
 
-    if (!selectedKey || !validKeys.includes(selectedKey)) {
-      const firstTab = tabs.find((t) => !t.props.isDisabled);
-
-      if (firstTab && firstTab.key) {
-        onSelectionChange(firstTab.key.toString());
-      }
+    if (selectedKey && validKeys.includes(selectedKey)) {
+      return selectedKey;
     }
-  }, [selectedKey, children, onSelectionChange]);
+
+    const firstTab = tabs.find((t) => !t.props.isDisabled);
+
+    return normalizeKey(firstTab?.key) || selectedKey;
+  }, [selectedKey, tabs]);
+
+  // Notify the parent when the effective key differs from the passed-in key
+  useEffect(() => {
+    if (effectiveKey !== selectedKey) {
+      onSelectionChange(effectiveKey);
+    }
+  }, [effectiveKey, selectedKey, onSelectionChange]);
 
   // Measure active tab and update indicator position
   useLayoutEffect(() => {
-    const activeButton = tabRefs.current.get(selectedKey);
+    const activeButton = tabRefs.current.get(effectiveKey);
     const tabList = tabListRef.current;
 
     if (activeButton && tabList) {
@@ -82,9 +95,9 @@ export const Tabs = ({
         });
       }
     }
-  }, [selectedKey, children]);
+  }, [effectiveKey, children]);
 
-  const activeTab = tabs.find((tab) => tab.key?.toString() === selectedKey);
+  const activeTab = tabs.find((tab) => normalizeKey(tab.key) === effectiveKey);
 
   return (
     <div className={cn("w-full flex flex-col", className)}>
@@ -99,8 +112,8 @@ export const Tabs = ({
         role="tablist"
       >
         {tabs.map((tab) => {
-          const tabKey = tab.key?.toString() || "";
-          const isActive = selectedKey === tabKey;
+          const tabKey = normalizeKey(tab.key);
+          const isActive = effectiveKey === tabKey;
           const { isDisabled } = tab.props;
 
           return (
@@ -132,7 +145,7 @@ export const Tabs = ({
               onKeyDown={(e) => {
                 const enabledTabs = tabs.filter((t) => !t.props.isDisabled);
                 const currentIdx = enabledTabs.findIndex(
-                  (t) => t.key?.toString() === tabKey
+                  (t) => normalizeKey(t.key) === tabKey
                 );
 
                 let targetIdx = -1;
@@ -150,8 +163,7 @@ export const Tabs = ({
 
                 if (targetIdx >= 0) {
                   e.preventDefault();
-                  const targetKey =
-                    enabledTabs[targetIdx].key?.toString() ?? "";
+                  const targetKey = normalizeKey(enabledTabs[targetIdx].key);
 
                   onSelectionChange(targetKey);
                   tabRefs.current.get(targetKey)?.focus();
@@ -185,12 +197,12 @@ export const Tabs = ({
 
       {/* Tab Panel */}
       <div
-        aria-labelledby={`${baseId}-tab-${selectedKey}`}
+        aria-labelledby={`${baseId}-tab-${effectiveKey}`}
         className={cn(
           "animate-in fade-in slide-in-from-top-1 duration-300 outline-none",
           classNames?.panel
         )}
-        id={`${baseId}-panel-${selectedKey}`}
+        id={`${baseId}-panel-${effectiveKey}`}
         role="tabpanel"
         tabIndex={0}
       >
