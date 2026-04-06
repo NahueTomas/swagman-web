@@ -44,11 +44,16 @@
   scrollbar-color: #414143 #202021;
 }
 
+html {
+  overscroll-behavior: none;
+}
+
 body {
   @apply bg-background text-foreground antialiased selection:bg-primary-500/30 selection:text-primary-50;
   font-feature-settings: "ss01", "ss02", "cv01";
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overscroll-behavior: none;
 }
 
 /* ─────────────────────────────────────────────────────────────────────────
