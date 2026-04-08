@@ -79,7 +79,7 @@ export const ApiExplorer = observer(() => {
       <Resizable axis="x" defaultWidth={320}>
         <div className="flex flex-col h-full w-full pt-5 px-4">
           {/* TOP FIXED HEADER */}
-          <div className="pb-4 border-b border-white/[0.05] mb-5">
+          <div className="pb-4 border-b border-white/[0.05] mb-4">
             <div className="flex flex-col gap-4">
               {/* BRANDING + ACTIONS */}
               <div className="flex items-center justify-between px-0.5 select-none">
