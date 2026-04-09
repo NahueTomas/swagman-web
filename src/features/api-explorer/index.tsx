@@ -69,6 +69,7 @@ export const ApiExplorer = observer(() => {
     if (resetTimeoutRef.current) clearTimeout(resetTimeoutRef.current);
     setIsResetting(false);
     useCacheStore.getState().clearSpec(spec.specKey);
+    usePinStore.getState().clearPins(spec.specKey);
     spec.resetAll();
     setSpec(spec);
   };
@@ -78,7 +79,7 @@ export const ApiExplorer = observer(() => {
       <Resizable axis="x" defaultWidth={320}>
         <div className="flex flex-col h-full w-full pt-5 px-4">
           {/* TOP FIXED HEADER */}
-          <div className="pb-4 border-b border-white/[0.05] mb-5">
+          <div className="pb-4 border-b border-white/[0.05] mb-4">
             <div className="flex flex-col gap-4">
               {/* BRANDING + ACTIONS */}
               <div className="flex items-center justify-between px-0.5 select-none">
@@ -361,7 +362,7 @@ const PinnedSection = ({
             deprecated={op.deprecated}
             isPinned={true}
             method={op.method}
-            title={op.summary || op.path}
+            title={op.operationId || op.path}
             onClick={() => focusOperation(op.id)}
             onTogglePin={() => togglePin(specKey, op.id)}
           />

@@ -8,6 +8,7 @@ interface PinState {
   togglePin: (specKey: string, operationId: string) => void;
   isPinned: (specKey: string, operationId: string) => boolean;
   getPins: (specKey: string) => string[];
+  clearPins: (specKey: string) => void;
 }
 
 export const usePinStore = create<PinState>()(
@@ -37,6 +38,15 @@ export const usePinStore = create<PinState>()(
 
       getPins: (specKey) => {
         return get().pins[specKey] || [];
+      },
+
+      clearPins: (specKey) => {
+        set((state) => {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          const { [specKey]: _, ...rest } = state.pins;
+
+          return { pins: rest };
+        });
       },
     }),
     {

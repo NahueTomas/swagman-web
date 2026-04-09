@@ -83,7 +83,7 @@ export const ApiExplorerTaggedItem = ({
         )}
 
         <button
-          className="flex-1 min-w-0 px-4 py-2 text-left active:scale-[0.99] outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded-md"
+          className="flex-1 min-w-0 pl-4 pr-1 py-2 text-left active:scale-[0.99] outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded-md"
           type="button"
           onClick={onClick}
         >
